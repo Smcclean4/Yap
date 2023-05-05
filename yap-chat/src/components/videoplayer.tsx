@@ -13,7 +13,6 @@ const Videoplayer = ({ url }: VideoPlayerTypes) => {
         wistia: {
           options: {
             endVideoBehavior: "loop",
-            qualityMin: 3840,
             controlsVisibleOnLoad: false,
             playButton: false,
             playPauseNotifier: false,

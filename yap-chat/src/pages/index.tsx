@@ -2,16 +2,13 @@ import { type NextPage } from "next";
 import Videoplayer from "~/components/videoplayer";
 import { Header } from "~/components/header";
 import { Footer } from "~/components/footer";
-import { useState } from "react";
 import { LoginForm } from "~/components/login";
-import { RegisterForm } from "~/components/register";
+import { LogoutForm } from "~/components/logout";
+import { useSession } from "next-auth/react";
 
 const Home: NextPage = () => {
-  const [homeForm, setHomeForm] = useState(true)
+  const { data: session } = useSession();
 
-  const changeHomeForm = () => {
-    setHomeForm(!homeForm)
-  }
   return (
     <div>
       <Header />
@@ -24,8 +21,12 @@ const Home: NextPage = () => {
         </div>
         <div className="min-h-screen flex flex-col justify-center text-center items-center font-extralight text-white">
           {/* ternary for either login or register fields to be shown */}
-          {homeForm ? <LoginForm /> : <RegisterForm />}
-          <button onClick={changeHomeForm}>{homeForm ? <p className="animate-pulse">New user? Click here to register.</p> : <p className="animate-pulse">Returning user? Click here to login.</p>}</button>
+          {session ? (
+            <>
+              <LogoutForm />
+              <p>Logged in as {session.user.email}</p>
+            </>
+          ) : <LoginForm />}
         </div>
       </div>
       <Footer />
