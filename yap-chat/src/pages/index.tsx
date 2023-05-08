@@ -3,11 +3,16 @@ import Videoplayer from "~/components/videoplayer";
 import { Header } from "~/components/header";
 import { Footer } from "~/components/footer";
 import { LoginForm } from "~/components/login";
-import { LogoutForm } from "~/components/logout";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleLogin = () => {
+    router.push("/home")
+  }
 
   return (
     <div>
@@ -23,8 +28,7 @@ const Home: NextPage = () => {
           {/* ternary for either login or register fields to be shown */}
           {session ? (
             <>
-              <LogoutForm />
-              <p>Logged in as {session.user.email}</p>
+              {handleLogin()}
             </>
           ) : <LoginForm />}
         </div>

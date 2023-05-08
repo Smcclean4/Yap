@@ -2,9 +2,10 @@ import React from 'react'
 import { signOut } from 'next-auth/react';
 
 export const LogoutForm = () => {
+
   const handleLogout = (event: { preventDefault: () => void; }) => {
     event?.preventDefault();
-    signOut();
+    signOut({ callbackUrl: '/' });
   }
 
   return (
