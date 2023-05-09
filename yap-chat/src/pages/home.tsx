@@ -1,15 +1,14 @@
 import React from 'react'
-import { useSession } from 'next-auth/react'
-import { LogoutForm } from '~/components/logout';
+import { Layout } from '~/components/layout'
 
 const HomePage = () => {
-  const { data: session }: any = useSession();
 
   return (
-    <div className="flex flex-col justify-center items-center text-center">
-      <LogoutForm />
-      <p>Logged in as {session.user.email}</p>
-    </div>
+    <Layout>
+      <div className="w-full flex flex-col justify-center items-center border-red-600 border-2">
+        <p>HOME</p>
+      </div>
+    </Layout>
   )
 }
 

@@ -25,10 +25,10 @@ const Home: NextPage = () => {
           <p className="text-3xl">Diversify your <span className="font-extrabold text-yellow-600">Network</span>.</p>
         </div>
         <div className="min-h-screen flex flex-col justify-center text-center items-center font-extralight text-white">
-          {/* ternary for either login or register fields to be shown */}
           {session ? (
             <>
-              {handleLogin()}
+              <button className="m-3 rounded-full bg-blue-500 mx-auto px-6 py-2" onClick={handleLogin}>Go to Home</button>
+              <p>Logged in as {session.user.email}</p>
             </>
           ) : <LoginForm />}
         </div>
