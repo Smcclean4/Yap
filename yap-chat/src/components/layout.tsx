@@ -13,7 +13,7 @@ export const Layout = ({ children }: Props) => {
   return (
     <div className="h-screen w-full">
       <TopNav />
-      <div className="h-full flex flex-row">
+      <div className="flex flex-row h-full">
         <SidebarNav user={session?.user.email} />
         {children}
       </div>

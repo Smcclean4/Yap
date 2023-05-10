@@ -8,7 +8,7 @@ config.autoAddCss = false;
 
 export const TopNav = () => {
   return (
-    <div className="flex justify-between flex-row flex-grow bg-blue-500 fixed w-full text-white">
+    <div className="flex justify-between flex-row flex-grow bg-blue-500 w-full text-white absolute">
       <p className="text-7xl m-2 p-4">Yap.</p>
       <ul className="flex flex-row items-center">
         <div className="flex flex-col cursor-pointer text-center">
