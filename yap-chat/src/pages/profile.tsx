@@ -47,7 +47,7 @@ const ProfilePage = () => {
                 <p className="text-xl underline mb-2">Username</p>
                 <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData.username} />
               </div>
-            ) : <p className="text-xl">Username: <b>@{profileData.username}</b></p>}
+            ) : <p className="text-xl">Username: <b>@{profileData.username === "" ? <p className="text-red-500">Set Your Username</p> : profileData.username}</b></p>}
           </div>
           <div className="my-2 w-full flex flex-col justify-center items-center">
             {editMode ? (
@@ -58,7 +58,7 @@ const ProfilePage = () => {
             ) : (
               <div className="w-1/2">
                 <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Heading</p>
-                <p className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading}</p>
+                <p className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading === "" ? <p className="text-red-500">Set Your Heading</p> : profileData.heading}</p>
               </div>
             )}
           </div>
@@ -71,7 +71,7 @@ const ProfilePage = () => {
             ) : (
               <div className="w-2/3 max-h-48">
                 <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
-                <p className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio}</p>
+                <p className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === "" ? <p className="text-red-500">Set Your Bio</p> : profileData.bio}</p>
               </div>
             )}
           </div>
