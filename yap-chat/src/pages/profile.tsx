@@ -1,10 +1,16 @@
-import { profile } from 'console';
 import Image from 'next/image';
 import React, { useState } from 'react'
 import { Layout } from '~/components/layout'
 
 const ProfilePage = () => {
-  const [profileData, setProfileData]: any = useState({
+  interface ProfileInterface {
+    image: undefined;
+    username: string;
+    heading: string;
+    bio: string;
+  }
+
+  const [profileData, setProfileData]: any = useState<ProfileInterface>({
     image: undefined,
     username: '',
     heading: '',
@@ -33,11 +39,11 @@ const ProfilePage = () => {
 
   return (
     <Layout>
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
+      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200 flex-wrap">
         <div className="w-3/4 text-center flex flex-col justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={profileData.image ?? "/kid-ghost-drawing.jpg"} alt='' height="200" width="200" />
+              <Image src={profileData.image ?? "/ezgif.com-webp-to-jpg.jpg"} alt='' height="200" width="200" />
             </div>
             {editMode && <input className="my-6 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>
