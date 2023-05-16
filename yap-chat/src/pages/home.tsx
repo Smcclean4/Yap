@@ -11,29 +11,9 @@ const HomePage = () => {
 
   const exampleUpdate: UpdateInterface[] = [
     {
-      heading: 'Money',
-      description: 'get to it'
+      heading: 'Lorem ipsum news heading',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam feugiat risus malesuada est tempor convallis. Cras ac augue sit amet dui rutrum scelerisque. Aenean pretium, nibh et tempor porttitor, ipsum elit gravida sapien, ac laoreet massa ipsum non eros. Quisque venenatis pulvinar dictum. Aenean nisl odio, interdum a tristique eu, faucibus ac nibh. Vivamus interdum venenatis commodo. Sed malesuada quam id ex consectetur mattis. Morbi vel pretium orci. Duis quis dignissim eros, in sagittis eros. Fusce et imperdiet dui. Sed porttitor ultricies finibus. Integer luctus pretium massa, in tincidunt nunc dignissim at. Nulla elementum diam in quam sollicitudin, id efficitur arcu fermentum. Duis viverra volutpat orci, ut laoreet lacus.'
     },
-    {
-      heading: 'Cash',
-      description: 'gone do it'
-    },
-    {
-      heading: 'Bag',
-      description: 'gotta get it'
-    },
-    {
-      heading: 'money',
-      description: 'get to it'
-    },
-    {
-      heading: 'Cash',
-      description: 'gone do it'
-    },
-    {
-      heading: 'Bag',
-      description: 'gotta get it'
-    }
   ]
 
   useEffect(() => {
@@ -50,7 +30,7 @@ const HomePage = () => {
         </div>
         <div className="bg-gray-900/[0.8] mt-16 mb-2 h-72 w-3/5 text-white flex flex-col justify-center items-center text-2xl overflow-auto rounded-lg">
           <div className="py-5 h-full w-4/5">
-            <p className="underline text-center text-4xl"><b>Recent News</b></p>
+            <p className="underline text-center text-4xl mb-6"><b>Recent News</b></p>
             {homeUpdates?.map((content: { heading: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; description: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key | null | undefined) => {
               return (
                 <div key={idx}>

@@ -1,20 +1,21 @@
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Layout } from '~/components/layout'
 
 const ProfilePage = () => {
+
   interface ProfileInterface {
-    image: undefined;
+    image: string;
     username: string;
     heading: string;
     bio: string;
   }
 
-  const [profileData, setProfileData]: any = useState<ProfileInterface>({
-    image: undefined,
+  const [profileData, setProfileData] = useState<ProfileInterface>({
+    image: '',
     username: '',
     heading: '',
-    bio: '',
+    bio: ''
   })
 
   const [editMode, setEditMode] = useState(false)
@@ -33,17 +34,28 @@ const ProfilePage = () => {
 
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
-    const imageUrl = URL.createObjectURL(file);
+    const imageUrl = URL.createObjectURL(file)
     setProfileData({ ...profileData, [input.name]: imageUrl })
   }
 
+  useEffect(() => {
+    const profileStorage = JSON.parse(localStorage.getItem('profileData') || '{}')
+    if (profileStorage) {
+      setProfileData(profileStorage)
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('profileData', JSON.stringify(profileData))
+  }, [profileData])
+
   return (
     <Layout>
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200 flex-wrap">
-        <div className="w-3/4 text-center flex flex-col justify-center items-center">
+      <div className="w-full flex justify-center items-center mt-28 bg-gray-200 flex-wrap">
+        <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={profileData.image ?? "/ezgif.com-webp-to-jpg.jpg"} alt='' height="200" width="200" />
+              <Image src={profileData.image === "" ? "/ezgif.com-webp-to-jpg.jpg" : profileData.image} alt='' height="200" width="200" priority />
             </div>
             {editMode && <input className="my-6 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>
@@ -53,7 +65,7 @@ const ProfilePage = () => {
                 <p className="text-xl underline mb-2">Username</p>
                 <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData.username} />
               </div>
-            ) : <p className="text-xl">Username: <b>@{profileData.username === "" ? <p className="text-red-500">Set Your Username</p> : profileData.username}</b></p>}
+            ) : <p className="text-xl"><b>@{profileData.username === "" ? <span className="text-red-500">Set Your Username</span> : profileData.username}</b></p>}
           </div>
           <div className="my-2 w-full flex flex-col justify-center items-center">
             {editMode ? (
@@ -64,7 +76,7 @@ const ProfilePage = () => {
             ) : (
               <div className="w-1/2">
                 <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Heading</p>
-                <p className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading === "" ? <p className="text-red-500">Set Your Heading</p> : profileData.heading}</p>
+                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading === "" ? <p className="text-red-500">Set Your Heading</p> : profileData.heading}</div>
               </div>
             )}
           </div>
@@ -77,7 +89,7 @@ const ProfilePage = () => {
             ) : (
               <div className="w-2/3 max-h-48">
                 <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
-                <p className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === "" ? <p className="text-red-500">Set Your Bio</p> : profileData.bio}</p>
+                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === "" ? <p className="text-red-500">Set Your Bio</p> : profileData.bio}</div>
               </div>
             )}
           </div>
