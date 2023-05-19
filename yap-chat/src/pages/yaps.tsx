@@ -17,8 +17,8 @@ const YapsPage = () => {
     message: ''
   })
 
-  const onLike = (idx: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-    setLiked((val, i) => i === idx ? !val : val)
+  const onLike = () => {
+    setLiked(!liked)
   }
 
   const onUserAdd = () => {
@@ -38,6 +38,7 @@ const YapsPage = () => {
     console.log(personalYap)
     const messages = yaps?.map((yaps: { message: any }) => yaps.message)
     console.log(messages)
+    console.log(liked)
   }, [personalYap])
 
   return (
@@ -50,7 +51,7 @@ const YapsPage = () => {
                 <Image className="m-6" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                 <p className="text-2xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={(idx) => onLike(idx)} color={liked ? "red" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={onLike} color={liked ? "red" : "white"} size="2x" />
                   <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={onUserAdd} color={addFriend ? "skyblue" : "white"} size="2x" />
                 </div>
               </div>
