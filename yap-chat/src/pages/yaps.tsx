@@ -34,13 +34,6 @@ const YapsPage = () => {
     setPersonalYap({ message: '' })
   }
 
-  useEffect(() => {
-    console.log(personalYap)
-    const messages = yaps?.map((yaps: { message: any }) => yaps.message)
-    console.log(messages)
-    console.log(liked)
-  }, [personalYap])
-
   return (
     <Layout>
       <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
