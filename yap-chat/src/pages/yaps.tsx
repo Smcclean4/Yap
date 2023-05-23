@@ -1,24 +1,33 @@
 import { faHeart, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Image from 'next/image'
-import React, { SetStateAction, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Layout } from '~/components/layout'
 
 const YapsPage = () => {
   interface YapInterface {
     message: string
+    liked: boolean
   }
 
   const [yaps, setYaps]: Array<any> = useState([])
-  const [liked, setLiked] = useState(false);
   const [addFriend, setAddFriend] = useState(false);
 
   const [personalYap, setPersonalYap] = useState<YapInterface>({
-    message: ''
+    message: '',
+    liked: false
   })
 
-  const onLike = () => {
-    setLiked(!liked)
+  const onLike = (idx: React.Key) => {
+    setYaps((state: any) => state?.map((yap: any, i: any) => {
+      return i === idx ? { ...yap, liked: true } : yap
+    }))
+  }
+
+  const onUnlike = (idx: React.Key) => {
+    setYaps((state: any) => state?.map((yap: any, i: any) => {
+      return i === idx ? { ...yap, liked: false } : yap
+    }))
   }
 
   const onUserAdd = () => {
@@ -31,8 +40,19 @@ const YapsPage = () => {
 
   const handleYapSend = () => {
     setYaps([...yaps, personalYap])
-    setPersonalYap({ message: '' })
+    setPersonalYap({ ...personalYap, message: '' })
   }
+
+  useEffect(() => {
+    const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
+    if (yapsStorage) {
+      setYaps(yapsStorage)
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('yapsData', JSON.stringify(yaps))
+  }, [yaps])
 
   return (
     <Layout>
@@ -44,7 +64,7 @@ const YapsPage = () => {
                 <Image className="m-6" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                 <p className="text-2xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={onLike} color={liked ? "red" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => yaps[idx].liked ? onUnlike(idx) : onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="2x" />
                   <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={onUserAdd} color={addFriend ? "skyblue" : "white"} size="2x" />
                 </div>
               </div>
