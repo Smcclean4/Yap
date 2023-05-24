@@ -8,14 +8,15 @@ const YapsPage = () => {
   interface YapInterface {
     message: string
     liked: boolean
+    friend: boolean
   }
 
   const [yaps, setYaps]: Array<any> = useState([])
-  const [addFriend, setAddFriend] = useState(false);
 
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     message: '',
-    liked: false
+    liked: false,
+    friend: false
   })
 
   const onLike = (idx: React.Key) => {
@@ -30,8 +31,16 @@ const YapsPage = () => {
     }))
   }
 
-  const onUserAdd = () => {
-    setAddFriend(!addFriend)
+  const onAddFriend = (idx: React.Key) => {
+    setYaps((state: any) => state?.map((yap: any, i: any) => {
+      return i === idx ? { ...yap, friend: true } : yap
+    }))
+  }
+
+  const onRemoveFriend = (idx: React.Key) => {
+    setYaps((state: any) => state?.map((yap: any, i: any) => {
+      return i === idx ? { ...yap, friend: false } : yap
+    }))
   }
 
   const handleYapDisplay = ({ target: input }: any) => {
@@ -65,7 +74,7 @@ const YapsPage = () => {
                 <p className="text-2xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
                   <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => yaps[idx].liked ? onUnlike(idx) : onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="2x" />
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={onUserAdd} color={addFriend ? "skyblue" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => yaps[idx].friend ? onRemoveFriend(idx) : onAddFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="2x" />
                 </div>
               </div>
             )
