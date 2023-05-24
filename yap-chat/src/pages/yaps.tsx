@@ -26,25 +26,25 @@ const YapsPage = () => {
   const { isShowing, toggle } = useModal();
 
   const onLike = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: any, i: any) => {
+    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
       return i === idx ? { ...yap, liked: true } : yap
     }))
   }
 
   const onUnlike = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: any, i: any) => {
+    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
       return i === idx ? { ...yap, liked: false } : yap
     }))
   }
 
   const onAddFriend = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: any, i: any) => {
+    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
       return i === idx ? { ...yap, friend: true } : yap
     }))
   }
 
   const onRemoveFriend = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: any, i: any) => {
+    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
       return i === idx ? { ...yap, friend: false } : yap
     }))
   }
