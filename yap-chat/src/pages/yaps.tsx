@@ -2,7 +2,9 @@ import { faHeart, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import { useModal } from '~/hooks/useModal'
 import { Layout } from '~/components/layout'
+import { useSession } from 'next-auth/react'
 
 const YapsPage = () => {
   interface YapInterface {
@@ -13,11 +15,15 @@ const YapsPage = () => {
 
   const [yaps, setYaps]: Array<any> = useState([])
 
+  const { data: session } = useSession();
+
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     message: '',
     liked: false,
     friend: false
   })
+
+  const { isShowing, toggle } = useModal();
 
   const onLike = (idx: React.Key) => {
     setYaps((state: any) => state?.map((yap: any, i: any) => {
@@ -57,6 +63,7 @@ const YapsPage = () => {
     if (yapsStorage) {
       setYaps(yapsStorage)
     }
+    console.log(session)
   }, [])
 
   useEffect(() => {
@@ -82,7 +89,7 @@ const YapsPage = () => {
         </div>
         <div className="h-auto w-full flex flex-row justify-center items-end">
           <div className="bg-gray-300 text-black p-6 w-full flex flex-row justify-center">
-            <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={personalYap.message} onChange={handleYapDisplay} />
+            <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={personalYap.message} onChange={handleYapDisplay} onKeyDown={(e) => e.key === "Enter" && handleYapSend()} />
             <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={handleYapSend}>Send</button>
           </div>
         </div>
