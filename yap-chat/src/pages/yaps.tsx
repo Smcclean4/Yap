@@ -14,10 +14,10 @@ const YapsPage = () => {
     user: string | undefined | null;
   }
 
-  const [yaps, setYaps]: Array<any> = useState([])
-
   const { data: session } = useSession();
 
+  const [options, setOptions] = useState(false);
+  const [yaps, setYaps]: Array<any> = useState([])
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     message: '',
     liked: false,
@@ -26,6 +26,14 @@ const YapsPage = () => {
   })
 
   const { isShowing, toggle } = useModal();
+
+  const onOptionClick = (idx: React.Key) => {
+    yaps.forEach((val: any, i: any) => {
+      if (i === idx) {
+        setOptions(!options)
+      }
+    })
+  }
 
   const onLike = (idx: React.Key) => {
     setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
@@ -82,7 +90,8 @@ const YapsPage = () => {
               <div className="h-64 w-96 max-w-5xl bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
                 <div className="flex flex-row items-center justify-between">
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
-                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
+                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOptionClick(idx)} icon={faEllipsis} size="xl" />}
+                  {options && session?.user.email ? <p>Get that money</p> : ""}
                 </div>
                 <p className="text-xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
