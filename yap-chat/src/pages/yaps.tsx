@@ -12,50 +12,37 @@ const YapsPage = () => {
     liked: boolean;
     friend: boolean;
     user: string | undefined | null;
+    options: boolean;
   }
 
   const { data: session } = useSession();
 
-  const [options, setOptions] = useState(false);
   const [yaps, setYaps]: Array<any> = useState([])
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     message: '',
     liked: false,
     friend: false,
-    user: ''
+    user: '',
+    options: false
   })
 
   const { isShowing, toggle } = useModal();
 
-  const onOptionClick = (idx: React.Key) => {
-    yaps.forEach((val: any, i: any) => {
-      if (i === idx) {
-        setOptions(!options)
-      }
-    })
+  const onOption = (idx: React.Key) => {
+    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
+      return i === idx ? { ...yap, options: !yap.options } : yap
+    }))
   }
 
   const onLike = (idx: React.Key) => {
     setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
-      return i === idx ? { ...yap, liked: true } : yap
+      return i === idx ? { ...yap, liked: !yap.liked } : yap
     }))
   }
 
-  const onUnlike = (idx: React.Key) => {
+  const onFriend = (idx: React.Key) => {
     setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
-      return i === idx ? { ...yap, liked: false } : yap
-    }))
-  }
-
-  const onAddFriend = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
-      return i === idx ? { ...yap, friend: true } : yap
-    }))
-  }
-
-  const onRemoveFriend = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
-      return i === idx ? { ...yap, friend: false } : yap
+      return i === idx ? { ...yap, friend: !yap.friend } : yap
     }))
   }
 
@@ -90,13 +77,13 @@ const YapsPage = () => {
               <div className="h-64 w-96 max-w-5xl bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
                 <div className="flex flex-row items-center justify-between">
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
-                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOptionClick(idx)} icon={faEllipsis} size="xl" />}
-                  {options && session?.user.email ? <p>Get that money</p> : ""}
+                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOption(idx)} icon={faEllipsis} size="xl" />}
+                  {yaps[idx].options && session?.user.email ? <div className="absolute"> CashFlow </div> : ""}
                 </div>
                 <p className="text-xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => yaps[idx].liked ? onUnlike(idx) : onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="2x" />
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => yaps[idx].friend ? onRemoveFriend(idx) : onAddFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => yaps[idx].liked && onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => yaps[idx].friend && onFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="2x" />
                 </div>
               </div>
             )
