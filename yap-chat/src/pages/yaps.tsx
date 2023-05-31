@@ -78,7 +78,7 @@ const YapsPage = () => {
                 <div className="flex flex-row items-center justify-between">
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                   {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOption(idx)} icon={faEllipsis} size="xl" />}
-                  {yaps[idx].options && session?.user.email ? <div className="absolute"> CashFlow </div> : ""}
+                  {yaps[idx].options && session?.user.email ? <div className="relative"> CashFlow </div> : ""}
                 </div>
                 <p className="text-xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
