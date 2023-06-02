@@ -18,6 +18,7 @@ const YapsPage = () => {
   const { data: session } = useSession();
 
   const [yaps, setYaps]: Array<any> = useState([])
+  const [yapError, setYapError] = useState('')
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     message: '',
     liked: false,
@@ -46,6 +47,14 @@ const YapsPage = () => {
     }))
   }
 
+  const setUser = () => {
+    if (session) {
+      setPersonalYap({ ...personalYap, user: session?.user.email })
+    } else {
+      setYapError('User is not defined')
+    }
+  }
+
   const handleYapDisplay = ({ target: input }: any) => {
     setPersonalYap({ ...personalYap, [input.name]: input.value })
   }
@@ -60,12 +69,10 @@ const YapsPage = () => {
     if (yapsStorage) {
       setYaps(yapsStorage)
     }
-    setPersonalYap({ ...personalYap, user: session?.user.email })
   }, [])
 
   useEffect(() => {
     localStorage.setItem('yapsData', JSON.stringify(yaps))
-    console.log(yaps)
   }, [yaps])
 
   return (
@@ -78,21 +85,28 @@ const YapsPage = () => {
                 <div className="flex flex-row items-center justify-between">
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                   {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOption(idx)} icon={faEllipsis} size="xl" />}
-                  {yaps[idx].options && session?.user.email ? <div className="relative"> CashFlow </div> : ""}
+                  {yaps[idx].options && session?.user.email ? (
+                    <div className=" text-center absolute border-2 ml-64 w-32 bg-white text-black cursor-pointer" onBlur={() => onOption(idx)}>
+                      <p>Cashflow</p>
+                    </div>
+                  ) : ""}
                 </div>
                 <p className="text-xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => yaps[idx].liked && onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="2x" />
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => yaps[idx].friend && onFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => onFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="2x" />
                 </div>
               </div>
             )
           })}
         </div>
         <div className="h-auto w-full flex flex-row justify-center items-end">
-          <div className="bg-gray-300 text-black p-6 w-full flex flex-row justify-center">
-            <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={personalYap.message} maxLength={125} onChange={handleYapDisplay} onKeyDown={(e) => e.key === "Enter" && handleYapSend()} />
-            <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={handleYapSend}>Send</button>
+          <div className="bg-gray-300 text-black p-6 w-full flex flex-col justify-center text-center">
+            {yapError && <p className="text-white bg-red-600 w-full max-w-md self-center text-xl p-2 rounded-tl-xl rounded-tr-xl">{yapError}</p>}
+            <div className="flex flex-row justify-center">
+              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={personalYap.message} onFocus={setUser} maxLength={125} onChange={handleYapDisplay} onKeyDown={(e) => e.key === "Enter" && handleYapSend()} />
+              <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={handleYapSend}>Send</button>
+            </div>
           </div>
         </div>
       </div>
