@@ -86,8 +86,10 @@ const YapsPage = () => {
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                   {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOption(idx)} icon={faEllipsis} size="xl" />}
                   {yaps[idx].options && session?.user.email ? (
-                    <div className=" text-center absolute border-2 ml-64 w-32 bg-white text-black cursor-pointer" onBlur={() => onOption(idx)}>
-                      <p>Cashflow</p>
+                    <div className=" text-center absolute border-2 ml-72 mt-16 w-32 bg-white text-black cursor-pointer">
+                      <p>Edit</p>
+                      <p>Delete</p>
+                      <p onClick={() => onOption(idx)}>Cancel</p>
                     </div>
                   ) : ""}
                 </div>
