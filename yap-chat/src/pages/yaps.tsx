@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react'
 import { useModal } from '~/hooks/useModal'
 import { Layout } from '~/components/layout'
 import { useSession } from 'next-auth/react'
+import { DeleteModal } from '~/components/modals/delete'
+
 
 const YapsPage = () => {
   interface YapInterface {
@@ -30,19 +32,19 @@ const YapsPage = () => {
   const { isShowing, toggle } = useModal();
 
   const onOption = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
+    setYaps((state: { options: boolean }[]) => state?.map((yap: { options: boolean }, i: React.Key) => {
       return i === idx ? { ...yap, options: !yap.options } : yap
     }))
   }
 
   const onLike = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
+    setYaps((state: { liked: boolean }[]) => state?.map((yap: { liked: boolean }, i: React.Key) => {
       return i === idx ? { ...yap, liked: !yap.liked } : yap
     }))
   }
 
   const onFriend = (idx: React.Key) => {
-    setYaps((state: any) => state?.map((yap: YapInterface, i: any) => {
+    setYaps((state: { friend: boolean }[]) => state?.map((yap: { friend: boolean }, i: React.Key) => {
       return i === idx ? { ...yap, friend: !yap.friend } : yap
     }))
   }
@@ -53,6 +55,17 @@ const YapsPage = () => {
     } else {
       setYapError('User is not defined')
     }
+  }
+
+  const deleteItem = () => {
+    setYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
+      if (!yaps[i].user.includes(session?.user.email)) {
+        return yap
+      } else {
+        return false
+      }
+    }))
+    toggle()
   }
 
   const handleYapDisplay = ({ target: input }: any) => {
@@ -78,6 +91,7 @@ const YapsPage = () => {
   return (
     <Layout>
       <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
+        <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} />
         <div className="flex flex-row justify-center h-full w-full flex-wrap overflow-scroll">
           {yaps?.map((allYaps: { message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined }, idx: React.Key) => {
             return (
@@ -86,10 +100,10 @@ const YapsPage = () => {
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                   {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOption(idx)} icon={faEllipsis} size="xl" />}
                   {yaps[idx].options && session?.user.email ? (
-                    <div className=" text-center absolute border-2 ml-72 mt-16 w-32 bg-white text-black cursor-pointer">
-                      <p>Edit</p>
-                      <p>Delete</p>
-                      <p onClick={() => onOption(idx)}>Cancel</p>
+                    <div className="text-center flex flex-col absolute border-2 ml-72 mt-16 w-32 bg-gray-500 border-none text-xl text-white">
+                      <button>Edit</button>
+                      <button onClick={toggle}>Delete</button>
+                      <button onClick={() => onOption(idx)}>Cancel</button>
                     </div>
                   ) : ""}
                 </div>
