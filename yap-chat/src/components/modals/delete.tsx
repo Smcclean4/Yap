@@ -13,7 +13,7 @@ export const DeleteModal = ({ isShowing, hide, deleteitem }: DeleteModalInterfac
     <p className="text-2xl my-14">Are you sure you want to delete this Yap?</p>
     <div className="my-10">
       <button className="text-2xl text-white bg-gray-700 px-6 py-2 rounded-lg mx-16" onClick={hide}>Cancel</button>
-      <button className="text-2xl text-white bg-red-700 px-6 py-2 rounded-lg mx-16" onClick={deleteitem}>Delete</button>
+      <button className="text-2xl text-white bg-red-600 px-6 py-2 rounded-lg mx-16" onClick={deleteitem}>Delete</button>
     </div>
   </div>, document.body
 ) : null

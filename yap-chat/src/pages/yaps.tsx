@@ -59,10 +59,8 @@ const YapsPage = () => {
 
   const deleteItem = () => {
     setYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
-      if (!yaps[i].user.includes(session?.user.email)) {
-        return yap
-      } else {
-        return false
+      if (yap.user?.includes(session?.user.email)) {
+
       }
     }))
     toggle()
@@ -98,12 +96,11 @@ const YapsPage = () => {
               <div className="h-64 w-96 max-w-5xl bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
                 <div className="flex flex-row items-center justify-between">
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
-                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onClick={() => onOption(idx)} icon={faEllipsis} size="xl" />}
+                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => onOption(idx)} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onOption(idx)} />}
                   {yaps[idx].options && session?.user.email ? (
                     <div className="text-center flex flex-col absolute border-2 ml-72 mt-16 w-32 bg-gray-500 border-none text-xl text-white">
                       <button>Edit</button>
-                      <button onClick={toggle}>Delete</button>
-                      <button onClick={() => onOption(idx)}>Cancel</button>
+                      <button onMouseDown={toggle}>Delete</button>
                     </div>
                   ) : ""}
                 </div>
