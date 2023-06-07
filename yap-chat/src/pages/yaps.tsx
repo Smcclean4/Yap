@@ -5,7 +5,8 @@ import React, { useEffect, useState } from 'react'
 import { useModal } from '~/hooks/useModal'
 import { Layout } from '~/components/layout'
 import { useSession } from 'next-auth/react'
-import { DeleteModal } from '~/components/modals/delete'
+import { DeleteModal } from '~/modals/delete'
+import { EditModal } from '~/modals/edit'
 
 
 const YapsPage = () => {
@@ -17,10 +18,17 @@ const YapsPage = () => {
     options: boolean;
   }
 
+  interface DeleteInterface {
+    deleteUser: string | undefined | null;
+    deleteMessage: string;
+  }
+
   const { data: session } = useSession();
 
   const [yaps, setYaps]: Array<any> = useState([])
   const [yapError, setYapError] = useState('')
+  const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
+  const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     message: '',
     liked: false,
@@ -57,20 +65,46 @@ const YapsPage = () => {
     }
   }
 
+  const currentDeleteData = (idx: React.Key) => {
+    setDeleteInfo({ deleteUser: yaps[idx].user, deleteMessage: yaps[idx].message })
+  }
+
   const deleteItem = () => {
     setYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
-      if (yap.user?.includes(session?.user.email)) {
-
+      if (yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage) {
+        return false
+      } else {
+        return yap
       }
     }))
     toggle()
   }
+
+  const saveItem = () => {
+    alert('saving item!')
+  }
+
+  const onEdit = () => {
+    setTrueEditFalseDelete(true)
+    toggle()
+  }
+
+  const onDelete = () => {
+    setTrueEditFalseDelete(false)
+    toggle()
+  }
+
 
   const handleYapDisplay = ({ target: input }: any) => {
     setPersonalYap({ ...personalYap, [input.name]: input.value })
   }
 
   const handleYapSend = () => {
+    if (personalYap.message === '') {
+      setYapError('Please write a message before sending!')
+      return
+    }
+    setYapError('')
     setYaps([...yaps, personalYap])
     setPersonalYap({ ...personalYap, message: '' })
   }
@@ -89,18 +123,25 @@ const YapsPage = () => {
   return (
     <Layout>
       <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
-        <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} />
+        {trueEditFalseDelete ? (
+          <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} />
+        ) : (
+          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} />
+        )}
         <div className="flex flex-row justify-center h-full w-full flex-wrap overflow-scroll">
           {yaps?.map((allYaps: { message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined }, idx: React.Key) => {
             return (
               <div className="h-64 w-96 max-w-5xl bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
                 <div className="flex flex-row items-center justify-between">
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
-                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => onOption(idx)} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onOption(idx)} />}
+                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => {
+                    onOption(idx)
+                    currentDeleteData(idx)
+                  }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onOption(idx)} />}
                   {yaps[idx].options && session?.user.email ? (
                     <div className="text-center flex flex-col absolute border-2 ml-72 mt-16 w-32 bg-gray-500 border-none text-xl text-white">
-                      <button>Edit</button>
-                      <button onMouseDown={toggle}>Delete</button>
+                      <button onMouseDown={onEdit}>Edit</button>
+                      <button onMouseDown={onDelete}>Delete</button>
                     </div>
                   ) : ""}
                 </div>
