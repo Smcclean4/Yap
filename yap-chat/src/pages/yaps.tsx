@@ -81,7 +81,9 @@ const YapsPage = () => {
   }
 
   const saveItem = () => {
-    alert('saving item!')
+    setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
+      return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? { ...yap, message: 'This is edited?' } : yap
+    }))
   }
 
   const onEdit = () => {
