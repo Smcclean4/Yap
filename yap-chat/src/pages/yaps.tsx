@@ -27,6 +27,7 @@ const YapsPage = () => {
 
   const [yaps, setYaps]: Array<any> = useState([])
   const [yapError, setYapError] = useState('')
+  const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
   const [personalYap, setPersonalYap] = useState<YapInterface>({
@@ -80,10 +81,20 @@ const YapsPage = () => {
     toggle()
   }
 
+  const handleNewMessage = ({ target: input }: any) => {
+    setUpdateMessage(input.value)
+  }
+
+  const clearUpdateMessage = () => {
+    setUpdateMessage('')
+  }
+
   const saveItem = () => {
     setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
-      return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? { ...yap, message: 'This is edited?' } : yap
+      return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
     }))
+    setUpdateMessage('')
+    toggle()
   }
 
   const onEdit = () => {
@@ -126,7 +137,7 @@ const YapsPage = () => {
     <Layout>
       <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
         {trueEditFalseDelete ? (
-          <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} />
+          <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} />
         )}

@@ -1,3 +1,5 @@
+import { profile } from 'console';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react'
 import { Layout } from '~/components/layout'
@@ -5,7 +7,7 @@ import { Layout } from '~/components/layout'
 const ProfilePage = () => {
 
   interface ProfileInterface {
-    image: string;
+    image: string | undefined | null;
     username: string;
     heading: string;
     bio: string;
@@ -17,6 +19,8 @@ const ProfilePage = () => {
     heading: '',
     bio: ''
   })
+
+  const { data: session, update } = useSession();
 
   const [editMode, setEditMode] = useState(false)
 
@@ -30,12 +34,14 @@ const ProfilePage = () => {
 
   const handleSave = () => {
     setEditMode(!editMode)
+    update()
   }
 
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
     const imageUrl = URL.createObjectURL(file)
     setProfileData({ ...profileData, [input.name]: imageUrl })
+    update({ image: profileData.image })
   }
 
   useEffect(() => {
@@ -43,6 +49,7 @@ const ProfilePage = () => {
     if (profileStorage) {
       setProfileData(profileStorage)
     }
+    console.log(session)
   }, [])
 
   useEffect(() => {
@@ -55,7 +62,7 @@ const ProfilePage = () => {
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={profileData.image === "" ? "/ezgif.com-webp-to-jpg.jpg" : profileData.image} alt='' height="200" width="200" priority />
+              <Image src={profileData.image === "" || undefined || null ? "/ezgif.com-webp-to-jpg.jpg" : profileData.image!} alt='' height="200" width="200" priority />
             </div>
             {editMode && <input className="my-6 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>
