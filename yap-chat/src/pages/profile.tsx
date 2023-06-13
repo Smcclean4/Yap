@@ -40,8 +40,8 @@ const ProfilePage = () => {
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
     const imageUrl = URL.createObjectURL(file)
+    update({ image: imageUrl })
     setProfileData({ ...profileData, [input.name]: imageUrl })
-    update({ image: profileData.image })
   }
 
   useEffect(() => {
