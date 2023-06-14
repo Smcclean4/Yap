@@ -152,7 +152,7 @@ const YapsPage = () => {
                     currentDeleteData(idx)
                   }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onOption(idx)} />}
                   {yaps[idx].options && session?.user.email ? (
-                    <div className="text-center flex flex-col absolute border-2 ml-72 mt-16 w-32 bg-gray-500 border-none text-xl text-white">
+                    <div className="text-center flex flex-col absolute border-2 ml-72 mt-16 w-28 bg-gray-500 border-none text-lg text-white ">
                       <button onMouseDown={onEdit}>Edit</button>
                       <button onMouseDown={onDelete}>Delete</button>
                     </div>
@@ -160,8 +160,8 @@ const YapsPage = () => {
                 </div>
                 <p className="text-xl text-center">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="2x" />
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => onFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="2x" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="xl" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => onFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="xl" />
                 </div>
               </div>
             )

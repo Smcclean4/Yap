@@ -14,7 +14,7 @@ const ProfilePage = () => {
   }
 
   const [profileData, setProfileData] = useState<ProfileInterface>({
-    image: '',
+    image: null,
     username: '',
     heading: '',
     bio: ''
@@ -34,14 +34,12 @@ const ProfilePage = () => {
 
   const handleSave = () => {
     setEditMode(!editMode)
-    update()
+    update({ image: profileData.image })
   }
 
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
-    const imageUrl = URL.createObjectURL(file)
-    update({ image: imageUrl })
-    setProfileData({ ...profileData, [input.name]: imageUrl })
+    setProfileData({ ...profileData, [input.name]: URL.createObjectURL(file) })
   }
 
   useEffect(() => {
@@ -49,12 +47,15 @@ const ProfilePage = () => {
     if (profileStorage) {
       setProfileData(profileStorage)
     }
-    console.log(session)
   }, [])
 
   useEffect(() => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
   }, [profileData])
+
+  useEffect(() => {
+    console.log(session?.user.image)
+  }, [session, profileData.image])
 
   return (
     <Layout>
@@ -62,7 +63,7 @@ const ProfilePage = () => {
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={profileData.image === "" || undefined || null ? "/ezgif.com-webp-to-jpg.jpg" : profileData.image!} alt='' height="200" width="200" priority />
+              <Image src={profileData.image === null ? "/ezgif.com-webp-to-jpg.jpg" : profileData.image!} alt='' height="200" width="200" priority />
             </div>
             {editMode && <input className="my-6 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>
