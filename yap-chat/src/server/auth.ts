@@ -37,11 +37,12 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    session: ({ session, user, trigger, newSession }) => ({
       ...session,
       user: {
         ...session.user,
         id: user.id,
+        image: trigger === "update" && newSession?.image ? user.image = newSession.image : user.image
       },
     }),
   },

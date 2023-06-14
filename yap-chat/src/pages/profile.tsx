@@ -7,20 +7,18 @@ import { Layout } from '~/components/layout'
 const ProfilePage = () => {
 
   interface ProfileInterface {
-    image: string | undefined | null;
     username: string;
     heading: string;
     bio: string;
   }
 
   const [profileData, setProfileData] = useState<ProfileInterface>({
-    image: null,
     username: '',
     heading: '',
     bio: ''
   })
 
-  const { data: session, update } = useSession();
+  const { data: session, status, update } = useSession();
 
   const [editMode, setEditMode] = useState(false)
 
@@ -34,18 +32,20 @@ const ProfilePage = () => {
 
   const handleSave = () => {
     setEditMode(!editMode)
-    update({ image: profileData.image })
   }
 
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
-    setProfileData({ ...profileData, [input.name]: URL.createObjectURL(file) })
+    // session image is expiring?? looking for solutions.. maybe auth.ts? or losing it on page load?
+    if (status === "authenticated") {
+      update({ image: URL.createObjectURL(file) })
+    }
   }
 
   useEffect(() => {
     const profileStorage = JSON.parse(localStorage.getItem('profileData') || '{}')
     if (profileStorage) {
-      setProfileData(profileStorage)
+      setProfileData({ ...profileStorage, image: session?.user.image })
     }
   }, [])
 
@@ -54,8 +54,8 @@ const ProfilePage = () => {
   }, [profileData])
 
   useEffect(() => {
-    console.log(session?.user.image)
-  }, [session, profileData.image])
+    console.log(session)
+  }, [session])
 
   return (
     <Layout>
@@ -63,7 +63,7 @@ const ProfilePage = () => {
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={profileData.image === null ? "/ezgif.com-webp-to-jpg.jpg" : profileData.image!} alt='' height="200" width="200" priority />
+              <Image src={session?.user.image === null ? "/ezgif.com-webp-to-jpg.jpg" : session?.user.image!} alt='' height="200" width="200" priority />
             </div>
             {editMode && <input className="my-6 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>
