@@ -23,6 +23,30 @@ const YapsPage = () => {
     deleteMessage: string;
   }
 
+  const defaultYaps: YapInterface[] = [
+    {
+      message: 'These are default Yaps.. strength in numbers. 🥰',
+      liked: false,
+      friend: false,
+      user: '',
+      options: false
+    },
+    {
+      message: 'These are default Yaps.. strength in numbers. 😋',
+      liked: false,
+      friend: false,
+      user: '',
+      options: false
+    },
+    {
+      message: 'These are default Yaps.. strength in numbers. 👑',
+      liked: false,
+      friend: false,
+      user: '',
+      options: false
+    }
+  ]
+
   const { data: session } = useSession();
 
   const [yaps, setYaps]: Array<any> = useState([])
@@ -127,6 +151,10 @@ const YapsPage = () => {
     if (yapsStorage) {
       setYaps(yapsStorage)
     }
+  }, [])
+
+  useEffect(() => {
+    setYaps([...defaultYaps])
   }, [])
 
   useEffect(() => {

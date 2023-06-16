@@ -9,7 +9,7 @@ const HomePage = () => {
 
   const [homeUpdates, setHomeUpdates]: Array<any> = useState([]);
 
-  const exampleUpdate: UpdateInterface[] = [
+  const defaultUpdates: UpdateInterface[] = [
     {
       heading: 'Lorem ipsum news heading',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam feugiat risus malesuada est tempor convallis. Cras ac augue sit amet dui rutrum scelerisque. Aenean pretium, nibh et tempor porttitor, ipsum elit gravida sapien, ac laoreet massa ipsum non eros. Quisque venenatis pulvinar dictum. Aenean nisl odio, interdum a tristique eu, faucibus ac nibh. Vivamus interdum venenatis commodo. Sed malesuada quam id ex consectetur mattis. Morbi vel pretium orci. Duis quis dignissim eros, in sagittis eros. Fusce et imperdiet dui. Sed porttitor ultricies finibus. Integer luctus pretium massa, in tincidunt nunc dignissim at. Nulla elementum diam in quam sollicitudin, id efficitur arcu fermentum. Duis viverra volutpat orci, ut laoreet lacus.'
@@ -25,7 +25,7 @@ const HomePage = () => {
   ]
 
   useEffect(() => {
-    setHomeUpdates([...exampleUpdate])
+    setHomeUpdates([...defaultUpdates])
   }, [])
 
   return (

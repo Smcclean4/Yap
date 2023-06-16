@@ -17,7 +17,7 @@ const FriendsPage = () => {
     deny: boolean;
   }
 
-  const friends: FriendInterface[] = [
+  const defaultFriends: FriendInterface[] = [
     {
       image: '',
       username: '',
