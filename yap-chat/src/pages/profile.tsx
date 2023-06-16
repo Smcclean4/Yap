@@ -50,6 +50,17 @@ const ProfilePage = () => {
   }, [])
 
   useEffect(() => {
+    const interval = setInterval(() => update(), 1000 * 60 * 60)
+    return () => clearInterval(interval)
+  }, [update])
+
+  useEffect(() => {
+    const visibilityHandler = () => document.visibilityState === "visible" && update()
+    window.addEventListener("visibilitychange", visibilityHandler, false)
+    return () => window.removeEventListener("visibilitychange", visibilityHandler, false)
+  }, [update])
+
+  useEffect(() => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
   }, [profileData])
 
@@ -63,7 +74,7 @@ const ProfilePage = () => {
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={session?.user.image === null ? "/ezgif.com-webp-to-jpg.jpg" : session?.user.image!} alt='' height="200" width="200" priority />
+              <Image src={!session?.user.image ? "/ezgif.com-webp-to-jpg.jpg" : session?.user.image!} alt='' height="200" width="200" priority />
             </div>
             {editMode && <input className="my-6 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>
