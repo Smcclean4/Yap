@@ -38,7 +38,7 @@ const HomePage = () => {
         </div>
         <div className="bg-gray-900/[0.8] mt-16 mb-2 h-72 w-5/6 lg:w-3/5 text-white flex flex-col justify-center items-center text-2xl overflow-auto rounded-lg">
           <div className="py-5 h-full w-4/5">
-            <p className="underline text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6"><b>Recent News</b></p>
+            <p className="underline text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 font-bold">Recent News</p>
             {homeUpdates?.map((content: { heading: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; description: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key | null | undefined) => {
               return (
                 <div key={idx}>
