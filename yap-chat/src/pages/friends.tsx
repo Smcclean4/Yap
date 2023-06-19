@@ -90,6 +90,15 @@ const FriendsPage = () => {
   const onMessage = (idx: React.Key) => {
     // create message modal? where messages can be sent? conversations can be cleared?
     // creates new message component on sidenav with the current user that is being messaged
+    alert(`attempting to send a message at this index ${idx} !`)
+  }
+
+  const onRequestDeny = (idx: React.Key) => {
+    alert(`attempting to deny a request at this index ${idx}`)
+  }
+
+  const onRequestApprove = (idx: React.Key) => {
+    alert(`attempting to approve a request at this index ${idx}`)
   }
 
   useEffect(() => {
@@ -126,8 +135,8 @@ const FriendsPage = () => {
                   <div className="flex flex-col ml-4">
                     <p className=" mb-2 text-lg font-semibold">{request.username}</p>
                     <div className="flex flex-row justify-around">
-                      <button className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                      <button className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                      <button onClick={() => onRequestDeny(idx)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                      <button onClick={() => onRequestApprove(idx)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                     </div>
                   </div>
                 </div>
