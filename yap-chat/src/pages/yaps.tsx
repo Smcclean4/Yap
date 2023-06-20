@@ -10,6 +10,7 @@ import { EditModal } from '~/modals/edit'
 
 
 const YapsPage = () => {
+
   interface YapInterface {
     message: string;
     liked: boolean;
@@ -167,7 +168,7 @@ const YapsPage = () => {
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
-          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} />
+          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} />
         )}
         <div className="flex flex-row justify-center h-full w-full flex-wrap overflow-scroll content-start">
           {yaps?.map((allYaps: { message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined }, idx: React.Key) => {
