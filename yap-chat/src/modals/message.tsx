@@ -20,10 +20,11 @@ export const MessageModal = ({ isShowing, hide, sendmessage, messages, user }: M
     <div className="bg-gray-100 h-4/5 w-4/5 flex flex-col justify-center items-center">
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
+      <p>{messages}</p>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">
       <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." maxLength={125} />
-      <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit">Send</button>
+      <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={sendmessage}>Send</button>
     </div>
   </div>, document.body
 ) : null
