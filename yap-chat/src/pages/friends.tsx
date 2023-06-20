@@ -21,12 +21,10 @@ const FriendsPage = () => {
   interface RequestInterface {
     image: string;
     username: string;
-    approve: boolean;
-    deny: boolean;
-  }
-
-  interface RemoveUserInterface {
-    removeUserUsername: string;
+    heading: string;
+    message: boolean;
+    online: boolean;
+    options: boolean;
   }
 
   const defaultFriends: FriendInterface[] = [
@@ -68,34 +66,41 @@ const FriendsPage = () => {
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
       username: '@default_request1',
-      approve: false,
-      deny: false
+      heading: 'This is my default heading',
+      message: false,
+      online: false,
+      options: false
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
       username: '@default_request2',
-      approve: false,
-      deny: false
+      heading: 'This is my default heading',
+      message: false,
+      online: false,
+      options: false
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
       username: '@default_request3',
-      approve: false,
-      deny: false
+      heading: 'This is my default heading',
+      message: false,
+      online: false,
+      options: false
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
       username: '@default_request4',
-      approve: false,
-      deny: false
+      heading: 'This is my default heading',
+      message: false,
+      online: false,
+      options: false
     }
   ]
 
   const [currentFriends, setCurrentFriends]: Array<any> = useState([])
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
-  const [removeUserInfo, setRemoveUserInfo] = useState<RemoveUserInterface>({ removeUserUsername: '' })
+  const [userInfo, setUserInfo] = useState('')
   const [trueMessageFalseRemoveFriend, setTrueMessageFalseRemoveFriend] = useState(false)
-  const [requestDeny, setRequestDeny] = useState(false)
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
 
@@ -109,19 +114,20 @@ const FriendsPage = () => {
     }))
   }
 
-  const currentUserDeleteData = (ctx: string, idx: React.Key) => {
-    setRemoveUserInfo({ removeUserUsername: ctx })
+  const currentUserData = (ctx: string) => {
+    setUserInfo(ctx)
   }
 
   const onRemoveFriend = () => {
     setTrueMessageFalseRemoveFriend(false)
-    setRequestDeny(false)
-    toggle()
+    if (selectedTab) {
+      toggle()
+    }
   }
 
   const deleteFriend = () => {
     setCurrentFriends((state: any[]) => state.filter((friend: FriendInterface, i: React.Key) => {
-      if (currentFriends[i].username === removeUserInfo.removeUserUsername) {
+      if (currentFriends[i].username === userInfo) {
         return false
       } else {
         return friend
@@ -132,7 +138,9 @@ const FriendsPage = () => {
 
   const onMessage = () => {
     setTrueMessageFalseRemoveFriend(true)
-    toggle();
+    if (selectedTab) {
+      toggle();
+    }
   }
 
   const onMessageSend = () => {
@@ -140,13 +148,14 @@ const FriendsPage = () => {
   }
 
   const onRequestDeny = () => {
-    setRequestDeny(true)
-    toggle()
+    if (!selectedTab) {
+      toggle()
+    }
   }
 
   const deleteRequest = () => {
     setCurrentRequests((state: any[]) => state.filter((request: RequestInterface, i: React.Key) => {
-      if (currentRequests[i].username === removeUserInfo.removeUserUsername) {
+      if (currentRequests[i].username === userInfo) {
         return false
       } else {
         return request
@@ -155,8 +164,17 @@ const FriendsPage = () => {
     toggle()
   }
 
-  const onRequestApprove = (idx: React.Key) => {
-    alert(`attempting to approve a request at this index ${idx}`)
+  const approveRequest = (idx: React.Key) => {
+    setCurrentRequests((state: any[]) => state.filter((request: RequestInterface, i: React.Key) => {
+      if (currentRequests[i].username === userInfo) {
+        return false
+      } else {
+        return request
+      }
+    }))
+    // filter out the approved request and then add the requested person to the current friends list.
+    alert('approving this request')
+    setCurrentFriends([...currentFriends, currentRequests[idx]])
   }
 
   const requestTotal = (ctx: string | any[]) => {
@@ -172,9 +190,9 @@ const FriendsPage = () => {
     <Layout>
       <div className="w-full flex flex-col justify-center items-center mt-28">
         {trueMessageFalseRemoveFriend ? (
-          <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={removeUserInfo.removeUserUsername} />
+          <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={userInfo} />
         ) : (
-          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={requestDeny ? deleteRequest : deleteFriend} item={removeUserInfo.removeUserUsername} />
+          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} />
         )}
         <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'}`}>
           <div className="flex flex-row">
@@ -188,7 +206,7 @@ const FriendsPage = () => {
                   <div className="flex justify-end">
                     <FontAwesomeIcon className="cursor-pointer" onFocus={() => {
                       onEditFriend(idx)
-                      currentUserDeleteData(currentFriends[idx].username, idx)
+                      currentUserData(currentFriends[idx].username)
                     }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onEditFriend(idx)} />
                     {currentFriends[idx].options && (
                       <div className="absolute bg-gray-700 text-white">
@@ -203,7 +221,7 @@ const FriendsPage = () => {
                   </div>
                   <p className="text-xl my-2 font-bold">{friend.username}</p>
                   <p className="text-lg font-light my-4">{friend.heading}</p>
-                  <button onClick={onMessage} onFocus={() => currentUserDeleteData(currentFriends[idx].username, idx)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                  <button onClick={onMessage} onFocus={() => currentUserData(currentFriends[idx].username)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
                 </div>
               )
             }) : currentRequests.map((request: { image: string, username: string }, idx: React.Key) => {
@@ -213,8 +231,8 @@ const FriendsPage = () => {
                   <div className="flex flex-col ml-4">
                     <p className=" mb-2 text-lg font-semibold">{request.username}</p>
                     <div className="flex flex-row justify-around">
-                      <button onClick={onRequestDeny} onFocus={() => currentUserDeleteData(currentRequests[idx].username, idx)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                      <button onClick={() => onRequestApprove(idx)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                      <button onClick={onRequestDeny} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                      <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                     </div>
                   </div>
                 </div>
