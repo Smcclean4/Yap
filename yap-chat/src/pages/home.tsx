@@ -1,5 +1,7 @@
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react'
 import { Layout } from '~/components/layout'
+import { SidebarNav } from '~/components/sidebar';
 
 const HomePage = () => {
   interface UpdateInterface {
@@ -8,6 +10,8 @@ const HomePage = () => {
   }
 
   const [homeUpdates, setHomeUpdates]: Array<any> = useState([]);
+
+  const { data: session } = useSession();
 
   const defaultUpdates: UpdateInterface[] = [
     {
@@ -30,6 +34,7 @@ const HomePage = () => {
 
   return (
     <Layout>
+      <SidebarNav user={session?.user.email} />
       <div className="w-full flex flex-col justify-center items-center mt-28 sm:pt-10 bg-gray-200">
         <div className="w-3/4 text-sm sm:text-lg md:text-xl xl:text-2xl xl:leading-10 tracking-wider text-center">
           <p>Welcome to Yap, the chat application where you can message your friends and send out Yaps - opinionated global messages that allow you to share your thoughts and ideas with the world!</p>

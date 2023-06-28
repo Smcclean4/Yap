@@ -7,6 +7,7 @@ import { Layout } from '~/components/layout'
 import { useSession } from 'next-auth/react'
 import { DeleteModal } from '~/modals/delete'
 import { EditModal } from '~/modals/edit'
+import { SidebarNav } from '~/components/sidebar'
 
 
 const YapsPage = () => {
@@ -164,11 +165,12 @@ const YapsPage = () => {
 
   return (
     <Layout>
+      <SidebarNav user={session?.user.email} />
       <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
-          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} />
+          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}
         <div className="flex flex-row justify-center h-full w-full flex-wrap overflow-scroll content-start">
           {yaps?.map((allYaps: { message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined }, idx: React.Key) => {

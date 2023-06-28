@@ -1,11 +1,18 @@
 import { faCheck, faCircle, faEllipsis, faPaperPlane, faX } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import { Layout } from '~/components/layout'
+import { SidebarNav } from '~/components/sidebar';
 import { useModal } from '~/hooks/useModal';
 import { DeleteModal } from '~/modals/delete';
 import { MessageModal } from '~/modals/message';
+
+export interface MessageInfoInterface {
+  username: string;
+  message: string;
+}
 
 const FriendsPage = () => {
 
@@ -26,6 +33,7 @@ const FriendsPage = () => {
     online: boolean;
     options: boolean;
   }
+
 
   const defaultFriends: FriendInterface[] = [
     {
@@ -100,9 +108,12 @@ const FriendsPage = () => {
   const [currentFriends, setCurrentFriends]: Array<any> = useState([])
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
   const [userInfo, setUserInfo] = useState('')
+  const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '' })
   const [trueMessageFalseRemoveFriend, setTrueMessageFalseRemoveFriend] = useState(false)
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
+
+  const { data: session } = useSession();
 
   const handleSelectedTabClick = () => {
     setSelectedTab(!selectedTab)
@@ -138,6 +149,7 @@ const FriendsPage = () => {
 
   const onMessage = () => {
     setTrueMessageFalseRemoveFriend(true)
+    setMessageInfo({ username: userInfo, message: 'cash flow' })
     if (selectedTab) {
       toggle();
     }
@@ -148,6 +160,7 @@ const FriendsPage = () => {
   }
 
   const onRequestDeny = () => {
+    setTrueMessageFalseRemoveFriend(false)
     if (!selectedTab) {
       toggle()
     }
@@ -173,7 +186,6 @@ const FriendsPage = () => {
       }
     }))
     // filter out the approved request and then add the requested person to the current friends list.
-    alert('approving this request')
     setCurrentFriends([...currentFriends, currentRequests[idx]])
   }
 
@@ -188,11 +200,12 @@ const FriendsPage = () => {
 
   return (
     <Layout>
+      <SidebarNav user={session?.user.email} userinfo={messageInfo} />
       <div className="w-full flex flex-col justify-center items-center mt-28">
         {trueMessageFalseRemoveFriend ? (
           <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={userInfo} />
         ) : (
-          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} />
+          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         )}
         <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'}`}>
           <div className="flex flex-row">

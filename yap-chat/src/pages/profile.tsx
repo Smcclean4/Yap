@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react'
 import { Layout } from '~/components/layout'
+import { SidebarNav } from '~/components/sidebar';
 
 const ProfilePage = () => {
 
@@ -70,6 +71,7 @@ const ProfilePage = () => {
 
   return (
     <Layout>
+      <SidebarNav user={session?.user.email} />
       <div className="w-full flex justify-center items-center mt-28 bg-gray-200 flex-wrap">
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
