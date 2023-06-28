@@ -65,10 +65,6 @@ const ProfilePage = () => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
   }, [profileData])
 
-  useEffect(() => {
-    console.log(session)
-  }, [session])
-
   return (
     <Layout>
       <SidebarNav user={session?.user.email} />

@@ -149,7 +149,7 @@ const FriendsPage = () => {
 
   const onMessage = () => {
     setTrueMessageFalseRemoveFriend(true)
-    setMessageInfo({ username: userInfo, message: 'cash flow' })
+    setMessageInfo({ username: userInfo, message: 'cash flow cash flow cash flow cash flow cash flow' })
     if (selectedTab) {
       toggle();
     }
