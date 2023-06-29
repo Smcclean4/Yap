@@ -12,6 +12,7 @@ import { MessageModal } from '~/modals/message';
 export interface MessageInfoInterface {
   username: string;
   message: string;
+  online: boolean;
 }
 
 const FriendsPage = () => {
@@ -108,7 +109,7 @@ const FriendsPage = () => {
   const [currentFriends, setCurrentFriends]: Array<any> = useState([])
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
   const [userInfo, setUserInfo] = useState('')
-  const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '' })
+  const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
   const [trueMessageFalseRemoveFriend, setTrueMessageFalseRemoveFriend] = useState(false)
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
@@ -147,9 +148,24 @@ const FriendsPage = () => {
     toggle()
   }
 
-  const onMessage = () => {
+  // INTEGRATE UPDATE MESSENGER HERE?
+  // const itemExists = (username: string | undefined) => {
+  //   return chats.some((chat: { username: any; }) => {
+  //     return chat?.username === username
+  //   })
+  // }
+
+  // const updateMessenger = () => {
+  //   if (itemExists(messengeruser?.username)) {
+  //     return
+  //   } else {
+  //     setChats([...chats, messengeruser])
+  //   }
+  // }
+
+  const onMessage = (idx: React.Key) => {
     setTrueMessageFalseRemoveFriend(true)
-    setMessageInfo({ username: userInfo, message: 'cash flow cash flow cash flow cash flow cash flow' })
+    setMessageInfo({ username: userInfo, message: 'cash flow cash flow', online: currentFriends[idx].online })
     if (selectedTab) {
       toggle();
     }
@@ -185,6 +201,8 @@ const FriendsPage = () => {
         return request
       }
     }))
+    // needs delay to filter approved request from current requests?
+    alert('approving request!')
     // filter out the approved request and then add the requested person to the current friends list.
     setCurrentFriends([...currentFriends, currentRequests[idx]])
   }
@@ -207,7 +225,7 @@ const FriendsPage = () => {
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         )}
-        <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'}`}>
+        <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`}>
           <div className="flex flex-row">
             <p className="bg-gray-200 w-1/2 h-16 text-black text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-700 font-extrabold" onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="mx-2 font-light text-md">(Friends: {requestTotal(currentFriends)})</span></p>
             <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(currentRequests)}</span></p>
@@ -234,7 +252,7 @@ const FriendsPage = () => {
                   </div>
                   <p className="text-xl my-2 font-bold">{friend.username}</p>
                   <p className="text-lg font-light my-4">{friend.heading}</p>
-                  <button onClick={onMessage} onFocus={() => currentUserData(currentFriends[idx].username)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                  <button onClick={() => onMessage(idx)} onFocus={() => currentUserData(currentFriends[idx].username)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
                 </div>
               )
             }) : currentRequests.map((request: { image: string, username: string }, idx: React.Key) => {

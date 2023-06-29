@@ -172,7 +172,7 @@ const YapsPage = () => {
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}
-        <div className="flex flex-row justify-center h-full w-full flex-wrap overflow-scroll content-start">
+        <div className="flex flex-row justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start">
           {yaps?.map((allYaps: { message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined }, idx: React.Key) => {
             return (
               <div className="h-64 w-96 max-w-5xl bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>

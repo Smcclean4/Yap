@@ -68,7 +68,7 @@ const ProfilePage = () => {
   return (
     <Layout>
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex justify-center items-center mt-28 bg-gray-200 flex-wrap">
+      <div className="w-full flex justify-center items-center mt-28 bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto py-6">
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className="mb-8 flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
