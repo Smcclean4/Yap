@@ -148,20 +148,19 @@ const FriendsPage = () => {
     toggle()
   }
 
-  // INTEGRATE UPDATE MESSENGER HERE?
-  // const itemExists = (username: string | undefined) => {
-  //   return chats.some((chat: { username: any; }) => {
-  //     return chat?.username === username
-  //   })
-  // }
+  const itemExists = (username: string | undefined, item: { username: any; }[]) => {
+    return item.some((chat: { username: any; }) => {
+      return chat?.username === username
+    })
+  }
 
-  // const updateMessenger = () => {
-  //   if (itemExists(messengeruser?.username)) {
-  //     return
-  //   } else {
-  //     setChats([...chats, messengeruser])
-  //   }
-  // }
+  const updateMessenger = (messenger: string | undefined, chat: { username: any; }[], setchat: ((arg0: any[]) => void) | undefined) => {
+    if (itemExists(messenger, chat)) {
+      return
+    } else {
+      setchat([...chat, messenger])
+    }
+  }
 
   const onMessage = (idx: React.Key) => {
     setTrueMessageFalseRemoveFriend(true)
@@ -218,7 +217,7 @@ const FriendsPage = () => {
 
   return (
     <Layout>
-      <SidebarNav user={session?.user.email} userinfo={messageInfo} />
+      <SidebarNav user={session?.user.email} userinfo={messageInfo} update={updateMessenger} />
       <div className="w-full flex flex-col justify-center items-center mt-28">
         {trueMessageFalseRemoveFriend ? (
           <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={userInfo} />

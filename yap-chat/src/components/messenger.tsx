@@ -5,9 +5,10 @@ import { MessageInfoInterface } from '~/pages/friends';
 
 interface MessengerInterface {
   messengeruser?: MessageInfoInterface;
+  updatemessage?: () => void;
 }
 
-export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
+export const ChatMessenger = ({ messengeruser, updatemessage }: MessengerInterface) => {
   // when chat is open.. make new chat messenger in sidebar nav.
   // when messenger open button is clicked open modal with corresponding chat.
 
@@ -15,6 +16,7 @@ export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
 
   useEffect(() => {
     const chatsStorage = JSON.parse(localStorage.getItem('chatsData') || '[]')
+    updatemessage(messengeruser?.username, chats, setChats)
     if (chatsStorage) {
       setChats(chatsStorage)
     }
