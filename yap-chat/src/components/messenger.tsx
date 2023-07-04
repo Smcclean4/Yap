@@ -5,29 +5,45 @@ import { MessageInfoInterface } from '~/pages/friends';
 
 interface MessengerInterface {
   messengeruser?: MessageInfoInterface;
-  updatemessage?: () => void;
 }
 
-export const ChatMessenger = ({ messengeruser, updatemessage }: MessengerInterface) => {
+export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
   // when chat is open.. make new chat messenger in sidebar nav.
   // when messenger open button is clicked open modal with corresponding chat.
-
   const [chats, setChats]: Array<any> = useState([])
 
-  useEffect(() => {
-    const chatsStorage = JSON.parse(localStorage.getItem('chatsData') || '[]')
-    updatemessage(messengeruser?.username, chats, setChats)
-    if (chatsStorage) {
-      setChats(chatsStorage)
+  const itemExists = (username: string | undefined, item: { username: any; }[]) => {
+    return item.some((chat: { username: any; }) => {
+      return chat?.username === username
+    })
+  }
+
+  const updateMessenger = () => {
+    if (itemExists(messengeruser?.username, chats)) {
+      return
+    } else {
+      setChats([...chats, messengeruser])
     }
-  }, [])
+  }
+
+  useEffect(() => {
+    updateMessenger()
+  }, [messengeruser])
 
   useEffect(() => {
     localStorage.setItem('chatsData', JSON.stringify(chats))
   }, [chats])
 
+
+  useEffect(() => {
+    const chatsStorage = JSON.parse(localStorage.getItem('chatsData') || '[]')
+    if (chatsStorage) {
+      setChats(chatsStorage)
+    }
+  }, [])
+
   return (
-    <div className="flex flex-col flex-grow mt-20 overflow-scroll no-scrollbar overflow-y-auto">
+    <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       {chats?.map((chats: { username: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-b-2 border-gray-300">

@@ -6,13 +6,12 @@ import { MessageInfoInterface } from '~/pages/friends';
 interface SidebarNavInterface {
   user: string | undefined | null;
   userinfo?: MessageInfoInterface;
-  update?: () => void;
 }
 
-export const SidebarNav = ({ user, userinfo, update }: SidebarNavInterface) => {
+export const SidebarNav = ({ user, userinfo }: SidebarNavInterface) => {
   return (
     <div className="flex flex-col justify-end w-min xl:w-1/6 text-center bg-gray-400">
-      <ChatMessenger messengeruser={userinfo} updatemessage={update} />
+      <ChatMessenger messengeruser={userinfo} />
       <div className="p-6">
         <LogoutForm />
         <p>Logged in as {user}</p>

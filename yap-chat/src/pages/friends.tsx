@@ -148,20 +148,6 @@ const FriendsPage = () => {
     toggle()
   }
 
-  const itemExists = (username: string | undefined, item: { username: any; }[]) => {
-    return item.some((chat: { username: any; }) => {
-      return chat?.username === username
-    })
-  }
-
-  const updateMessenger = (messenger: string | undefined, chat: { username: any; }[], setchat: ((arg0: any[]) => void) | undefined) => {
-    if (itemExists(messenger, chat)) {
-      return
-    } else {
-      setchat([...chat, messenger])
-    }
-  }
-
   const onMessage = (idx: React.Key) => {
     setTrueMessageFalseRemoveFriend(true)
     setMessageInfo({ username: userInfo, message: 'cash flow cash flow', online: currentFriends[idx].online })
@@ -217,7 +203,7 @@ const FriendsPage = () => {
 
   return (
     <Layout>
-      <SidebarNav user={session?.user.email} userinfo={messageInfo} update={updateMessenger} />
+      <SidebarNav user={session?.user.email} userinfo={messageInfo} />
       <div className="w-full flex flex-col justify-center items-center mt-28">
         {trueMessageFalseRemoveFriend ? (
           <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={userInfo} />
@@ -251,7 +237,8 @@ const FriendsPage = () => {
                   </div>
                   <p className="text-xl my-2 font-bold">{friend.username}</p>
                   <p className="text-lg font-light my-4">{friend.heading}</p>
-                  <button onClick={() => onMessage(idx)} onFocus={() => currentUserData(currentFriends[idx].username)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                  <button onClick={() =>
+                    onMessage(idx)} onFocus={() => currentUserData(currentFriends[idx].username)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
                 </div>
               )
             }) : currentRequests.map((request: { image: string, username: string }, idx: React.Key) => {
