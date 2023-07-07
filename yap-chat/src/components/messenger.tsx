@@ -31,16 +31,15 @@ export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
   }, [messengeruser])
 
   useEffect(() => {
-    localStorage.setItem('chatsData', JSON.stringify(chats))
-  }, [chats])
-
-
-  useEffect(() => {
     const chatsStorage = JSON.parse(localStorage.getItem('chatsData') || '[]')
     if (chatsStorage) {
       setChats(chatsStorage)
     }
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem('chatsData', JSON.stringify(chats))
+  }, [chats])
 
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">

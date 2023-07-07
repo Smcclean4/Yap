@@ -149,15 +149,16 @@ const YapsPage = () => {
   }
 
   useEffect(() => {
+    setYaps([...defaultYaps])
+  }, [])
+
+  useEffect(() => {
     const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
     if (yapsStorage) {
       setYaps(yapsStorage)
     }
   }, [])
 
-  useEffect(() => {
-    setYaps([...defaultYaps])
-  }, [])
 
   useEffect(() => {
     localStorage.setItem('yapsData', JSON.stringify(yaps))
