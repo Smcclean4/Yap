@@ -113,6 +113,7 @@ const FriendsPage = () => {
   const [trueMessageFalseRemoveFriend, setTrueMessageFalseRemoveFriend] = useState(false)
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
+  const [chatOptions, setChatOptions] = useState(false)
 
   const { data: session } = useSession();
 
@@ -196,6 +197,10 @@ const FriendsPage = () => {
     return ctx.length
   }
 
+  const openChatOptions = () => {
+    setChatOptions(!chatOptions)
+  }
+
   useEffect(() => {
     setCurrentFriends([...defaultFriends])
     setCurrentRequests([...defaultRequests])
@@ -203,10 +208,10 @@ const FriendsPage = () => {
 
   return (
     <Layout>
-      <SidebarNav user={session?.user.email} userinfo={messageInfo} />
+      <SidebarNav user={session?.user.email} userinfo={messageInfo} chatoptions={chatOptions} chatoptionsclick={openChatOptions} />
       <div className="w-full flex flex-col justify-center items-center mt-28">
         {trueMessageFalseRemoveFriend ? (
-          <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={userInfo} />
+          <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={userInfo} chatoptions={chatOptions} chatoptionsclick={openChatOptions} />
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         )}

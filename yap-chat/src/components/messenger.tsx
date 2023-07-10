@@ -7,9 +7,11 @@ import { useModal } from '~/hooks/useModal';
 
 interface MessengerInterface {
   messengeruser?: MessageInfoInterface;
+  options?: boolean;
+  optionsclick?: () => void;
 }
 
-export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
+export const ChatMessenger = ({ messengeruser, options, optionsclick }: MessengerInterface) => {
   // when chat is open.. make new chat messenger in sidebar nav.
   // when messenger open button is clicked open modal with corresponding chats
   const [chats, setChats]: Array<any> = useState([])
@@ -40,6 +42,18 @@ export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
     }
   }
 
+  // need way to get same function to work in friends page
+  const closeChat = () => {
+    setChats((state: any[]) => state.filter((chat: { username: string, message: string, online: boolean }, i: React.Key) => {
+      if (chats[i].username === messengerUser) {
+        return false
+      } else {
+        return chat
+      }
+    }))
+    toggle()
+  }
+
   useEffect(() => {
     updateMessenger()
   }, [messengeruser])
@@ -57,7 +71,7 @@ export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
 
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
-      <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={messengerUser} />
+      <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={messengerUser} chatoptions={options} chatoptionsclick={optionsclick} onclosechat={closeChat} />
       {chats?.map((chats: { username: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-b-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>

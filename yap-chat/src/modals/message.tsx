@@ -9,13 +9,23 @@ interface MessageInterface {
   sendmessage: () => void;
   messages: string;
   user: string;
+  chatoptions?: boolean;
+  chatoptionsclick?: () => void;
+  onclosechat?: () => void;
 }
 
-export const MessageModal = ({ isShowing, hide, sendmessage, messages, user }: MessageInterface) => isShowing ? createPortal(
+export const MessageModal = ({ isShowing, hide, sendmessage, messages, user, chatoptions, chatoptionsclick, onclosechat }: MessageInterface) => isShowing ? createPortal(
   <div className="absolute top-0 right-0 left-0 bottom-0 bg-white w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl">
     <div className="w-full flex justify-between p-6 top-0 absolute">
       <p className="text-4xl text-red-500 cursor-pointer" onClick={hide}>x</p>
-      <FontAwesomeIcon className="cursor-pointer" icon={faEllipsis} size="2xl" />
+      <div className="flex justify-end">
+        <FontAwesomeIcon className="cursor-pointer" icon={faEllipsis} size="2xl" onFocus={chatoptionsclick} onBlur={chatoptionsclick} tabIndex={0} />
+        {chatoptions && (
+          <div className="absolute bg-gray-700 text-white">
+            <button className="p-2" onClick={onclosechat}>Close Chat</button>
+          </div>
+        )}
+      </div>
     </div>
     <div className="bg-gray-100 h-4/5 w-4/5 flex flex-col justify-center items-center">
       <p>Messaging: {user}!</p>
