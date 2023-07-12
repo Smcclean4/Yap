@@ -43,6 +43,7 @@ export const ChatMessenger = ({ messengeruser, options, optionsclick }: Messenge
   }
 
   // need way to get same function to work in friends page
+  // potential issue with chatoptions not being false on this toggle... maybe because different message modals?
   const closeChat = () => {
     setChats((state: any[]) => state.filter((chat: { username: string, message: string, online: boolean }, i: React.Key) => {
       if (chats[i].username === messengerUser) {

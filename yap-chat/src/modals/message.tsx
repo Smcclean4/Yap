@@ -1,6 +1,5 @@
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react'
 import { createPortal } from 'react-dom'
 
 interface MessageInterface {
@@ -22,7 +21,7 @@ export const MessageModal = ({ isShowing, hide, sendmessage, messages, user, cha
         <FontAwesomeIcon className="cursor-pointer" icon={faEllipsis} size="2xl" onFocus={chatoptionsclick} onBlur={chatoptionsclick} tabIndex={0} />
         {chatoptions && (
           <div className="absolute bg-gray-700 text-white">
-            <button className="p-2" onClick={onclosechat}>Close Chat</button>
+            <button className="p-2" onMouseDown={onclosechat}>Close Chat</button>
           </div>
         )}
       </div>
