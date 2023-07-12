@@ -7,7 +7,6 @@ import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import { useModal } from '~/hooks/useModal';
 import { DeleteModal } from '~/modals/delete';
-import { MessageModal } from '~/modals/message';
 
 export interface MessageInfoInterface {
   username: string;
@@ -110,10 +109,9 @@ const FriendsPage = () => {
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
   const [userInfo, setUserInfo] = useState('')
   const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
-  const [trueMessageFalseRemoveFriend, setTrueMessageFalseRemoveFriend] = useState(false)
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
-  const [chatOptions, setChatOptions] = useState(false)
+  const [triggerMessage, setTriggerMessage] = useState(false)
 
   const { data: session } = useSession();
 
@@ -132,7 +130,6 @@ const FriendsPage = () => {
   }
 
   const onRemoveFriend = () => {
-    setTrueMessageFalseRemoveFriend(false)
     if (selectedTab) {
       toggle()
     }
@@ -150,19 +147,11 @@ const FriendsPage = () => {
   }
 
   const onMessage = (idx: React.Key) => {
-    setTrueMessageFalseRemoveFriend(true)
     setMessageInfo({ username: userInfo, message: 'cash flow cash flow', online: currentFriends[idx].online })
-    if (selectedTab) {
-      toggle();
-    }
-  }
-
-  const onMessageSend = () => {
-    alert('attempting to send message!')
+    // trigger message modal from messenger
   }
 
   const onRequestDeny = () => {
-    setTrueMessageFalseRemoveFriend(false)
     if (!selectedTab) {
       toggle()
     }
@@ -189,16 +178,11 @@ const FriendsPage = () => {
     }))
     // needs delay to filter approved request from current requests?
     alert('approving request!')
-    // filter out the approved request and then add the requested person to the current friends list.
     setCurrentFriends([...currentFriends, currentRequests[idx]])
   }
 
   const requestTotal = (ctx: string | any[]) => {
     return ctx.length
-  }
-
-  const openChatOptions = () => {
-    setChatOptions(!chatOptions)
   }
 
   useEffect(() => {
@@ -208,13 +192,9 @@ const FriendsPage = () => {
 
   return (
     <Layout>
-      <SidebarNav user={session?.user.email} userinfo={messageInfo} chatoptions={chatOptions} chatoptionsclick={openChatOptions} />
+      <SidebarNav user={session?.user.email} userinfo={messageInfo} />
       <div className="w-full flex flex-col justify-center items-center mt-28">
-        {trueMessageFalseRemoveFriend ? (
-          <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={userInfo} chatoptions={chatOptions} chatoptionsclick={openChatOptions} />
-        ) : (
-          <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
-        )}
+        <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`}>
           <div className="flex flex-row">
             <p className="bg-gray-200 w-1/2 h-16 text-black text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-700 font-extrabold" onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="mx-2 font-light text-md">(Friends: {requestTotal(currentFriends)})</span></p>

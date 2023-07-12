@@ -1,4 +1,4 @@
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { faToiletPaper, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { createPortal } from 'react-dom'
 
@@ -8,22 +8,15 @@ interface MessageInterface {
   sendmessage: () => void;
   messages: string;
   user: string;
-  chatoptions?: boolean;
-  chatoptionsclick?: () => void;
   onclosechat?: () => void;
 }
 
-export const MessageModal = ({ isShowing, hide, sendmessage, messages, user, chatoptions, chatoptionsclick, onclosechat }: MessageInterface) => isShowing ? createPortal(
+export const MessageModal = ({ isShowing, hide, sendmessage, messages, user, onclosechat }: MessageInterface) => isShowing ? createPortal(
   <div className="absolute top-0 right-0 left-0 bottom-0 bg-white w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl">
     <div className="w-full flex justify-between p-6 top-0 absolute">
-      <p className="text-4xl text-red-500 cursor-pointer" onClick={hide}>x</p>
+      <FontAwesomeIcon className="text-4xl text-red-500 cursor-pointer" onClick={hide} icon={faXmark} />
       <div className="flex justify-end">
-        <FontAwesomeIcon className="cursor-pointer" icon={faEllipsis} size="2xl" onFocus={chatoptionsclick} onBlur={chatoptionsclick} tabIndex={0} />
-        {chatoptions && (
-          <div className="absolute bg-gray-700 text-white">
-            <button className="p-2" onMouseDown={onclosechat}>Close Chat</button>
-          </div>
-        )}
+        <FontAwesomeIcon className="cursor-pointer" icon={faToiletPaper} size="xl" onClick={onclosechat} />
       </div>
     </div>
     <div className="bg-gray-100 h-4/5 w-4/5 flex flex-col justify-center items-center">
