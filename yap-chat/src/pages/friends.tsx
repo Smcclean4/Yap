@@ -111,7 +111,7 @@ const FriendsPage = () => {
   const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
-  const [triggerMessage, setTriggerMessage] = useState(false)
+  const [messageTrigger, setMessageTrigger] = useState(false)
 
   const { data: session } = useSession();
 
@@ -149,6 +149,7 @@ const FriendsPage = () => {
   const onMessage = (idx: React.Key) => {
     setMessageInfo({ username: userInfo, message: 'cash flow cash flow', online: currentFriends[idx].online })
     // trigger message modal from messenger
+    setMessageTrigger(!messageTrigger)
   }
 
   const onRequestDeny = () => {
@@ -192,7 +193,7 @@ const FriendsPage = () => {
 
   return (
     <Layout>
-      <SidebarNav user={session?.user.email} userinfo={messageInfo} />
+      <SidebarNav user={session?.user.email} userinfo={messageInfo} triggermessage={messageTrigger} />
       <div className="w-full flex flex-col justify-center items-center mt-28">
         <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`}>

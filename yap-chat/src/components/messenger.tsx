@@ -1,29 +1,26 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { MessageInfoInterface } from '~/pages/friends';
 import { MessageModal } from '~/modals/message';
 import { useModal } from '~/hooks/useModal';
 
 interface MessengerInterface {
   messengeruser?: MessageInfoInterface;
+  trigger?: boolean;
 }
 
-export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
+export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   // when chat is open.. make new chat messenger in sidebar nav.
   // when messenger open button is clicked open modal with corresponding chats
   const [chats, setChats]: Array<any> = useState([])
   const [messengerUser, setMessengerUser]: any = useState('')
 
   const { isShowing, toggle } = useModal();
+  const initialRender = useRef(true);
 
   const onMessageSend = () => {
     alert('attempting to send message!')
-  }
-
-  const onMessage = (idx: React.Key) => {
-    setMessengerUser(chats[idx].username)
-    toggle()
   }
 
   const itemExists = (username: string | undefined, item: { username: any; }[]) => {
@@ -51,6 +48,24 @@ export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
     toggle()
   }
 
+  const onMessage = (idx: React.Key) => {
+    setMessengerUser(chats[idx].username)
+    toggle()
+  }
+
+  const triggerMessage = () => {
+    setMessengerUser(messengeruser?.username)
+    toggle()
+  }
+
+  useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+    } else {
+      triggerMessage()
+    }
+  }, [trigger])
+
   useEffect(() => {
     updateMessenger()
   }, [messengeruser])
@@ -71,7 +86,7 @@ export const ChatMessenger = ({ messengeruser }: MessengerInterface) => {
       <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={messengerUser} onclosechat={closeChat} />
       {chats?.map((chats: { username: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
         return (
-          <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-b-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
+          <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
             <div className="flex flex-row justify-around items-center">
               <p className="text-xl">{chats?.username}</p>
               <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={chats?.online ? 'limegreen' : 'gray'} size="sm" />
