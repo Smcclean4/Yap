@@ -102,16 +102,16 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Bio</p>
-                <textarea className="w-2/3 h-36 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData.bio ?? ""} />
+                <textarea className="w-2/3 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData.bio ?? ""} />
               </div>
             ) : (
-              <div className="w-2/3 max-h-48">
-                <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
+              <div className="w-2/3 my-6 max-h-48">
+                <p className="bg-blue-400 w-36 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
                 <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === undefined ?? "" ? <p className="text-red-500">Set Your Bio</p> : profileData.bio}</div>
               </div>
             )}
           </div>
-          <div className="flex flex-row justify-evenly w-full">
+          <div className="flex flex-row justify-evenly w-full my-2">
             {editMode &&
               <button className="text-xl text-white bg-blue-500 py-2 px-6 rounded-full" onClick={handleEdit}>Cancel</button>}
             {editMode ? (
