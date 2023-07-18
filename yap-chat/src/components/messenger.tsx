@@ -50,11 +50,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const onMessage = (idx: React.Key) => {
     setMessengerUser(chats[idx].username)
+    // esablish connection here
     toggle()
   }
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.username)
+    // establish connection here
     toggle()
   }
 
