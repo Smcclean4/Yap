@@ -148,18 +148,20 @@ const YapsPage = () => {
           {yaps?.map((allYaps: { message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined }, idx: React.Key) => {
             return (
               <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
-                <div className="flex flex-row items-center justify-between">
+                <div className="flex items-center justify-between">
                   <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
-                  {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => {
-                    onOption(idx)
-                    currentDeleteData(idx)
-                  }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onOption(idx)} />}
-                  {yaps[idx].options && session?.user.email ? (
-                    <div className="text-center flex flex-col absolute border-2 ml-72 mt-16 w-28 bg-gray-500 border-none text-lg text-white ">
-                      <button onMouseDown={onEdit}>Edit</button>
-                      <button onMouseDown={onDelete}>Delete</button>
-                    </div>
-                  ) : ""}
+                  <div className="flex items-center justify-end pr-2">
+                    {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => {
+                      onOption(idx)
+                      currentDeleteData(idx)
+                    }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onOption(idx)} />}
+                    {yaps[idx].options && session?.user.email && (
+                      <div className="text-center flex flex-col absolute border-2 w-28 bg-gray-500 border-none text-lg text-white ">
+                        <button onMouseDown={onEdit}>Edit</button>
+                        <button onMouseDown={onDelete}>Delete</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <p className="text-xl text-left pl-4">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
