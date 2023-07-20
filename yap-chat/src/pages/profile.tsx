@@ -1,4 +1,3 @@
-import { profile } from 'console';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react'
@@ -63,7 +62,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
-    console.log(session?.user)
   }, [profileData])
 
   return (

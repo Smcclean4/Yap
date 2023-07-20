@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import { DeleteModal } from '~/modals/delete'
 import { EditModal } from '~/modals/edit'
 import { SidebarNav } from '~/components/sidebar'
-
+import toast, { Toaster } from 'react-hot-toast'
 
 const YapsPage = () => {
 
@@ -24,30 +24,6 @@ const YapsPage = () => {
     deleteUser: string | undefined | null;
     deleteMessage: string;
   }
-
-  const defaultYaps: YapInterface[] = [
-    {
-      message: 'These are default Yaps.. strength in numbers. 🥰',
-      liked: false,
-      friend: false,
-      user: '',
-      options: false
-    },
-    {
-      message: 'These are default Yaps.. strength in numbers. 😋',
-      liked: false,
-      friend: false,
-      user: '',
-      options: false
-    },
-    {
-      message: 'These are default Yaps.. strength in numbers. 👑',
-      liked: false,
-      friend: false,
-      user: '',
-      options: false
-    }
-  ]
 
   const { data: session } = useSession();
 
@@ -140,17 +116,12 @@ const YapsPage = () => {
 
   const handleYapSend = () => {
     if (personalYap.message === '') {
-      setYapError('Please write a message before sending!')
+      toast.error('Please type a message!')
       return
     }
-    setYapError('')
     setYaps([...yaps, personalYap])
     setPersonalYap({ ...personalYap, message: '' })
   }
-
-  useEffect(() => {
-    setYaps([...defaultYaps])
-  }, [])
 
   useEffect(() => {
     const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
@@ -166,6 +137,7 @@ const YapsPage = () => {
 
   return (
     <Layout>
+      <Toaster />
       <SidebarNav user={session?.user.email} />
       <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
         {trueEditFalseDelete ? (
