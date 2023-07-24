@@ -79,6 +79,7 @@ const YapsPage = () => {
         return yap
       }
     }))
+    toast.error('Yap deleted!')
     toggle()
   }
 
@@ -91,10 +92,15 @@ const YapsPage = () => {
   }
 
   const saveItem = () => {
+    if (updateMessage === "") {
+      toast.error('Message cannot be empty!')
+      return
+    }
     setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
       return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
     }))
     setUpdateMessage('')
+    toast.success('Yap updated!')
     toggle()
   }
 

@@ -7,6 +7,7 @@ import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import { useModal } from '~/hooks/useModal';
 import { DeleteModal } from '~/modals/delete';
+import toast, { Toaster } from 'react-hot-toast';
 
 export interface MessageInfoInterface {
   username: string;
@@ -143,6 +144,7 @@ const FriendsPage = () => {
         return friend
       }
     }))
+    toast.error(`${userInfo} removed as a friend.`)
     toggle()
   }
 
@@ -166,6 +168,7 @@ const FriendsPage = () => {
         return request
       }
     }))
+    toast.error(`${userInfo} request denied.`)
     toggle()
   }
 
@@ -178,7 +181,7 @@ const FriendsPage = () => {
       }
     }))
     // needs delay to filter approved request from current requests?
-    alert('approving request!')
+    toast.success(`${userInfo} request approved!`)
     setCurrentFriends([...currentFriends, currentRequests[idx]])
   }
 
@@ -193,6 +196,7 @@ const FriendsPage = () => {
 
   return (
     <Layout>
+      <Toaster />
       <SidebarNav user={session?.user.email} userinfo={messageInfo} triggermessage={messageTrigger} />
       <div className="w-full flex flex-col justify-center items-center mt-28">
         <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />

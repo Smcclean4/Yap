@@ -3,6 +3,7 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react'
 import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ProfilePage = () => {
 
@@ -31,23 +32,28 @@ const ProfilePage = () => {
   }
 
   const handleSave = () => {
+    if (profileData.username === "") {
+      toast.error('Set your username!')
+      return
+    }
+    if (profileData.heading === "") {
+      toast.error('Set your heading!')
+      return
+    }
+    if (profileData.bio === "") {
+      toast.error('Set your bio!')
+      return
+    }
     setEditMode(!editMode)
+    toast.success('Profile data saved!')
   }
 
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
-    // session image is expiring?? looking for solutions.. maybe auth.ts? or losing it on page load?
     if (status === "authenticated") {
       update({ image: URL.createObjectURL(file) })
     }
   }
-
-  useEffect(() => {
-    const profileStorage = JSON.parse(localStorage.getItem('profileData') || '{}')
-    if (profileStorage) {
-      setProfileData({ ...profileStorage, image: session?.user.image })
-    }
-  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => update(), 1000 * 60 * 60)
@@ -61,11 +67,19 @@ const ProfilePage = () => {
   }, [update])
 
   useEffect(() => {
+    const profileStorage = JSON.parse(localStorage.getItem('profileData') || '{}')
+    if (profileStorage) {
+      setProfileData({ ...profileStorage, image: session?.user.image })
+    }
+  }, [])
+
+  useEffect(() => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
   }, [profileData])
 
   return (
     <Layout>
+      <Toaster />
       <SidebarNav user={session?.user.email} />
       <div className="w-full flex justify-center items-center mt-28 bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto py-6">
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
