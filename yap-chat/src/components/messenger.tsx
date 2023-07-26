@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { MessageInfoInterface } from '~/pages/friends';
 import { MessageModal } from '~/modals/message';
 import { useModal } from '~/hooks/useModal';
+import { Toaster, toast } from 'react-hot-toast';
 
 interface MessengerInterface {
   messengeruser?: MessageInfoInterface;
@@ -45,6 +46,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
         return chat
       }
     }))
+    toast.error(`Chat with ${messengerUser} cleared.`)
     toggle()
   }
 
@@ -85,6 +87,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
+      <Toaster />
       <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={messengerUser} onclosechat={closeChat} />
       {chats?.map((chats: { username: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
         return (
