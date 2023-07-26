@@ -5,6 +5,7 @@ import { SidebarNav } from '~/components/sidebar';
 import { api } from '~/utils/api';
 import dayjs from 'dayjs';
 import relativeTime from "dayjs/plugin/relativeTime"
+import { LoadingPage } from '~/shared/loading';
 
 dayjs.extend(relativeTime)
 
@@ -13,16 +14,29 @@ const HomePage = () => {
 
   if (!session) return null
 
-  const Home = () => {
-
+  const RecentNews = () => {
     const { data, isLoading } = api.home.getHomeUpdates.useQuery()
 
-    if (isLoading) return <div>Loading...</div>
-
-    if (!data) return <div>Something isn't working...</div>
+    if (isLoading) return <LoadingPage />
 
     return (
       <>
+        {data?.map((content, idx: React.Key | null | undefined) => {
+          return (
+            <div key={idx}>
+              <p className="text-md md:text-2xl"><i className="underline">{content.heading}</i><span className="font-extralight">{` • ${dayjs(content.createdAt).fromNow()}`}</span></p>
+              <p className="py-6 text-sm md:text-xl">{content.description}</p>
+            </div>
+          )
+        })}
+      </>
+    )
+  }
+
+  return (
+    <Layout>
+      <SidebarNav user={session?.user.email} />
+      <div className="w-full flex flex-col justify-center items-center mt-28 sm:pt-10 bg-gray-200">
         <div className="w-3/4 text-sm sm:text-lg md:text-xl xl:text-2xl xl:leading-10 tracking-wider text-center">
           <p>Welcome to Yap, the chat application where you can message your friends and send out Yaps - opinionated global messages that allow you to share your thoughts and ideas with the world!</p>
           <br></br>
@@ -33,25 +47,9 @@ const HomePage = () => {
         </div>
         <div className="bg-gray-900/[0.8] mb-2 h-72 w-5/6 lg:w-3/5 text-white flex flex-col justify-center items-center text-2xl overflow-auto rounded-lg">
           <div className="py-5 h-full w-4/5">
-            {data?.map((content, idx: React.Key | null | undefined) => {
-              return (
-                <div key={idx}>
-                  <p className="text-md md:text-2xl"><i className="underline">{content.heading}</i><span className="font-extralight">{` • ${dayjs(content.createdAt).fromNow()}`}</span></p>
-                  <p className="py-6 text-sm md:text-xl">{content.description}</p>
-                </div>
-              )
-            })}
+            <RecentNews />
           </div>
         </div>
-      </>
-    )
-  }
-
-  return (
-    <Layout>
-      <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 sm:pt-10 bg-gray-200">
-        <Home />
       </div>
     </Layout>
   )
