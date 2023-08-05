@@ -14,8 +14,7 @@ const YapsPage = () => {
 
   interface YapInterface {
     message: string;
-    liked: boolean;
-    friend: boolean;
+    likes: string[];
     user: string | undefined | null;
     options: boolean;
   }
@@ -33,8 +32,7 @@ const YapsPage = () => {
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     message: '',
-    liked: false,
-    friend: false,
+    likes: [],
     user: '',
     options: false
   })
@@ -48,14 +46,8 @@ const YapsPage = () => {
   }
 
   const onLike = (idx: React.Key) => {
-    setYaps((state: { liked: boolean }[]) => state?.map((yap: { liked: boolean }, i: React.Key) => {
-      return i === idx ? { ...yap, liked: !yap.liked } : yap
-    }))
-  }
-
-  const onFriend = (idx: React.Key) => {
-    setYaps((state: { friend: boolean }[]) => state?.map((yap: { friend: boolean }, i: React.Key) => {
-      return i === idx ? { ...yap, friend: !yap.friend } : yap
+    setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
+      return i === idx ? { ...yap, likes: session?.user.email } : yap
     }))
   }
 
@@ -138,6 +130,7 @@ const YapsPage = () => {
 
   useEffect(() => {
     localStorage.setItem('yapsData', JSON.stringify(yaps))
+    console.log(yaps)
   }, [yaps])
 
   return (
@@ -171,8 +164,7 @@ const YapsPage = () => {
                 </div>
                 <p className="text-xl text-left pl-4">{allYaps.message}</p>
                 <div className="flex justify-end items-end flex-grow m-4">
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={yaps[idx].liked ? "red" : "white"} size="xl" />
-                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faUserPlus} onClick={() => onFriend(idx)} color={yaps[idx].friend ? "skyblue" : "white"} size="xl" />
+                  <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={yaps[idx].likes.includes(session?.user.email) ? "red" : "white"} size="xl" />
                 </div>
               </div>
             )
