@@ -46,9 +46,15 @@ const YapsPage = () => {
   }
 
   const onLike = (idx: React.Key) => {
-    setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
-      return i === idx ? { ...yap, likes: session?.user.email } : yap
-    }))
+    if (!yaps[idx].likes.includes(session?.user.email)) {
+      setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
+        return i === idx ? { ...yap, likes: [session?.user.email] } : yap
+      }))
+    } else {
+      setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
+        return i === idx ? { ...yap, likes: [] } : yap
+      }))
+    }
   }
 
   const setUser = () => {
@@ -131,6 +137,7 @@ const YapsPage = () => {
   useEffect(() => {
     localStorage.setItem('yapsData', JSON.stringify(yaps))
     console.log(yaps)
+    console.log(yaps)
   }, [yaps])
 
   return (
@@ -148,7 +155,7 @@ const YapsPage = () => {
             return (
               <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
                 <div className="flex items-center justify-between">
-                  <Image className="m-4" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
+                  <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                   <div className="flex items-center justify-end pr-2 relative">
                     {session?.user.email === yaps[idx].user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => {
                       onOption(idx)
