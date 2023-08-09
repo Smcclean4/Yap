@@ -76,3 +76,19 @@ model HomeUpdates {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 }
+
+model LikedBy {
+    id     String @default(cuid())
+    userId String
+    user   Yap    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId])
+}
+
+model Yap {
+    id      String    @id @default(cuid())
+    message String
+    likes   LikedBy[]
+    user    String?
+    options Boolean
+}
