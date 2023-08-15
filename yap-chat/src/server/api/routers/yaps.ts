@@ -5,8 +5,9 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-export const homeUpdatesRouter = createTRPCRouter({
-  getHomeUpdates: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.homeUpdates.findMany()
-  })
+export const yapRouter = createTRPCRouter({
+  getAllYaps: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.yap.findMany()
+  }),
+
 });

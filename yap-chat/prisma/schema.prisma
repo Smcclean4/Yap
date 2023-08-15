@@ -80,7 +80,7 @@ model HomeUpdates {
 model LikedBy {
     id     String @default(cuid())
     userId String
-    user   Yap    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user   Yap    @relation(fields: [userId], references: [id])
 
     @@unique([userId])
 }
