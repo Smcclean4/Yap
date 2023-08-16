@@ -7,7 +7,11 @@ import {
 
 export const yapRouter = createTRPCRouter({
   getAllYaps: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.yap.findMany()
+    return ctx.prisma.yap.findMany({
+      include: {
+        likes: true
+      }
+    })
   }),
 
 });
