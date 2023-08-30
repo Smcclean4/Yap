@@ -28,7 +28,7 @@ const YapsPage = () => {
 
   const { data: session } = useSession();
 
-  const [yaps, setYaps]: Array<any> = useState([])
+  // const [yaps, setYaps]: Array<any> = useState([])
   const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
@@ -42,21 +42,21 @@ const YapsPage = () => {
   const { isShowing, toggle } = useModal();
 
   const onOption = (idx: React.Key) => {
-    setYaps((state: { options: boolean }[]) => state?.map((yap: { options: boolean }, i: React.Key) => {
-      return i === idx ? { ...yap, options: !yap.options } : yap
-    }))
+    // setYaps((state: { options: boolean }[]) => state?.map((yap: { options: boolean }, i: React.Key) => {
+    //   return i === idx ? { ...yap, options: !yap.options } : yap
+    // }))
   }
 
   const onLike = (idx: React.Key) => {
-    if (!yaps[idx].likes.includes(session?.user.email)) {
-      setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
-        return i === idx ? { ...yap, likes: [session?.user.email] } : yap
-      }))
-    } else {
-      setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
-        return i === idx ? { ...yap, likes: [] } : yap
-      }))
-    }
+    // if (!yaps[idx].likes.includes(session?.user.email)) {
+    //   setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
+    //     return i === idx ? { ...yap, likes: [session?.user.email] } : yap
+    //   }))
+    // } else {
+    //   setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
+    //     return i === idx ? { ...yap, likes: [] } : yap
+    //   }))
+    // }
   }
 
   const setUser = () => {
@@ -68,17 +68,17 @@ const YapsPage = () => {
   }
 
   const currentDeleteData = (idx: React.Key) => {
-    setDeleteInfo({ deleteUser: yaps[idx].user, deleteMessage: yaps[idx].message })
+    // setDeleteInfo({ deleteUser: yaps[idx].user, deleteMessage: yaps[idx].message })
   }
 
   const deleteItem = () => {
-    setYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
-      if (yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage) {
-        return false
-      } else {
-        return yap
-      }
-    }))
+    // setYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
+    //   if (yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage) {
+    //     return false
+    //   } else {
+    //     return yap
+    //   }
+    // }))
     toast.error('Yap deleted!')
     toggle()
   }
@@ -96,9 +96,9 @@ const YapsPage = () => {
       toast.error('Message cannot be empty!')
       return
     }
-    setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
-      return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
-    }))
+    // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
+    //   return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
+    // }))
     setUpdateMessage('')
     toast.success('Yap updated!')
     toggle()
@@ -124,26 +124,31 @@ const YapsPage = () => {
       toast.error('Please type a message!')
       return
     }
-    setYaps([...yaps, personalYap])
+    // setYaps([...yaps, personalYap])
     setPersonalYap({ ...personalYap, message: '' })
   }
 
-  useEffect(() => {
-    const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
-    if (yapsStorage) {
-      setYaps(yapsStorage)
-    }
-  }, [])
+  // useEffect(() => {
+  //   const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
+  //   if (yapsStorage) {
+  //     setYaps(yapsStorage)
+  //   }
+  // }, [])
 
 
-  useEffect(() => {
-    localStorage.setItem('yapsData', JSON.stringify(yaps))
-  }, [yaps])
+  // useEffect(() => {
+  //   localStorage.setItem('yapsData', JSON.stringify(yaps))
+  //   console.log(yaps)
+  // }, [yaps])
 
   if (!session) return null
 
   const AllYaps = () => {
     const { data, isLoading } = api.yap.getAllYaps.useQuery()
+
+    useEffect(() => {
+      console.log(data)
+    }, [])
 
     if (isLoading) return <LoadingPage />
 
@@ -169,7 +174,7 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={yaps[idx].likes.includes(session?.user.email) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={allYaps.likes[0] ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
