@@ -16,10 +16,14 @@ export const yapRouter = createTRPCRouter({
   findOneYap: publicProcedure
     .input(z.object({ text: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.yap.findUnique({
+      return ctx.prisma.yap.findFirst({
         where: {
-          // insert comparison from input and find that unique email in likes
-        }
+          likes: {
+            some: {
+              user: input
+            },
+          },
+        },
       })
     })
 });

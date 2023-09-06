@@ -174,6 +174,7 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
+                {/* add likes that correspond to session user below */}
                 <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={allYaps.likes[0] ? "red" : "white"} size="xl" />
               </div>
             </div>
