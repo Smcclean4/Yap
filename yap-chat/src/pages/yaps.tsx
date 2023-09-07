@@ -144,17 +144,18 @@ const YapsPage = () => {
   if (!session) return null
 
   const AllYaps = () => {
-    const { data, isLoading } = api.yap.getAllYaps.useQuery()
+    const { data: yaps, isLoading } = api.yap.getAllYaps.useQuery()
+    const { data: uniqueYap } = api.yap.findOneYap.useQuery({ text: String(session?.user.email) })
 
     useEffect(() => {
-      console.log(data)
+      console.log(yaps)
     }, [])
 
     if (isLoading) return <LoadingPage />
 
     return (
       <>
-        {data?.map((allYaps, idx: React.Key) => {
+        {yaps?.map((allYaps, idx: React.Key) => {
           return (
             <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
               <div className="flex items-center justify-between">
@@ -175,7 +176,7 @@ const YapsPage = () => {
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
                 {/* add likes that correspond to session user below */}
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={allYaps.likes[0] ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={uniqueYap ? "red" : "white"} size="xl" />
               </div>
             </div>
           )

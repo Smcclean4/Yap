@@ -20,8 +20,8 @@ export const yapRouter = createTRPCRouter({
         where: {
           likes: {
             some: {
-              user: input
-            },
+              user: input.text
+            }
           },
         },
       })
