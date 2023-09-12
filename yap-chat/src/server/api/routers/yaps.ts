@@ -13,10 +13,13 @@ export const yapRouter = createTRPCRouter({
       }
     })
   }),
-  findOneYap: publicProcedure
+  findSpecificYap: publicProcedure
     .input(z.object({ text: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.yap.findFirst({
+        include: {
+          likes: true
+        },
         where: {
           likes: {
             some: {
