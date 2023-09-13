@@ -16,7 +16,7 @@ export const yapRouter = createTRPCRouter({
   findSpecificYap: publicProcedure
     .input(z.object({ text: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.yap.findFirst({
+      return ctx.prisma.yap.findMany({
         include: {
           likes: true
         },
@@ -25,7 +25,7 @@ export const yapRouter = createTRPCRouter({
             some: {
               user: input.text
             }
-          },
+          }
         },
       })
     })

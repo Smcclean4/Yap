@@ -147,11 +147,9 @@ const YapsPage = () => {
     const { data: yaps, isLoading } = api.yap.getAllYaps.useQuery()
     const { data: uniqueYap } = api.yap.findSpecificYap.useQuery({ text: String(session?.user.email) })
 
-    useEffect(() => {
-      console.log(yaps)
-    }, [])
-
     if (isLoading) return <LoadingPage />
+
+    console.log(yaps[0].likes[0].user.includes(session?.user.email))
 
     return (
       <>
