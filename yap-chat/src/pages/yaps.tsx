@@ -149,7 +149,7 @@ const YapsPage = () => {
 
     if (isLoading) return <LoadingPage />
 
-    console.log(yaps[0].likes[0].user.includes(session?.user.email))
+    // console.log(yaps[1].likes[0].user.includes(session?.user.email))
 
     return (
       <>
