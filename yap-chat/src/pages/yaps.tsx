@@ -149,11 +149,9 @@ const YapsPage = () => {
 
     if (isLoading) return <LoadingPage />
 
-    // console.log(yaps[1].likes[0].user.includes(session?.user.email))
-
     return (
       <>
-        {yaps?.map((allYaps, idx: React.Key) => {
+        {yaps?.map((allYaps, idx: number) => {
           return (
             <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
               <div className="flex items-center justify-between">
@@ -173,8 +171,8 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
-                {/* add likes that correspond to session user below */}
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={uniqueYap ? "red" : "white"} size="xl" />
+                {/* add likes that correspond to session user below.. currently trying to find id ... works with hard code [0] */}
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={allYaps.likes[idx]?.user.includes(String(session?.user.email)) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
