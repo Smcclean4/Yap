@@ -172,7 +172,7 @@ const YapsPage = () => {
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
                 {/* add likes that correspond to session user below.. currently trying to find id ... works with hard code [0] */}
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => onLike(idx)} color={allYaps.likes[idx]?.user.includes(String(session?.user.email)) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={allYaps.likes[0]?.user.includes(String(session?.user.email)) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
