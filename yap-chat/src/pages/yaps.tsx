@@ -145,7 +145,7 @@ const YapsPage = () => {
 
   const AllYaps = () => {
     const { data: yaps, isLoading } = api.yap.getAllYaps.useQuery()
-    const { data: uniqueYap } = api.yap.findSpecificYap.useQuery({ text: String(session?.user.email) })
+    // const { data: uniqueYap } = api.yap.findSpecificYap.useQuery({ text: String(session?.user.email) })
 
     if (isLoading) return <LoadingPage />
 
