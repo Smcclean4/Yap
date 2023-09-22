@@ -149,6 +149,13 @@ const YapsPage = () => {
 
     if (isLoading) return <LoadingPage />
 
+    const getColor = (yaps: any, id: number) => {
+      console.log(yaps)
+      return yaps?.likes.map((val: any) => {
+        return val.user.includes(String(session?.user.email))
+      })
+    }
+
     return (
       <>
         {yaps?.map((allYaps, idx: number) => {
@@ -172,7 +179,7 @@ const YapsPage = () => {
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
                 {/* add likes that correspond to session user below.. currently trying to find id ... works with hard code [0] */}
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={allYaps.likes[0]?.user.includes(String(session?.user.email)) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={getColor(allYaps, idx) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
