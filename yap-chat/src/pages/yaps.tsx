@@ -150,8 +150,9 @@ const YapsPage = () => {
     if (isLoading) return <LoadingPage />
 
     const getColor = (yaps: any) => {
-      console.log(yaps)
-      return yaps?.likes.map((val: any, id: any) => !val[id]?.user.includes(String(session?.user.email)) ? "red" : "white")
+      console.log(yaps?.likes[0]?.user)
+      // stating both have likes but not differentiating between the yaps ... 
+      return yaps?.likes.map((val: any, id: any) => val[id]?.user !== String(session?.user.email) ? "red" : "white")
     }
 
     return (
