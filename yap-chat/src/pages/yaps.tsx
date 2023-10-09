@@ -145,15 +145,23 @@ const YapsPage = () => {
 
   const AllYaps = () => {
     const { data: yaps, isLoading } = api.yap.getAllYaps.useQuery()
-    // const { data: uniqueYap } = api.yap.findSpecificYap.useQuery({ text: String(session?.user.email) })
+    const { data: uniqueYap } = api.yap.findSpecificYap.useQuery({ text: String(session?.user.email) })
 
     if (isLoading) return <LoadingPage />
 
-    const getColor = (yaps: any) => {
-      console.log(yaps?.likes[0]?.user)
-      // stating both have likes but not differentiating between the yaps ... 
-      return yaps?.likes.map((val: any, id: any) => val[id]?.user === String(session?.user.email) ? "white" : "red")
+    // const getColor = (yaps: any) => {
+    //   console.log(yaps?.likes[0]?.user)
+    //   // stating both have likes but not differentiating between the yaps ... 
+    //   return yaps?.likes.map((val: any, id: any) => val[id]?.user === String(session?.user.email) ? "white" : "red")
+    // }
+
+    const uniqueYaps = (yaps: any) => {
+      return uniqueYap?.map(val => val.id === yaps.id ? "red" : "white")
     }
+
+    console.log(uniqueYap?.[0]?.id)
+    console.log(uniqueYap)
+    console.log(uniqueYap?.map(val => val.id))
 
     return (
       <>
@@ -178,7 +186,7 @@ const YapsPage = () => {
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
                 {/* add likes that correspond to session user below.. currently trying to find id ... works with hard code [0] */}
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={getColor(allYaps)} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={uniqueYaps(allYaps)} size="xl" />
               </div>
             </div>
           )

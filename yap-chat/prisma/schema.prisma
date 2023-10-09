@@ -57,6 +57,7 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    likes         Like[]
     accounts      Account[]
     sessions      Session[]
 }
@@ -78,12 +79,14 @@ model HomeUpdates {
 }
 
 model Like {
-    id     Int    @id @default(autoincrement())
-    userId String
-    user   String
-    yap    Yap    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id          Int    @id @default(autoincrement())
+    yapId       String
+    userId      String
+    user        String
+    sessionUser User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    yap         Yap    @relation(fields: [yapId], references: [id], onDelete: Cascade)
 
-    @@unique([userId])
+    @@unique([yapId])
 }
 
 model Yap {
