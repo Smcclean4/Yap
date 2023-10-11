@@ -10,10 +10,11 @@ export const yapRouter = createTRPCRouter({
     return ctx.prisma.yap.findMany({
       include: {
         likes: true
-      }
+      },
+      take: 100
     })
   }),
-  findSpecificYap: publicProcedure
+  findSpecificUserLikes: publicProcedure
     .input(z.object({ text: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.yap.findMany({
@@ -27,6 +28,20 @@ export const yapRouter = createTRPCRouter({
             }
           }
         },
+      })
+    }),
+  postYap: publicProcedure
+    .input(z.object({ message: z.string(), user: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.yap.create({
+        include: {
+          likes: true
+        },
+        data: {
+          message: input.message,
+          user: input.user,
+          options: false
+        }
       })
     })
 });

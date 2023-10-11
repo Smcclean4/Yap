@@ -141,11 +141,24 @@ const YapsPage = () => {
   //   console.log(yaps)
   // }, [yaps])
 
+  // sets users message and adds it to post
+  const [userMessage, setUserMessage] = useState('')
+  // gets all context for full refresh
+  const ctx = api.useContext()
+  // creates a user post
+  const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
+    onSettled: () => {
+      setUserMessage("");
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  })
+
   if (!session) return null
 
   const AllYaps = () => {
+    // handle all yaps display and current user likes
     const { data: yaps, isLoading } = api.yap.getAllYaps.useQuery()
-    const { data: uniqueYap } = api.yap.findSpecificYap.useQuery({ text: String(session?.user.email) })
+    const { data: uniqueYap } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
 
     if (isLoading) return <LoadingPage />
 
@@ -196,8 +209,8 @@ const YapsPage = () => {
         <div className="h-auto w-full flex flex-row justify-center items-end">
           <div className="bg-gray-300 text-black p-6 w-full flex flex-col justify-center text-center">
             <div className="flex flex-row justify-center">
-              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={personalYap.message} onFocus={setUser} maxLength={125} onChange={handleYapDisplay} onKeyDown={(e) => e.key === "Enter" && handleYapSend()} />
-              <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={handleYapSend}>Send</button>
+              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={userMessage} onFocus={setUser} disabled={isPosting} maxLength={125} onChange={(e) => setUserMessage(e.target.value)} onKeyDown={(e) => e.key === "Enter" && userYap({ message: userMessage, user: String(session?.user.email) })} />
+              <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={() => userYap({ message: userMessage, user: String(session?.user.email) })}>Send</button>
             </div>
           </div>
         </div>
