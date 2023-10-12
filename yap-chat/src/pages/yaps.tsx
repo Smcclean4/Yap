@@ -135,7 +135,6 @@ const YapsPage = () => {
   //   }
   // }, [])
 
-
   // useEffect(() => {
   //   localStorage.setItem('yapsData', JSON.stringify(yaps))
   //   console.log(yaps)
@@ -157,10 +156,10 @@ const YapsPage = () => {
 
   const AllYaps = () => {
     // handle all yaps display and current user likes
-    const { data: yaps, isLoading } = api.yap.getAllYaps.useQuery()
-    const { data: uniqueYap } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
+    const { data: yaps, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
+    const { data: uniqueYaps } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
 
-    if (isLoading) return <LoadingPage />
+    if (loadingYaps) return <LoadingPage />
 
     return (
       <>
@@ -184,7 +183,7 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={uniqueYap?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={uniqueYaps?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
