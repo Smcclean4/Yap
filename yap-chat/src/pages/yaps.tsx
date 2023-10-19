@@ -10,7 +10,11 @@ import { EditModal } from '~/modals/edit'
 import { SidebarNav } from '~/components/sidebar'
 import { api } from '~/utils/api'
 import { LoadingPage } from '~/shared/loading'
+import dayjs from 'dayjs';
+import relativeTime from "dayjs/plugin/relativeTime"
 import toast, { Toaster } from 'react-hot-toast'
+
+dayjs.extend(relativeTime)
 
 const YapsPage = () => {
 
@@ -160,6 +164,7 @@ const YapsPage = () => {
     const { data: uniqueYaps } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
 
     if (loadingYaps) return <LoadingPage />
+    console.log(yaps)
 
     return (
       <>
@@ -168,6 +173,7 @@ const YapsPage = () => {
             <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
               <div className="flex items-center justify-between">
                 <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
+                <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
                 <div className="flex items-center justify-end pr-2 relative">
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => {
                     onOption(idx)

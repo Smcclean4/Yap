@@ -87,9 +87,11 @@ model Like {
 }
 
 model Yap {
-    id      String  @id @default(cuid())
-    message String
-    likes   Like[]
-    user    String?
-    options Boolean
+    id        String   @id @default(cuid())
+    message   String
+    likes     Like[]
+    user      String?
+    options   Boolean
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
