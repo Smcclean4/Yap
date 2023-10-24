@@ -7,6 +7,10 @@ import {
 
 export const homeUpdatesRouter = createTRPCRouter({
   getHomeUpdates: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.homeUpdates.findMany()
+    return ctx.prisma.homeUpdates.findMany({
+      orderBy: {
+        createdAt: "desc"
+      }
+    })
   })
 });

@@ -11,7 +11,10 @@ export const yapRouter = createTRPCRouter({
       include: {
         likes: true
       },
-      take: 100
+      take: 100,
+      orderBy: {
+        createdAt: "desc"
+      }
     })
   }),
   findSpecificUserLikes: publicProcedure
@@ -41,6 +44,19 @@ export const yapRouter = createTRPCRouter({
           message: input.message,
           user: input.user,
           options: false
+        }
+      })
+    }),
+  likeYap: publicProcedure
+    .input(z.object({ user: z.string(), id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.yap.findUnique({
+        include: {
+          likes: true
+        },
+        where: {
+          // find id of the post that is going to get liked and update by adding user that liked
+          id: input.id
         }
       })
     })
