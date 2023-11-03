@@ -51,18 +51,6 @@ const YapsPage = () => {
     // }))
   }
 
-  const onLike = (idx: React.Key) => {
-    // if (!yaps[idx].likes.includes(session?.user.email)) {
-    //   setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
-    //     return i === idx ? { ...yap, likes: [session?.user.email] } : yap
-    //   }))
-    // } else {
-    //   setYaps((state: { likes: boolean }[]) => state?.map((yap: { likes: boolean }, i: React.Key) => {
-    //     return i === idx ? { ...yap, likes: [] } : yap
-    //   }))
-    // }
-  }
-
   const setUser = () => {
     if (session) {
       setPersonalYap({ ...personalYap, user: session?.user.email })
@@ -156,6 +144,8 @@ const YapsPage = () => {
     }
   })
 
+  const { mutate: likeYap, isLoading: isLiking } = api.yap.likeYap.useMutation()
+
   if (!session) return null
 
   const AllYaps = () => {
@@ -189,7 +179,7 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => alert(idx)} color={uniqueYaps?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id })} color={uniqueYaps?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
