@@ -144,7 +144,7 @@ const YapsPage = () => {
     }
   })
 
-  const { mutate: likeYap, isLoading: isLiking } = api.yap.likeYap.useMutation()
+  const { mutate: likeYap } = api.yap.likeYap.useMutation()
 
   if (!session) return null
 

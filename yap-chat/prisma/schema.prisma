@@ -78,7 +78,7 @@ model HomeUpdates {
 }
 
 model Like {
-    id    Int    @id @default(autoincrement())
+    id    String @id @default(cuid())
     yapId String
     user  String
     yap   Yap    @relation(fields: [yapId], references: [id], onDelete: Cascade)
