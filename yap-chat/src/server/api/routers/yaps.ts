@@ -71,13 +71,13 @@ export const yapRouter = createTRPCRouter({
         update: {
           likes: {
             delete: {
-              id: Number(input.id)
+              id: input.id
             },
           },
         },
         create: {
-          message: existingYap?.message | undefined,
-          options: existingYap?.options,
+          message: String(existingYap?.message),
+          options: Boolean(existingYap?.options),
           likes: {
             create: {
               user: input.user,
