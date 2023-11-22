@@ -60,6 +60,9 @@ export const yapRouter = createTRPCRouter({
         }
       })
 
+      // figured out solution to delete yap! but no since it is delete many 
+      // it doesnt add like because it is delete current like as soon as it 
+      // is placed?? 
       const result = await ctx.prisma.yap.upsert({
         include: {
           likes: true
@@ -75,13 +78,13 @@ export const yapRouter = createTRPCRouter({
         },
         update: {
           likes: {
-            delete: {
-              id: input.id
+            deleteMany: {
+              user: input.user
             }
           }
         },
         where: {
-          id: input.id,
+          id: input.id
         }
       })
 
