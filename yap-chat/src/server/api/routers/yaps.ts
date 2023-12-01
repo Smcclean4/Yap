@@ -48,7 +48,7 @@ export const yapRouter = createTRPCRouter({
       })
     }),
   likeYap: publicProcedure
-    .input(z.object({ user: z.string(), id: z.string(), yapId: z.string() }))
+    .input(z.object({ user: z.string(), id: z.string(), location: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const existingYap = await ctx.prisma.yap.findUnique({
         where: {
@@ -59,7 +59,7 @@ export const yapRouter = createTRPCRouter({
           options: true,
           likes: {
             select: {
-              yapId: true
+              id: true
             }
           }
         }
@@ -85,7 +85,7 @@ export const yapRouter = createTRPCRouter({
           likes: {
             delete: {
               // referencing this call for instructions on yaps.tsx
-              yapId: input.yapId
+              id: existingYap?.likes[input.location]?.id
             }
           }
         },

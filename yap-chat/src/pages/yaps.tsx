@@ -180,7 +180,7 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id, yapId: allYaps.likes[idx]!.yapId /* maybe use yapId to identify the specific yap? because yap id refers to yap as a whole .. reference yap tRPC call..  */ })} color={uniqueYaps?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id, location: idx /* maybe use yapId to identify the specific yap? because yap id refers to yap as a whole .. reference yap tRPC call..  */ })} color={uniqueYaps?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
