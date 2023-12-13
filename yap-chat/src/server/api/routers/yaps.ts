@@ -48,7 +48,7 @@ export const yapRouter = createTRPCRouter({
       })
     }),
   likeYap: publicProcedure
-    .input(z.object({ user: z.string(), id: z.string(), location: z.number() }))
+    .input(z.object({ user: z.string(), id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const existingYap = await ctx.prisma.yap.findUnique({
         where: {
@@ -56,36 +56,27 @@ export const yapRouter = createTRPCRouter({
         },
         select: {
           message: true,
-          options: true,
-          likes: {
-            select: {
-              id: true
-            }
-          }
+          options: true
         }
       })
 
-      // figured out solution to delete yap! but no since it is delete many 
-      // it doesnt add like because it is delete current like as soon as it 
-      // is placed?? 
-      const result = await ctx.prisma.yap.upsert({
+      if (!existingYap) {
+        throw new Error(`Yap with id ${input.id} not found.`)
+      }
+
+      const result = await ctx.prisma.yap.update({
         include: {
           likes: true
         },
-        create: {
-          message: String(existingYap?.message),
-          options: Boolean(existingYap?.options),
+        data: {
           likes: {
-            create: {
-              user: input.user
-            }
-          }
-        },
-        update: {
-          likes: {
+            // if it does exist
             delete: {
-              // referencing this call for instructions on yaps.tsx
-              id: existingYap?.likes[input.location]?.id
+              yapId: input.id
+            },
+            // if it does not exist
+            create: {
+              user: input.id
             }
           }
         },
