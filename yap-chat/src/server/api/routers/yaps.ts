@@ -60,23 +60,23 @@ export const yapRouter = createTRPCRouter({
         }
       })
 
-      if (!existingYap) {
-        throw new Error(`Yap with id ${input.id} not found.`)
-      }
-
-      const result = await ctx.prisma.yap.update({
+      const result = await ctx.prisma.yap.upsert({
         include: {
           likes: true
         },
-        data: {
+        create: {
+          message: String(existingYap?.message),
+          options: Boolean(existingYap?.options),
           likes: {
-            // if it does exist
+            create: {
+              user: input.user
+            }
+          }
+        },
+        update: {
+          likes: {
             delete: {
               yapId: input.id
-            },
-            // if it does not exist
-            create: {
-              user: input.id
             }
           }
         },
