@@ -48,7 +48,7 @@ export const yapRouter = createTRPCRouter({
       })
     }),
   likeYap: publicProcedure
-    .input(z.object({ user: z.string(), id: z.string() }))
+    .input(z.object({ user: z.string(), id: z.string(), index: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const existingYap = await ctx.prisma.yap.findUnique({
         where: {
@@ -56,35 +56,52 @@ export const yapRouter = createTRPCRouter({
         },
         select: {
           message: true,
-          options: true
+          options: true,
+          likes: {
+            select: {
+              user: true
+            }
+          }
         }
       })
 
-      const result = await ctx.prisma.yap.upsert({
-        include: {
-          likes: true
-        },
-        create: {
-          message: String(existingYap?.message),
-          options: Boolean(existingYap?.options),
-          likes: {
-            create: {
-              user: input.user
+      if (existingYap?.likes.map(val => val.user).includes(input.user)) {
+        const alreadyExists = await ctx.prisma.yap.update({
+          include: {
+            likes: true
+          },
+          where: {
+            id: input.id
+          },
+          data: {
+            likes: {
+              delete: {
+                yapId: input.id
+              }
             }
           }
-        },
-        update: {
-          likes: {
-            delete: {
-              yapId: input.id
-            }
-          }
-        },
-        where: {
-          id: input.id
-        }
-      })
+        })
 
-      return result
+        return alreadyExists
+
+      } else {
+        const doesntExist = await ctx.prisma.yap.update({
+          include: {
+            likes: true
+          },
+          where: {
+            id: input.id
+          },
+          data: {
+            likes: {
+              create: {
+                user: input.user
+              }
+            }
+          }
+        })
+
+        return doesntExist
+      }
     })
 });
