@@ -147,6 +147,8 @@ const YapsPage = () => {
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
 
+  const { mutate: optionToggle } = api.yap.optionToggle.useMutation()
+
   if (!session) return null
 
   const AllYaps = () => {
@@ -167,9 +169,11 @@ const YapsPage = () => {
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
                 <div className="flex items-center justify-end pr-2 relative">
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => {
-                    onOption(idx)
+                    optionToggle({ id: allYaps.id })
                     currentDeleteData(idx)
-                  }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onOption(idx)} />}
+                  }} icon={faEllipsis} size="xl" tabIndex={0}
+                    // need to figure out how to blur options.. 
+                    onBlur={() => optionToggle({ id: allYaps.id })} />}
                   {allYaps.options && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white ">
                       <button onMouseDown={onEdit}>Edit</button>
@@ -180,7 +184,7 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id, index: idx /* maybe use yapId to identify the specific yap? because yap id refers to yap as a whole .. reference yap tRPC call..  */ })} color={uniqueYaps?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id })} color={uniqueYaps?.map(val => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
