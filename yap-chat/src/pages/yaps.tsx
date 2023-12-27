@@ -163,17 +163,16 @@ const YapsPage = () => {
       <>
         {yaps?.map((allYaps, idx: number) => {
           return (
-            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
+            // fidling with focus on outer div.. shows promimse
+            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx} onFocus={() => optionToggle({ id: allYaps.id })} tabIndex={0}>
               <div className="flex items-center justify-between">
                 <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
-                <div className="flex items-center justify-end pr-2 relative">
-                  {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" onFocus={() => {
-                    optionToggle({ id: allYaps.id })
-                    currentDeleteData(idx)
-                  }} icon={faEllipsis} size="xl" tabIndex={0}
-                    // need to figure out how to blur options.. 
-                    onBlur={() => optionToggle({ id: allYaps.id })} />}
+                <div className="flex items-center justify-end pr-2 relative" onMouseDown={() => {
+                  optionToggle({ id: allYaps.id })
+                  currentDeleteData(idx)
+                }} onBlur={() => optionToggle({ id: allYaps.id })} tabIndex={0}>
+                  {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
                   {allYaps.options && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white ">
                       <button onMouseDown={onEdit}>Edit</button>
