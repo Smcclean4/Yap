@@ -122,7 +122,7 @@ export const yapRouter = createTRPCRouter({
         }
       })
 
-      const toggleOptions = ctx.prisma.yap.update({
+      const toggleOptions = await ctx.prisma.yap.update({
         include: {
           likes: true
         },
