@@ -168,9 +168,10 @@ const YapsPage = () => {
               <div className="flex items-center justify-between">
                 <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
-                <div className="flex items-center justify-end pr-2 relative" onFocus={() =>
-                  optionToggle({ id: allYaps.id })} tabIndex={0}>
-                  {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" onBlur={() => optionToggle({ id: allYaps.id })} tabIndex={0} />}
+                <div className="flex items-center justify-end pr-2 relative" onBlur={() => optionToggle({ id: allYaps.id })} tabIndex={0}>
+                  {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" onFocus={() =>
+                    // prevent default?
+                    optionToggle({ id: allYaps.id })} tabIndex={0} />}
                   {allYaps.options && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white">
                       <button onMouseDown={onEdit}>Edit</button>

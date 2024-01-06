@@ -112,13 +112,7 @@ export const yapRouter = createTRPCRouter({
           id: input.id
         },
         select: {
-          message: true,
           options: true,
-          likes: {
-            select: {
-              user: true
-            }
-          }
         }
       })
 
