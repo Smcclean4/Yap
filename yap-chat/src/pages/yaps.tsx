@@ -23,6 +23,7 @@ const YapsPage = () => {
     likes: string[];
     user: string | undefined | null;
     options: boolean;
+    message: string;
   }
 
   interface DeleteInterface {
@@ -39,7 +40,8 @@ const YapsPage = () => {
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     likes: [],
     user: '',
-    options: false
+    options: false,
+    message: ''
   })
 
   const { isShowing, toggle } = useModal();
@@ -106,18 +108,18 @@ const YapsPage = () => {
   }
 
 
-  const handleYapDisplay = ({ target: input }: any) => {
-    setPersonalYap({ ...personalYap, [input.name]: input.value })
-  }
-
-  // const handleAllYapend = () => {
-  //   if (personalYap.message === '') {
-  //     toast.error('Please type a message!')
-  //     return
-  //   }
-  //   // setAllYaps([...allYaps, personalYap])
-  //   setPersonalYap({ ...personalYap, message: '' })
+  // const handleYapDisplay = ({ target: input }: any) => {
+  //   setPersonalYap({ ...personalYap, [input.name]: input.value })
   // }
+
+  const handleAllYapend = () => {
+    if (userMessage === '') {
+      toast.error('Please type a message!')
+      return
+    }
+    setAllYaps([...allYaps, personalYap])
+    //   setPersonalYap({ ...personalYap, message: '' })
+  }
 
   // useEffect(() => {
   //   const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
@@ -138,6 +140,7 @@ const YapsPage = () => {
   // creates a user post
   const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
     onSettled: () => {
+      setPersonalYap({ ...personalYap, message: userMessage })
       setUserMessage("");
       void ctx.yap.getAllYaps.invalidate();
     }
@@ -156,13 +159,7 @@ const YapsPage = () => {
 
     if (loadingYaps) return <LoadingPage />
 
-    // figure out how to manipulate options of each with "onOptions"
-    useEffect(() => {
-      setAllYaps(yaps)
-    }, [])
-
-    console.log(yaps)
-    console.log(allYaps)
+    console.log(personalYap)
 
     return (
       <>
