@@ -36,7 +36,7 @@ const HomePage = () => {
   return (
     <Layout>
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 sm:pt-10 bg-gray-200">
+      <div className="w-full flex flex-col justify-center items-center mt-28 sm:pt-10 bg-gray-200 h-auto overflow-scroll">
         <div className="w-3/4 text-sm sm:text-lg md:text-xl xl:text-2xl xl:leading-10 tracking-wider text-center">
           <p>Welcome to Yap, the chat application where you can message your friends and send out Yaps - opinionated global messages that allow you to share your thoughts and ideas with the world!</p>
           <br></br>
@@ -46,9 +46,7 @@ const HomePage = () => {
           <p className="underline">Recent News</p>
         </div>
         <div className="bg-gray-900/[0.8] mb-2 h-72 w-5/6 lg:w-3/5 text-white flex flex-col justify-center items-center text-2xl overflow-auto rounded-lg">
-          <div className="py-5 h-full w-4/5">
-            <RecentNews />
-          </div>
+          <RecentNews />
         </div>
       </div>
     </Layout>
