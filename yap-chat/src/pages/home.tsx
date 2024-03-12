@@ -23,7 +23,7 @@ const HomePage = () => {
       <>
         {data?.map((content, idx: React.Key | null | undefined) => {
           return (
-            <div key={idx}>
+            <div className="h-screen" key={idx}>
               <p className="text-md md:text-2xl"><i className="underline">{content.heading}</i><span className="font-extralight">{` • ${dayjs(content.createdAt).fromNow()}`}</span></p>
               <p className="py-6 text-sm md:text-xl">{content.description}</p>
             </div>
