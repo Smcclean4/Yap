@@ -13,25 +13,25 @@ export const TopNav = () => {
       <ul className="flex flex-row items-center">
         <div className="flex flex-col cursor-pointer text-center">
           <Link href="/home">
-            <FontAwesomeIcon icon={faHouse} size="2x" />
+            <FontAwesomeIcon icon={faHouse} size="xl" />
             <li className="mx-8 text-xl underline underline-offset-4">Home</li>
           </Link>
         </div>
         <div className="flex flex-col cursor-pointer text-center">
           <Link href="/yaps">
-            <FontAwesomeIcon icon={faComment} size="2x" />
+            <FontAwesomeIcon icon={faComment} size="xl" />
             <li className="mx-8 text-xl underline underline-offset-4">Yaps</li>
           </Link>
         </div>
         <div className="flex flex-col cursor-pointer text-center">
           <Link href="/friends">
-            <FontAwesomeIcon icon={faUserFriends} size="2x" />
+            <FontAwesomeIcon icon={faUserFriends} size="xl" />
             <li className="mx-8 text-xl underline underline-offset-4">Friends</li>
           </Link>
         </div>
         <div className="flex flex-col cursor-pointer text-center">
           <Link href="/profile">
-            <FontAwesomeIcon icon={faPerson} size="2x" />
+            <FontAwesomeIcon icon={faPerson} size="xl" />
             <li className="mx-8 text-xl underline underline-offset-4">Profile</li>
           </Link>
         </div>
