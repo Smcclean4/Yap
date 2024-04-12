@@ -15,7 +15,7 @@ export const TopNav = () => {
   }
   return (
     <>
-      <div className="p-8 flex flex-row items-center justify-between w-full bg-blue-500 absolute">
+      <div className="p-6 flex flex-row items-center justify-between w-full bg-blue-500 absolute">
         <Link href="/"><p className="text-white text-6xl">Yap.</p></Link>
         <div className="flex flex-row cursor-pointer sm:hidden z-10">
           <div className="w-auto h-auto absolute flex flex-col items-center right-5 top-10 text-center pr-2">
