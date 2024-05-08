@@ -46,6 +46,7 @@ const YapsPage = () => {
 
   const { isShowing, toggle } = useModal();
 
+  // figure out option on and off instead of doing it in database
   const onOption = (idx: React.Key) => {
     setAllYaps((state: { options: boolean }[]) => state?.map((yap: { options: boolean }, i: React.Key) => {
       return i === idx ? { ...yap, options: !yap.options } : yap
