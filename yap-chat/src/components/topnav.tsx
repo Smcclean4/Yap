@@ -43,20 +43,21 @@ export const TopNav = () => {
         <div className="hidden sm:block">
           <ul className="flex text-white text-center">
             <li className="mx-10 underline underline-offset-8">
-              <Link href="/home"><FontAwesomeIcon icon={faHouse} size="xl" /></Link>
-              <p>Home</p>
+              <Link href="/home"><FontAwesomeIcon icon={faHouse} size="xl" />
+                <p>Home</p></Link>
+
             </li>
             <li className="mx-10 underline underline-offset-8">
-              <Link href="/yaps"><FontAwesomeIcon icon={faComment} size="xl" /></Link>
-              <p>Yaps</p>
+              <Link href="/yaps"><FontAwesomeIcon icon={faComment} size="xl" /><p>Yaps</p></Link>
+
             </li>
             <li className="mx-10 underline underline-offset-8">
-              <Link href="/friends"><FontAwesomeIcon icon={faUserFriends} size="xl" /></Link>
-              <p>Friends</p>
+              <Link href="/friends"><FontAwesomeIcon icon={faUserFriends} size="xl" /><p>Friends</p></Link>
+
             </li>
             <li className="mx-10 underline underline-offset-8">
-              <Link href="/profile"><FontAwesomeIcon icon={faPerson} size="xl" /></Link>
-              <p>Profile</p>
+              <Link href="/profile"><FontAwesomeIcon icon={faPerson} size="xl" /><p>Profile</p></Link>
+
             </li>
           </ul>
         </div>

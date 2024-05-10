@@ -33,7 +33,7 @@ const YapsPage = () => {
 
   const { data: session } = useSession();
 
-  const [allYaps, setAllYaps]: Array<any> = useState([])
+  const [yap, setYaps]: Array<any> = useState([])
   const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
@@ -48,7 +48,7 @@ const YapsPage = () => {
 
   // figure out option on and off instead of doing it in database
   const onOption = (idx: React.Key) => {
-    setAllYaps((state: { options: boolean }[]) => state?.map((yap: { options: boolean }, i: React.Key) => {
+    setYaps((state: { options: boolean }[]) => state?.map((yap: { options: boolean }, i: React.Key) => {
       return i === idx ? { ...yap, options: !yap.options } : yap
     }))
   }
@@ -62,12 +62,12 @@ const YapsPage = () => {
   }
 
   const currentDeleteData = (idx: React.Key) => {
-    // setDeleteInfo({ deleteUser: AllYaps[idx].user, deleteMessage: AllYaps[idx].message })
+    // setDeleteInfo({ deleteUser: yap[idx].user, deleteMessage: yap[idx].message })
   }
 
   const deleteItem = () => {
-    // setAllYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
-    //   if (AllYaps[i].user === deleteInfo.deleteUser && AllYaps[i].message === deleteInfo.deleteMessage) {
+    // setYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
+    //   if (yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage) {
     //     return false
     //   } else {
     //     return yap
@@ -90,8 +90,8 @@ const YapsPage = () => {
       toast.error('Message cannot be empty!')
       return
     }
-    // setAllYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
-    //   return AllYaps[i].user === deleteInfo.deleteUser && AllYaps[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
+    // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
+    //   return yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
     // }))
     setUpdateMessage('')
     toast.success('Yap updated!')
@@ -113,26 +113,26 @@ const YapsPage = () => {
   //   setPersonalYap({ ...personalYap, [input.name]: input.value })
   // }
 
-  const handleAllYapend = () => {
+  const handleAllYapSend = () => {
     if (userMessage === '') {
       toast.error('Please type a message!')
       return
     }
-    setAllYaps([...allYaps, personalYap])
+    setYaps([...yap, personalYap])
     //   setPersonalYap({ ...personalYap, message: '' })
   }
 
-  // useEffect(() => {
-  //   const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
-  //   if (yapsStorage) {
-  //     setAllYaps(yapsStorage)
-  //   }
-  // }, [])
+  useEffect(() => {
+    const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
+    if (yapsStorage) {
+      setYaps(yapsStorage)
+    }
+  }, [])
 
-  // useEffect(() => {
-  //   localStorage.setItem('yapsData', JSON.stringify(allYaps))
-  //   console.log(allYaps)
-  // }, [allYaps])
+  useEffect(() => {
+    localStorage.setItem('yapsData', JSON.stringify(yap))
+    console.log(yap)
+  }, [yap])
 
   // sets users message and adds it to post
   const [userMessage, setUserMessage] = useState('')
@@ -148,8 +148,6 @@ const YapsPage = () => {
   })
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
-
-  const { mutate: optionToggle } = api.yap.optionToggle.useMutation()
 
   if (!session) return null
 
@@ -177,7 +175,7 @@ const YapsPage = () => {
                     // optionToggle({ id: allYaps.id })
                     onOption(idx)
                   } tabIndex={0} />}
-                  {allYaps.options && session?.user.email && (
+                  {yap.options && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white">
                       <button onMouseDown={onEdit}>Edit</button>
                       <button onMouseDown={onDelete}>Delete</button>

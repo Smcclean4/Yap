@@ -91,7 +91,6 @@ model Yap {
     message   String
     likes     Like[]
     user      String?
-    options   Boolean
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
