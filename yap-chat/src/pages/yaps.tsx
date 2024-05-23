@@ -113,17 +113,6 @@ const YapsPage = () => {
   //   setPersonalYap({ ...personalYap, [input.name]: input.value })
   // }
 
-  useEffect(() => {
-    const yapsStorage = JSON.parse(localStorage.getItem('yapsData') || '[]')
-    if (yapsStorage) {
-      setYaps(yapsStorage)
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('yapsData', JSON.stringify(yap))
-  }, [yap])
-
   // sets users message and adds it to post
   const [userMessage, setUserMessage] = useState('')
   // gets all context for full refresh
@@ -154,10 +143,11 @@ const YapsPage = () => {
 
   const DisplayAllYaps = () => {
 
-    if (loadingYaps) return <LoadingPage />
     const { data: uniqueYaps } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
 
     console.log(yap)
+
+    if (loadingYaps) return <LoadingPage />
 
     return (
       <>
