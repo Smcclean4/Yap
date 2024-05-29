@@ -37,6 +37,9 @@ const YapsPage = () => {
   const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
+  // option state for each yap.. for each yap create an option boolean and when the option toggle
+  // is clicked at the idx of the yap change that option toggle to true so that the modal is triggered.
+  const [options, setOptions] = useState([])
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     likes: [],
     user: '',
@@ -139,6 +142,7 @@ const YapsPage = () => {
       return
     }
     userYap({ message: userMessage, user: String(session?.user.email) })
+
   }
 
   useEffect(() => {
