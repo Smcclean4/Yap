@@ -147,6 +147,7 @@ const YapsPage = () => {
 
   useEffect(() => {
     console.log(yapsFromDatabase)
+    // maybe in use effect for each yap from database item store a boolean value
   }, [yapsFromDatabase])
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
