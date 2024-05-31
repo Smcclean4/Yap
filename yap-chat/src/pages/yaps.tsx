@@ -39,7 +39,7 @@ const YapsPage = () => {
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
   // option state for each yap.. for each yap create an option boolean and when the option toggle
   // is clicked at the idx of the yap change that option toggle to true so that the modal is triggered.
-  const [options, setOptions] = useState([])
+  const [options, setOptions] = useState<boolean[]>([])
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     likes: [],
     user: '',
@@ -146,8 +146,15 @@ const YapsPage = () => {
   }
 
   useEffect(() => {
+    // not exactly for each to store true and false data .. but definitely in this direction. 
+    yapsFromDatabase?.forEach(val => {
+      setOptions([...options, false])
+    })
+    console.log(options)
+  }, [])
+
+  useEffect(() => {
     console.log(yapsFromDatabase)
-    // maybe in use effect for each yap from database item store a boolean value
   }, [yapsFromDatabase])
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
