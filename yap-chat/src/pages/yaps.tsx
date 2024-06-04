@@ -146,16 +146,13 @@ const YapsPage = () => {
   }
 
   useEffect(() => {
-    // not exactly for each to store true and false data .. but definitely in this direction. 
-    yapsFromDatabase?.forEach(val => {
-      setOptions([...options, false])
-    })
-    console.log(options)
-  }, [])
-
-  useEffect(() => {
     console.log(yapsFromDatabase)
   }, [yapsFromDatabase])
+
+  useEffect(() => {
+    setOptions([false])
+    console.log(options)
+  }, [])
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
 
