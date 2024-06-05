@@ -58,6 +58,10 @@ const YapsPage = () => {
 
   const optionToggle = (idx: React.Key) => {
     // create an option function that takes in an id and then toggle option modal at that specific yap.
+
+  }
+  const addOption = () => {
+    setOptions([...options, false])
   }
 
   const setUser = () => {
@@ -142,17 +146,13 @@ const YapsPage = () => {
       return
     }
     userYap({ message: userMessage, user: String(session?.user.email) })
-
+    addOption()
   }
 
   useEffect(() => {
     console.log(yapsFromDatabase)
-  }, [yapsFromDatabase])
-
-  useEffect(() => {
-    setOptions([false])
     console.log(options)
-  }, [])
+  }, [yapsFromDatabase])
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
 
