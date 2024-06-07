@@ -58,7 +58,10 @@ const YapsPage = () => {
 
   const optionToggle = (idx: React.Key) => {
     // create an option function that takes in an id and then toggle option modal at that specific yap.
-
+    // maybe something like this function under here .. 
+    // setOptions((boolArray) => boolArray.map((options, i) => {
+    //   return i === idx ? [ ...options, !options ] : options
+    // }))
   }
   const addOption = () => {
     setOptions([...options, false])
@@ -72,7 +75,7 @@ const YapsPage = () => {
     }
   }
 
-  const currentDeleteData = (idx: React.Key) => {
+  const currentDeleteData = (_idx: React.Key) => {
     // setDeleteInfo({ deleteUser: yap[idx].user, deleteMessage: yap[idx].message })
   }
 
