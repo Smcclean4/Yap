@@ -150,6 +150,17 @@ const YapsPage = () => {
   }
 
   useEffect(() => {
+    const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
+    if (options.length === 0) {
+      setOptions(optionsFromLocalStorage)
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem("options", JSON.stringify(options));
+  }, [options]);
+
+  useEffect(() => {
     console.log(yapsFromDatabase)
     console.log(options)
   }, [yapsFromDatabase])
