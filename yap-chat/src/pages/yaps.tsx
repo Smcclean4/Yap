@@ -59,9 +59,9 @@ const YapsPage = () => {
   const optionToggle = (idx: React.Key) => {
     // create an option function that takes in an id and then toggle option modal at that specific yap.
     // maybe something like this function under here .. 
-    // setOptions((boolArray) => boolArray.map((options, i) => {
-    //   return i === idx ? [ ...options, !options ] : options
-    // }))
+    setOptions((boolArray) => boolArray.map((options, i) => {
+      return i === idx ? !options : options
+    }))
   }
   const addOption = () => {
     setOptions([...options, false])
@@ -193,7 +193,7 @@ const YapsPage = () => {
                     // optionToggle({ id: allYaps.id })
                     optionToggle(idx)
                   } tabIndex={0} />}
-                  {yap.options && session?.user.email && (
+                  {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white">
                       <button onMouseDown={onEdit}>Edit</button>
                       <button onMouseDown={onDelete}>Delete</button>
