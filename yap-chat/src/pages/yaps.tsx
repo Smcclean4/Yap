@@ -57,8 +57,7 @@ const YapsPage = () => {
   // }
 
   const optionToggle = (idx: React.Key) => {
-    // create an option function that takes in an id and then toggle option modal at that specific yap.
-    // maybe something like this function under here .. 
+    // toggles options by changing the matching option using the id of the toggle and yap
     setOptions((boolArray) => boolArray.map((options, i) => {
       return i === idx ? !options : options
     }))
@@ -161,6 +160,7 @@ const YapsPage = () => {
 
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
+    console.log(options)
   }, [options]);
 
   useEffect(() => {
