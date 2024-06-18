@@ -36,11 +36,11 @@ const HomePage = () => {
   return (
     <Layout>
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col md:flex-row justify-around items-center mt-28 lg:pb-20 md:pt-24 sm:pt-32 bg-gray-200 overflow-scroll h-auto">
+      <div className="w-full flex flex-col md:flex-row justify-around items-center mt-28 pb-10 lg:pb-20 md:pt-24 sm:pt-32 bg-gray-200 overflow-scroll h-auto">
         <div className="w-4/5 md:w-2/5 text-sm sm:text-lg md:text-xl xl:text-2xl xl:leading-10 tracking-wider text-center">
           <p>Welcome to Yap, the chat application where you can message your friends and send out Yaps - opinionated global messages that allow you to share your thoughts and ideas with the world!</p>
           <br></br>
-          <p>With Yap, you can stay connected with your friends and family, have private conversations, and also broadcast your views to a wider audience. Whether you want to share your latest project, your favorite song, or just your opinion on the latest news, Yap is the perfect platform to do it.</p>
+          <p>With Yap, you can stay connected with your friends and family, have private conversations, and also broadcast your views to a wider audience. Whether you want to share your favorite song, or just your opinion on the latest news, Yap is the perfect platform to do it.</p>
         </div>
         <div className="flex flex-col w-3/4 md:w-2/5 h-full">
           <div className="text-center text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl mt-12 font-bold bg-blue-500 px-10 py-4 rounded-tr-2xl rounded-tl-2xl">

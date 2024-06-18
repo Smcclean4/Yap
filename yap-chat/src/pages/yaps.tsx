@@ -57,7 +57,6 @@ const YapsPage = () => {
   // }
 
   const optionToggle = (idx: React.Key) => {
-    // toggles options by changing the matching option using the id of the toggle and yap
     setOptions((boolArray) => boolArray.map((options, i) => {
       return i === idx ? !options : options
     }))
@@ -182,17 +181,12 @@ const YapsPage = () => {
       <>
         {yapsFromDatabase?.map((allYaps: any, idx: number) => {
           return (
-            // fidling with focus on outer div.. shows promimse
-            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
+            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl">
               <div className="flex items-center justify-between">
                 <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
-                <div className="flex items-center justify-end pr-2 relative" onBlur={() => optionToggle(idx)} tabIndex={0}>
-                  {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" onFocus={() =>
-                    // prevent default?
-                    // optionToggle({ id: allYaps.id })
-                    optionToggle(idx)
-                  } tabIndex={0} />}
+                <div className="flex items-center justify-end pr-2 relative" onClick={() => optionToggle(idx)} tabIndex={0}>
+                  {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
                   {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white">
                       <button onMouseDown={onEdit}>Edit</button>
