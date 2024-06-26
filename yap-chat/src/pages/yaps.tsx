@@ -58,16 +58,20 @@ const YapsPage = () => {
 
   const optionsRef = useRef<HTMLDivElement>(null)
 
-  const optionToggle = (idx: React.Key, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (optionsRef.current && !optionsRef.current.contains(event.target as Node)) {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return i === idx ? false : options
-      }))
-    } else {
+  const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx?: React.Key) => {
+    if (optionsRef.current && optionsRef.current.contains(element?.target as Node)) {
+      // getting back null for current if statement.. also added options toggle to main div so that when its clicked it shows false for options
+      // looking into this
       setOptions((boolArray) => boolArray.map((options, i) => {
         return i === idx ? true : options
       }))
+    } else {
+      setOptions((boolArray) => boolArray.map((options, i) => {
+        return i === idx ? false : options
+      }))
+      console.log(optionsRef.current)
     }
+
   }
   const addOption = () => {
     setOptions([...options, false])
@@ -81,7 +85,7 @@ const YapsPage = () => {
     }
   }
 
-  const currentDeleteData = (_idx: React.Key) => {
+  const currentDeleteData = (idx: React.Key) => {
     // setDeleteInfo({ deleteUser: yap[idx].user, deleteMessage: yap[idx].message })
   }
 
@@ -189,11 +193,11 @@ const YapsPage = () => {
       <>
         {yapsFromDatabase?.map((allYaps: any, idx: number) => {
           return (
-            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" onClick={(event) => optionToggle(idx, event)} tabIndex={0}>
+            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl">
               <div className="flex items-center justify-between">
                 <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
-                <div className="flex items-center justify-end pr-2 relative">
+                <div className="flex items-center justify-end pr-2 relative" onClick={(element) => optionToggle(element, idx)}>
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
                   {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white" ref={optionsRef}>
@@ -218,7 +222,7 @@ const YapsPage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
+      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={(element) => optionToggle(element)}>
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
