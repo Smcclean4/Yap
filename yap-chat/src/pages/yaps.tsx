@@ -59,20 +59,23 @@ const YapsPage = () => {
   const optionsRef = useRef<HTMLDivElement>(null)
 
   const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx?: React.Key) => {
-    if (optionsRef.current && optionsRef.current.contains(element?.target as Node)) {
-      // getting back null for current if statement.. also added options toggle to main div so that when its clicked it shows false for options
-      // looking into this
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return i === idx ? true : options
-      }))
-    } else {
+    if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
       setOptions((boolArray) => boolArray.map((options, i) => {
         return i === idx ? false : options
       }))
-      console.log(optionsRef.current)
+    } else {
+      setOptions((boolArray) => boolArray.map((options, i) => {
+        return i === idx ? true : options
+      }))
     }
-
   }
+
+  const optionToggleOff = () => {
+    setOptions((boolArray) => boolArray.map(() => {
+      return false
+    }))
+  }
+
   const addOption = () => {
     setOptions([...options, false])
   }
@@ -222,7 +225,7 @@ const YapsPage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={(element) => optionToggle(element)}>
+      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={() => optionToggleOff()}>
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
