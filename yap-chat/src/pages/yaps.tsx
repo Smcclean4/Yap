@@ -57,6 +57,7 @@ const YapsPage = () => {
   // }
 
   const optionsRef = useRef<HTMLDivElement>(null)
+  const outerDivRef = useRef<HTMLDivElement>(null)
 
   const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx?: React.Key) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
@@ -68,12 +69,6 @@ const YapsPage = () => {
         return i === idx ? true : options
       }))
     }
-  }
-
-  const optionToggleOff = () => {
-    setOptions((boolArray) => boolArray.map(() => {
-      return false
-    }))
   }
 
   const addOption = () => {
@@ -225,13 +220,13 @@ const YapsPage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={() => optionToggleOff()}>
+      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={(element) => optionToggle(element)}>
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}
-        <div className="flex justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start">
+        <div className="flex justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start" ref={outerDivRef}>
           <DisplayAllYaps />
         </div>
         <div className="h-auto w-full flex flex-row justify-center items-end">
