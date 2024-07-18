@@ -60,7 +60,6 @@ const YapsPage = () => {
 
   const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx: React.Key) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      console.log("off")
       setOptions((boolArray) => boolArray.map((options, i) => {
         return i === idx ? false : options
       }))
