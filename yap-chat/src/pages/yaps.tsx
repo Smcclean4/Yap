@@ -58,12 +58,9 @@ const YapsPage = () => {
 
   const optionsRef = useRef<HTMLDivElement>(null)
 
-  const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx?: React.Key) => {
+  const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx: React.Key) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return i === idx ? false : options
-      }))
-    } else if ({/* code here that also references anything that isnt the options ref to trigger closing the modal*/ }) {
+      console.log("off")
       setOptions((boolArray) => boolArray.map((options, i) => {
         return i === idx ? false : options
       }))
