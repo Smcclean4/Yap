@@ -57,9 +57,14 @@ const YapsPage = () => {
   // }
 
   const optionsRef = useRef<HTMLDivElement>(null)
+  const outerDivRef = useRef<HTMLDivElement>(null)
 
-  const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx: React.Key) => {
+  const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx?: React.Key) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
+      setOptions((boolArray) => boolArray.map((options, i) => {
+        return i === idx ? false : options
+      }))
+    } else if (outerDivRef.current && !outerDivRef.current.contains(element.target as Node)) {
       setOptions((boolArray) => boolArray.map((options, i) => {
         return i === idx ? false : options
       }))
@@ -169,6 +174,7 @@ const YapsPage = () => {
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
     console.log(optionsRef.current)
+    console.log(outerDivRef.current)
   }, [options]);
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
@@ -185,7 +191,7 @@ const YapsPage = () => {
       <>
         {yapsFromDatabase?.map((allYaps: any, idx: number) => {
           return (
-            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl">
+            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
               <div className="flex items-center justify-between">
                 <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
@@ -214,13 +220,13 @@ const YapsPage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200">
+      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={(element) => optionToggle(element)}>
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}
-        <div className="flex justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start">
+        <div className="flex justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start" ref={outerDivRef}>
           <DisplayAllYaps />
         </div>
         <div className="h-auto w-full flex flex-row justify-center items-end">
