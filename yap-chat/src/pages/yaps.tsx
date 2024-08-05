@@ -172,6 +172,10 @@ const YapsPage = () => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
     if (options.length === 0) {
       setOptions(optionsFromLocalStorage)
+    } else if ({/* something here that defaults to database options.. everything will essentially return to false if this is selected */ }) {
+      console.log("getting database options status")
+    } else {
+      console.log("getting different options since none are within database or local storage")
     }
   }, [])
 
