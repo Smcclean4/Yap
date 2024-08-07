@@ -102,4 +102,20 @@ export const yapRouter = createTRPCRouter({
         return doesntExist
       }
     }),
+  editYap: publicProcedure
+    .input(z.object({ message: z.string(), user: z.string(), id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.yap.update({
+        where: {
+          id: input.id
+        },
+        include: {
+          likes: true
+        },
+        data: {
+          message: input.message,
+          user: input.user,
+        }
+      })
+    }),
 });

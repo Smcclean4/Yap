@@ -115,11 +115,16 @@ const YapsPage = () => {
     setUpdateMessage('')
   }
 
+  const { mutate: editYap, isLoading: editLoading } = api.yap.editYap.useMutation();
+
   const saveItem = () => {
+    let dummyId = "cash flow"
     if (updateMessage === "") {
       toast.error('Message cannot be empty!')
       return
     }
+    {/* find where I can include an id that reference the current edited yap */ }
+    editYap({ message: updateMessage, user: String(session?.user.email), id: dummyId })
     // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
     //   return yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
     // }))
@@ -181,9 +186,6 @@ const YapsPage = () => {
 
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
-    // local storage loses storage of options value sometimes.. change this. 
-    console.log(optionsRef.current)
-    console.log(outerDivRef.current)
   }, [options]);
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
