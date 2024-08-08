@@ -37,8 +37,6 @@ const YapsPage = () => {
   const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
-  // option state for each yap.. for each yap create an option boolean and when the option toggle
-  // is clicked at the idx of the yap change that option toggle to true so that the modal is triggered.
   const [options, setOptions] = useState<boolean[]>([])
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     likes: [],
@@ -48,14 +46,6 @@ const YapsPage = () => {
   })
 
   const { isShowing, toggle } = useModal();
-
-  // figure out option on and off instead of doing it in database
-  // const onOption = (idx: React.Key) => {
-  //   setYaps((state: { options: boolean }[]) => state?.map((yap: { options: boolean }, i: React.Key) => {
-  //     return i === idx ? { ...yap, options: !yap.options } : yap
-  //   }))
-  // }
-
   const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
 
@@ -91,8 +81,9 @@ const YapsPage = () => {
     }
   }
 
-  const currentDeleteData = (idx: React.Key) => {
-    // setDeleteInfo({ deleteUser: yap[idx].user, deleteMessage: yap[idx].message })
+  const currentDeleteData = (idx: React.Key, message: string) => {
+    // figure out why message is returning undefined ... 
+    setDeleteInfo({ deleteUser: String(session?.user.email), deleteMessage: message })
   }
 
   const deleteItem = () => {
@@ -133,13 +124,15 @@ const YapsPage = () => {
     toggle()
   }
 
-  const onEdit = () => {
+  const onEdit = (idx: React.Key, messageFromDatabase: string) => {
     setTrueEditFalseDelete(true)
+    currentDeleteData(idx, messageFromDatabase)
     toggle()
   }
 
-  const onDelete = () => {
+  const onDelete = (idx: React.Key, messageFromDatabase: string) => {
     setTrueEditFalseDelete(false)
+    currentDeleteData(idx, messageFromDatabase)
     toggle()
   }
 
@@ -210,8 +203,8 @@ const YapsPage = () => {
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
                   {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white" ref={optionsRef}>
-                      <button onMouseDown={onEdit}>Edit</button>
-                      <button onMouseDown={onDelete}>Delete</button>
+                      <button onMouseDown={() => onEdit(idx, allYaps[idx].message)}>Edit</button>
+                      <button onMouseDown={() => onDelete(idx, allYaps[idx].message)}>Delete</button>
                     </div>
                   )}
                 </div>
