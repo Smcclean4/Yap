@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import relativeTime from "dayjs/plugin/relativeTime"
 import toast, { Toaster } from 'react-hot-toast'
 import { unique } from 'next/dist/build/utils'
+import { Yap, Like } from '@prisma/client'
 
 dayjs.extend(relativeTime)
 
@@ -28,7 +29,7 @@ const YapsPage = () => {
 
   interface DeleteInterface {
     deleteUser: string | undefined | null;
-    deleteMessage: string;
+    deleteMessage: any;
   }
 
   const { data: session } = useSession();
@@ -81,7 +82,7 @@ const YapsPage = () => {
     }
   }
 
-  const currentDeleteData = (idx: React.Key, message: string) => {
+  const currentDeleteData = (message: string) => {
     // figure out why message is returning undefined ... 
     setDeleteInfo({ deleteUser: String(session?.user.email), deleteMessage: message })
   }
@@ -108,31 +109,15 @@ const YapsPage = () => {
 
   const { mutate: editYap, isLoading: editLoading } = api.yap.editYap.useMutation();
 
-  const saveItem = () => {
-    let dummyId = "cash flow"
-    if (updateMessage === "") {
-      toast.error('Message cannot be empty!')
-      return
-    }
-    {/* find where I can include an id that reference the current edited yap */ }
-    editYap({ message: updateMessage, user: String(session?.user.email), id: dummyId })
-    // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
-    //   return yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
-    // }))
-    setUpdateMessage('')
-    toast.success('Yap updated!')
-    toggle()
-  }
-
-  const onEdit = (idx: React.Key, messageFromDatabase: string) => {
+  const onEdit = (messageFromDatabase: string) => {
     setTrueEditFalseDelete(true)
-    currentDeleteData(idx, messageFromDatabase)
+    currentDeleteData(messageFromDatabase)
     toggle()
   }
 
-  const onDelete = (idx: React.Key, messageFromDatabase: string) => {
+  const onDelete = (messageFromDatabase: string) => {
     setTrueEditFalseDelete(false)
-    currentDeleteData(idx, messageFromDatabase)
+    currentDeleteData(messageFromDatabase)
     toggle()
   }
 
@@ -143,6 +128,28 @@ const YapsPage = () => {
 
   // handle all yapsFromDatabase display and current user likes
   const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
+
+  const saveItem = () => {
+    let dummyId = "cash flow"
+    if (updateMessage === "") {
+      toast.error('Message cannot be empty!')
+      return
+    }
+    if (updateMessage) {
+      yapsFromDatabase?.map((yaps: any, i) => {
+        // figure out why user is return undefined ... 
+        return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? editYap({ message: updateMessage, user: String(session?.user.email), id: yaps.id }) : yaps
+      })
+    } else {
+      toast.error('Was not able to update your yap!')
+    }
+    // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
+    //   return yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
+    // }))
+    setUpdateMessage('')
+    toast.success('Yap updated!')
+    toggle()
+  }
 
   // sets users message and adds it to post
   const [userMessage, setUserMessage] = useState('')
@@ -193,7 +200,7 @@ const YapsPage = () => {
 
     return (
       <>
-        {yapsFromDatabase?.map((allYaps: any, idx: number) => {
+        {yapsFromDatabase?.map((allYaps: any, idx: any) => {
           return (
             <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
               <div className="flex items-center justify-between">
@@ -203,8 +210,8 @@ const YapsPage = () => {
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
                   {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white" ref={optionsRef}>
-                      <button onMouseDown={() => onEdit(idx, allYaps[idx].message)}>Edit</button>
-                      <button onMouseDown={() => onDelete(idx, allYaps[idx].message)}>Delete</button>
+                      <button onMouseDown={() => onEdit(allYaps.message)}>Edit</button>
+                      <button onMouseDown={() => onDelete(allYaps.message)}>Delete</button>
                     </div>
                   )}
                 </div>
