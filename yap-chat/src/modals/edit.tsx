@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 interface EditModalInterface {
   isShowing: boolean;
   hide: () => void;
-  saveitem: () => void;
+  saveitem: MouseEventHandler<HTMLButtonElement>;
   message: string;
   setnewmessage: ChangeEventHandler<HTMLTextAreaElement>;
   newmessage: string;

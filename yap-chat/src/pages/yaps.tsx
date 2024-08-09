@@ -28,8 +28,8 @@ const YapsPage = () => {
   }
 
   interface DeleteInterface {
-    deleteUser: string | undefined | null;
     deleteMessage: any;
+    deleteId: string;
   }
 
   const { data: session } = useSession();
@@ -37,7 +37,7 @@ const YapsPage = () => {
   const [yap, setYaps]: Array<any> = useState([])
   const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
-  const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteUser: '', deleteMessage: '' })
+  const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteMessage: '', deleteId: '' })
   const [options, setOptions] = useState<boolean[]>([])
   const [personalYap, setPersonalYap] = useState<YapInterface>({
     likes: [],
@@ -82,9 +82,40 @@ const YapsPage = () => {
     }
   }
 
-  const currentDeleteData = (message: string) => {
+  const currentDeleteData = (id: string, message: string) => {
     // figure out why message is returning undefined ... 
-    setDeleteInfo({ deleteUser: String(session?.user.email), deleteMessage: message })
+    setDeleteInfo({ deleteId: id, deleteMessage: message })
+  }
+
+  const handleNewMessage = ({ target: input }: any) => {
+    setUpdateMessage(input.value)
+  }
+
+  const clearUpdateMessage = () => {
+    setUpdateMessage('')
+  }
+
+  const { mutate: editYap } = api.yap.editYap.useMutation({
+    onSettled: () => {
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  });
+
+  const saveItem = () => {
+    if (updateMessage === "") {
+      toast.error('Message cannot be empty!')
+      return
+    }
+
+    if (updateMessage) {
+      editYap({ id: deleteInfo.deleteId, message: updateMessage })
+    }
+    // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
+    //   return yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
+    // }))
+    setUpdateMessage('')
+    toast.success('Yap updated!')
+    toggle()
   }
 
   const deleteItem = () => {
@@ -99,25 +130,15 @@ const YapsPage = () => {
     toggle()
   }
 
-  const handleNewMessage = ({ target: input }: any) => {
-    setUpdateMessage(input.value)
-  }
-
-  const clearUpdateMessage = () => {
-    setUpdateMessage('')
-  }
-
-  const { mutate: editYap, isLoading: editLoading } = api.yap.editYap.useMutation();
-
-  const onEdit = (messageFromDatabase: string) => {
+  const onEdit = (idDatabase: string, messageFromDatabase: string) => {
     setTrueEditFalseDelete(true)
-    currentDeleteData(messageFromDatabase)
+    currentDeleteData(idDatabase, messageFromDatabase)
     toggle()
   }
 
-  const onDelete = (messageFromDatabase: string) => {
-    setTrueEditFalseDelete(false)
-    currentDeleteData(messageFromDatabase)
+  const onDelete = (idDatabase: string, messageFromDatabase: string) => {
+    setTrueEditFalseDelete(true)
+    currentDeleteData(idDatabase, messageFromDatabase)
     toggle()
   }
 
@@ -128,28 +149,6 @@ const YapsPage = () => {
 
   // handle all yapsFromDatabase display and current user likes
   const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
-
-  const saveItem = () => {
-    let dummyId = "cash flow"
-    if (updateMessage === "") {
-      toast.error('Message cannot be empty!')
-      return
-    }
-    if (updateMessage) {
-      yapsFromDatabase?.map((yaps: any, i) => {
-        // figure out why user is return undefined ... 
-        return yaps[i].user === deleteInfo.deleteUser && yaps[i].message === deleteInfo.deleteMessage ? editYap({ message: updateMessage, user: String(session?.user.email), id: yaps.id }) : yaps
-      })
-    } else {
-      toast.error('Was not able to update your yap!')
-    }
-    // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
-    //   return yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
-    // }))
-    setUpdateMessage('')
-    toast.success('Yap updated!')
-    toggle()
-  }
 
   // sets users message and adds it to post
   const [userMessage, setUserMessage] = useState('')
@@ -210,8 +209,8 @@ const YapsPage = () => {
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
                   {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white" ref={optionsRef}>
-                      <button onMouseDown={() => onEdit(allYaps.message)}>Edit</button>
-                      <button onMouseDown={() => onDelete(allYaps.message)}>Delete</button>
+                      <button onMouseDown={() => onEdit(allYaps.id, allYaps.message)}>Edit</button>
+                      <button onMouseDown={() => onDelete(allYaps.id, allYaps.message)}>Delete</button>
                     </div>
                   )}
                 </div>

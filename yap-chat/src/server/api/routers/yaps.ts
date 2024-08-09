@@ -103,7 +103,7 @@ export const yapRouter = createTRPCRouter({
       }
     }),
   editYap: publicProcedure
-    .input(z.object({ message: z.string(), user: z.string(), id: z.string() }))
+    .input(z.object({ id: z.string(), message: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.yap.update({
         where: {
@@ -114,7 +114,6 @@ export const yapRouter = createTRPCRouter({
         },
         data: {
           message: input.message,
-          user: input.user,
         }
       })
     }),
