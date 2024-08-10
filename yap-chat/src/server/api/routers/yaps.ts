@@ -117,4 +117,13 @@ export const yapRouter = createTRPCRouter({
         }
       })
     }),
+  deleteYap: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.yap.delete({
+        where: {
+          id: input.id
+        }
+      })
+    }),
 });

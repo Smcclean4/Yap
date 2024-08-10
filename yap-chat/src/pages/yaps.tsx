@@ -82,7 +82,7 @@ const YapsPage = () => {
     }
   }
 
-  const currentDeleteData = (id: string, message: string) => {
+  const currentDeleteData = (id: string, message?: string) => {
     // figure out why message is returning undefined ... 
     setDeleteInfo({ deleteId: id, deleteMessage: message })
   }
@@ -101,31 +101,32 @@ const YapsPage = () => {
     }
   });
 
-  const saveItem = () => {
+  const { mutate: deleteYap } = api.yap.editYap.useMutation({
+    onSettled: () => {
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  })
+
+  const editItem = () => {
     if (updateMessage === "") {
       toast.error('Message cannot be empty!')
       return
     }
-
     if (updateMessage) {
       editYap({ id: deleteInfo.deleteId, message: updateMessage })
+      toast.success('Yap updated!')
+      setUpdateMessage('')
+      toggle()
+      return
     }
-    // setYaps((state: { message: string }[]) => state?.map((yap: { message: string }, i: React.Key) => {
-    //   return yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage ? { ...yap, message: updateMessage } : yap
-    // }))
+    toast.error('Yap was not able to be updated!')
     setUpdateMessage('')
-    toast.success('Yap updated!')
     toggle()
   }
 
   const deleteItem = () => {
-    // setYaps((state: any[]) => state.filter((yap: YapInterface, i: React.Key) => {
-    //   if (yap[i].user === deleteInfo.deleteUser && yap[i].message === deleteInfo.deleteMessage) {
-    //     return false
-    //   } else {
-    //     return yap
-    //   }
-    // }))
+    // deleting message and not yap overall.. fix this. 
+    deleteYap({ id: deleteInfo.deleteId, message: '' })
     toast.error('Yap deleted!')
     toggle()
   }
@@ -136,9 +137,9 @@ const YapsPage = () => {
     toggle()
   }
 
-  const onDelete = (idDatabase: string, messageFromDatabase: string) => {
-    setTrueEditFalseDelete(true)
-    currentDeleteData(idDatabase, messageFromDatabase)
+  const onDelete = (idDatabase: string) => {
+    setTrueEditFalseDelete(false)
+    currentDeleteData(idDatabase)
     toggle()
   }
 
@@ -210,7 +211,7 @@ const YapsPage = () => {
                   {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white" ref={optionsRef}>
                       <button onMouseDown={() => onEdit(allYaps.id, allYaps.message)}>Edit</button>
-                      <button onMouseDown={() => onDelete(allYaps.id, allYaps.message)}>Delete</button>
+                      <button onMouseDown={() => onDelete(allYaps.id)}>Delete</button>
                     </div>
                   )}
                 </div>
@@ -233,7 +234,7 @@ const YapsPage = () => {
       <SidebarNav user={session?.user.email} />
       <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={(element) => outerDivToggle(element)}>
         {trueEditFalseDelete ? (
-          <EditModal isShowing={isShowing} hide={toggle} saveitem={saveItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
+          <EditModal isShowing={isShowing} hide={toggle} saveitem={editItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}
