@@ -126,7 +126,7 @@ const YapsPage = () => {
 
   const deleteItem = () => {
     // deleting message and not yap overall.. fix this. 
-    deleteYap({ id: deleteInfo.deleteId, message: '' })
+    deleteYap({ message: '', id: deleteInfo.deleteId })
     toast.error('Yap deleted!')
     toggle()
   }
