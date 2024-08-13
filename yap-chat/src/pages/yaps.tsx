@@ -101,12 +101,6 @@ const YapsPage = () => {
     }
   });
 
-  const { mutate: deleteYap } = api.yap.editYap.useMutation({
-    onSettled: () => {
-      void ctx.yap.getAllYaps.invalidate();
-    }
-  })
-
   const editItem = () => {
     if (updateMessage === "") {
       toast.error('Message cannot be empty!')
@@ -124,9 +118,15 @@ const YapsPage = () => {
     toggle()
   }
 
+  const { mutate: deleteYap } = api.yap.deleteYap.useMutation({
+    onSettled: () => {
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  })
+
   const deleteItem = () => {
     // deleting message and not yap overall.. fix this. 
-    deleteYap({ message: '', id: deleteInfo.deleteId })
+    deleteYap({ id: deleteInfo.deleteId })
     toast.error('Yap deleted!')
     toggle()
   }
