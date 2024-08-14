@@ -34,17 +34,10 @@ const YapsPage = () => {
 
   const { data: session } = useSession();
 
-  const [yap, setYaps]: Array<any> = useState([])
   const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteMessage: '', deleteId: '' })
   const [options, setOptions] = useState<boolean[]>([])
-  const [personalYap, setPersonalYap] = useState<YapInterface>({
-    likes: [],
-    user: '',
-    options: false,
-    message: ''
-  })
 
   const { isShowing, toggle } = useModal();
   const optionsRef = useRef<HTMLDivElement>(null)
@@ -74,16 +67,7 @@ const YapsPage = () => {
     setOptions([...options, false])
   }
 
-  const setUser = () => {
-    if (session) {
-      setPersonalYap({ ...personalYap, user: session?.user.email })
-    } else {
-      toast.error('User is not defined.')
-    }
-  }
-
   const currentDeleteData = (id: string, message?: string) => {
-    // figure out why message is returning undefined ... 
     setDeleteInfo({ deleteId: id, deleteMessage: message })
   }
 
@@ -125,7 +109,6 @@ const YapsPage = () => {
   })
 
   const deleteItem = () => {
-    // deleting message and not yap overall.. fix this. 
     deleteYap({ id: deleteInfo.deleteId })
     toast.error('Yap deleted!')
     toggle()
@@ -143,11 +126,6 @@ const YapsPage = () => {
     toggle()
   }
 
-
-  const handleYapDisplay = ({ target: input }: any) => {
-    setPersonalYap({ ...personalYap, [input.name]: input.value })
-  }
-
   // handle all yapsFromDatabase display and current user likes
   const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
 
@@ -158,7 +136,6 @@ const YapsPage = () => {
   // creates a user post
   const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
     onSettled: () => {
-      setPersonalYap({ ...personalYap, message: userMessage })
       setUserMessage("");
       void ctx.yap.getAllYaps.invalidate();
     }
@@ -244,7 +221,7 @@ const YapsPage = () => {
         <div className="h-auto w-full flex flex-row justify-center items-end">
           <div className="bg-gray-300 text-black p-6 w-full flex flex-col justify-center text-center">
             <div className="flex flex-row justify-center">
-              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={userMessage} onFocus={setUser} disabled={isPosting} maxLength={125} onChange={(e) => setUserMessage(e.target.value)} onKeyDown={(e) => e.key === "Enter" &&
+              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={userMessage} disabled={isPosting} maxLength={125} onChange={(e) => setUserMessage(e.target.value)} onKeyDown={(e) => e.key === "Enter" &&
                 handleAllYapSend()} />
               <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={() => handleAllYapSend()}>Send</button>
             </div>
