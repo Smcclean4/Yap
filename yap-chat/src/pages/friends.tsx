@@ -35,14 +35,14 @@ const FriendsPage = () => {
     options: boolean;
   }
 
-
+  {/* handle message and options in the front end treat message the same as options because it toggles */ }
   const defaultFriends: FriendInterface[] = [
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
       username: '@default_friend1',
       heading: 'This is my default heading',
-      message: false,
       online: true,
+      message: false,
       options: false
     },
     {
@@ -181,7 +181,7 @@ const FriendsPage = () => {
       }
     }))
     // needs delay to filter approved request from current requests?
-    toast.success(`${userInfo} request approved!`)
+    toast.success(`${userInfo} request approved! `)
     setCurrentFriends([...currentFriends, currentRequests[idx]])
   }
 
