@@ -51,22 +51,28 @@ model Session {
     @@index([userId])
 }
 
+// does name transer from user correctly?
 model Friend {
     id       String @id @default(cuid())
     user     String
+    image    String
+    name     String
+    heading  String
     friendId String
     friend   User   @relation(fields: [friendId], references: [id], onDelete: Cascade)
 
     @@unique([friendId])
 }
 
-// as a user you should have friend options? so that when you are added as a friend it displays your options?
+// does image persist? and does heading and image correctly display?
 model User {
     id            String    @id @default(cuid())
     name          String?
     email         String?   @unique
     emailVerified DateTime?
-    image         String?
+    image         String
+    heading       String
+    online        Boolean
     friends       Friend[]
     accounts      Account[]
     sessions      Session[]

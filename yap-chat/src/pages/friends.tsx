@@ -35,11 +35,15 @@ const FriendsPage = () => {
     options: boolean;
   }
 
-  {/* handle message and options in the front end treat message the same as options because it toggles */ }
+  // fix this later
+  const usernameSymbol = '@'
+
+  // handle message and options in the front end treat message the same as options because it toggles
+  // image is already in database and user name could be just name? .. 
   const defaultFriends: FriendInterface[] = [
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_friend1',
+      username: `${usernameSymbol}default_friend1`,
       heading: 'This is my default heading',
       online: true,
       message: false,
@@ -47,7 +51,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_friend2',
+      username: `${usernameSymbol}default_friend2`,
       heading: 'This is my default heading',
       message: false,
       online: false,
@@ -55,7 +59,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_friend3',
+      username: `${usernameSymbol}default_friend3`,
       heading: 'This is my default heading',
       message: false,
       online: true,
@@ -63,7 +67,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_friend4',
+      username: `${usernameSymbol}default_friend4`,
       heading: 'This is my default heading',
       message: false,
       online: true,
@@ -74,7 +78,7 @@ const FriendsPage = () => {
   const defaultRequests: RequestInterface[] = [
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_request1',
+      username: `${usernameSymbol}@default_request1`,
       heading: 'This is my default heading',
       message: false,
       online: false,
@@ -82,7 +86,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_request2',
+      username: `${usernameSymbol}@default_request2`,
       heading: 'This is my default heading',
       message: false,
       online: false,
@@ -90,7 +94,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_request3',
+      username: `${usernameSymbol}@default_request3`,
       heading: 'This is my default heading',
       message: false,
       online: false,
@@ -98,7 +102,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: '@default_request4',
+      username: `${usernameSymbol}@default_request4`,
       heading: 'This is my default heading',
       message: false,
       online: false,
