@@ -78,7 +78,7 @@ const FriendsPage = () => {
   const defaultRequests: RequestInterface[] = [
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}@default_request1`,
+      username: `${usernameSymbol}default_request1`,
       heading: 'This is my default heading',
       message: false,
       online: false,
@@ -86,7 +86,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}@default_request2`,
+      username: `${usernameSymbol}default_request2`,
       heading: 'This is my default heading',
       message: false,
       online: false,
@@ -94,7 +94,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}@default_request3`,
+      username: `${usernameSymbol}default_request3`,
       heading: 'This is my default heading',
       message: false,
       online: false,
@@ -102,7 +102,7 @@ const FriendsPage = () => {
     },
     {
       image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}@default_request4`,
+      username: `${usernameSymbol}default_request4`,
       heading: 'This is my default heading',
       message: false,
       online: false,
