@@ -8,6 +8,7 @@ import { SidebarNav } from '~/components/sidebar';
 import { useModal } from '~/hooks/useModal';
 import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
+import { api } from '~/utils/api';
 
 export interface MessageInfoInterface {
   username: string;
@@ -193,6 +194,8 @@ const FriendsPage = () => {
     return ctx.length
   }
 
+  const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useQuery()
+
   useEffect(() => {
     setCurrentFriends([...defaultFriends])
     setCurrentRequests([...defaultRequests])
@@ -210,13 +213,13 @@ const FriendsPage = () => {
             <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(currentRequests)}</span></p>
           </div>
           <div className="flex flex-row flex-grow justify-evenly flex-wrap content-start">
-            {selectedTab ? currentFriends.map((friend: { image: string, username: string, heading: string }, idx: React.Key) => {
+            {selectedTab ? friendsFromDatabase?.map((friend: any, idx: React.Key) => {
               return (
                 <div key={idx} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
                   <div className="flex justify-end">
                     <FontAwesomeIcon className="cursor-pointer" onFocus={() => {
                       onEditFriend(idx)
-                      currentUserData(currentFriends[idx].username)
+                      currentUserData(friend[idx].name)
                     }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onEditFriend(idx)} />
                     {currentFriends[idx].options && (
                       <div className="absolute bg-gray-700 text-white">
@@ -225,14 +228,14 @@ const FriendsPage = () => {
                     )}
                   </div>
                   <div className="flex flex-row items-center justify-around">
-                    <Image className="rounded-full" src={friend.image} alt={''} width="75" height="75" />
+                    <Image className="rounded-full" src={`${friend.image}`} alt={''} width="75" height="75" />
                     <p className="text-md">{currentFriends[idx].online ? 'Online' : 'Offline'}</p>
                     <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={currentFriends[idx].online ? 'limegreen' : 'gray'} size="sm" />
                   </div>
-                  <p className="text-xl my-2 font-bold">{friend.username}</p>
+                  <p className="text-xl my-2 font-bold">{friend.name}</p>
                   <p className="text-lg font-light my-4">{friend.heading}</p>
                   <button onClick={() =>
-                    onMessage(idx)} onFocus={() => currentUserData(currentFriends[idx].username)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                    onMessage(idx)} onFocus={() => currentUserData(friend[idx].name)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
                 </div>
               )
             }) : currentRequests.map((request: { image: string, username: string }, idx: React.Key) => {

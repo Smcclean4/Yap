@@ -53,9 +53,13 @@ model Session {
 
 // does name transer from user correctly?
 model Friend {
-    id       String @id @default(cuid())
+    id       String   @id @default(cuid())
     friendId String
-    friend   User   @relation(fields: [friendId], references: [id], onDelete: Cascade)
+    name     String?
+    image    String?
+    heading  String?
+    online   Boolean?
+    friend   User     @relation(fields: [friendId], references: [id], onDelete: Cascade)
 
     @@unique([friendId])
 }

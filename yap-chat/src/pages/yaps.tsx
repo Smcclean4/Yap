@@ -13,19 +13,10 @@ import { LoadingPage } from '~/shared/loading'
 import dayjs from 'dayjs';
 import relativeTime from "dayjs/plugin/relativeTime"
 import toast, { Toaster } from 'react-hot-toast'
-import { unique } from 'next/dist/build/utils'
-import { Yap, Like } from '@prisma/client'
 
 dayjs.extend(relativeTime)
 
 const YapsPage = () => {
-
-  interface YapInterface {
-    likes: string[];
-    user: string | undefined | null;
-    options: boolean;
-    message: string;
-  }
 
   interface DeleteInterface {
     deleteMessage: any;
