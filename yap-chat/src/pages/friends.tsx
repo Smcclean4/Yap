@@ -9,6 +9,7 @@ import { useModal } from '~/hooks/useModal';
 import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
+import { LoadingPage } from '~/shared/loading';
 
 export interface MessageInfoInterface {
   username: string;
@@ -201,6 +202,72 @@ const FriendsPage = () => {
     setCurrentRequests([...defaultRequests])
   }, [])
 
+  const DisplayCurrentFriends = () => {
+
+    if (loadingFriends) return <LoadingPage />
+
+    return (
+      <>
+        {friendsFromDatabase?.map((friend: any, idx: React.Key) => {
+          return (
+            <div key={idx} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
+              <div className="flex justify-end">
+                <FontAwesomeIcon className="cursor-pointer" onFocus={() => {
+                  onEditFriend(idx)
+                  currentUserData(friend.name)
+                }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onEditFriend(idx)} />
+                {currentFriends[idx].options && (
+                  <div className="absolute bg-gray-700 text-white">
+                    <button className="p-2" onMouseDown={onRemoveFriend}>Remove Friend</button>
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-row items-center justify-around">
+                <Image className="rounded-full" src={`${friend.image}`} alt={''} width="75" height="75" />
+                <p className="text-md">{currentFriends[idx].online ? 'Online' : 'Offline'}</p>
+                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={friend.online ? 'limegreen' : 'gray'} size="sm" />
+              </div>
+              <p className="text-xl my-2 font-bold">{friend.name}</p>
+              <p className="text-lg font-light my-4">{friend.heading}</p>
+              <button onClick={() =>
+                onMessage(idx)} onFocus={() => currentUserData(friend.name)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+            </div>
+          )
+        })}
+      </>
+    )
+  }
+
+  const DisplayCurrentRequests = () => {
+    return (
+      <>
+        <h1>Loading Requests</h1>
+      </>
+    )
+
+    // if (loadingRequests) return <LoadingPage />
+
+    // return (
+    //   <>
+    //     {currentRequests.map((request: { image: string, username: string }, idx: React.Key) => {
+    //           return (
+    //             <div key={idx} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
+    //               <Image className="rounded-full h-min mx-4" src={request.image} alt={''} width="75" height="75" />
+    //               <div className="flex flex-col ml-4">
+    //                 <p className=" mb-2 text-lg font-semibold">{request.username}</p>
+    //                 <div className="flex flex-row justify-around">
+    //                   <button onClick={onRequestDeny} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+    //                   <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+    //                 </div>
+    //               </div>
+    //             </div>
+    //           )
+    //         })}
+    //   </>
+    // )
+
+  }
+
   return (
     <Layout>
       <Toaster />
@@ -213,45 +280,7 @@ const FriendsPage = () => {
             <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(currentRequests)}</span></p>
           </div>
           <div className="flex flex-row flex-grow justify-evenly flex-wrap content-start">
-            {selectedTab ? friendsFromDatabase?.map((friend: any, idx: React.Key) => {
-              return (
-                <div key={idx} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
-                  <div className="flex justify-end">
-                    <FontAwesomeIcon className="cursor-pointer" onFocus={() => {
-                      onEditFriend(idx)
-                      currentUserData(friend[idx].name)
-                    }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onEditFriend(idx)} />
-                    {currentFriends[idx].options && (
-                      <div className="absolute bg-gray-700 text-white">
-                        <button className="p-2" onMouseDown={onRemoveFriend}>Remove Friend</button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-row items-center justify-around">
-                    <Image className="rounded-full" src={`${friend.image}`} alt={''} width="75" height="75" />
-                    <p className="text-md">{currentFriends[idx].online ? 'Online' : 'Offline'}</p>
-                    <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={currentFriends[idx].online ? 'limegreen' : 'gray'} size="sm" />
-                  </div>
-                  <p className="text-xl my-2 font-bold">{friend.name}</p>
-                  <p className="text-lg font-light my-4">{friend.heading}</p>
-                  <button onClick={() =>
-                    onMessage(idx)} onFocus={() => currentUserData(friend[idx].name)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
-                </div>
-              )
-            }) : currentRequests.map((request: { image: string, username: string }, idx: React.Key) => {
-              return (
-                <div key={idx} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
-                  <Image className="rounded-full h-min mx-4" src={request.image} alt={''} width="75" height="75" />
-                  <div className="flex flex-col ml-4">
-                    <p className=" mb-2 text-lg font-semibold">{request.username}</p>
-                    <div className="flex flex-row justify-around">
-                      <button onClick={onRequestDeny} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                      <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+            {selectedTab ? <DisplayCurrentFriends /> : <DisplayCurrentRequests />}
           </div>
         </div>
       </div>
