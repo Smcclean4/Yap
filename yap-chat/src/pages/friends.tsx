@@ -10,6 +10,7 @@ import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
+import { request } from 'http';
 
 export interface MessageInfoInterface {
   username: string;
@@ -191,11 +192,12 @@ const FriendsPage = () => {
     setCurrentFriends([...currentFriends, currentRequests[idx]])
   }
 
-  const requestTotal = (ctx: string | any[]) => {
-    return ctx.length
+  const requestTotal = (ctx: string | any[] | undefined) => {
+    return ctx?.length
   }
 
   const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useQuery()
+  const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
 
   useEffect(() => {
     setCurrentFriends([...defaultFriends])
@@ -239,32 +241,27 @@ const FriendsPage = () => {
   }
 
   const DisplayCurrentRequests = () => {
+
+    if (loadingRequests) return <LoadingPage />
+
     return (
       <>
-        <h1>Loading Requests</h1>
+        {requestFromDatabase?.map((request: any, idx: React.Key) => {
+          return (
+            <div key={idx} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
+              <Image className="rounded-full h-min mx-4" src={request.image} alt={''} width="75" height="75" />
+              <div className="flex flex-col ml-4">
+                <p className=" mb-2 text-lg font-semibold">{request.name}</p>
+                <div className="flex flex-row justify-around">
+                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request.name)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(request.name)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </>
     )
-
-    // if (loadingRequests) return <LoadingPage />
-
-    // return (
-    //   <>
-    //     {currentRequests.map((request: { image: string, username: string }, idx: React.Key) => {
-    //           return (
-    //             <div key={idx} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
-    //               <Image className="rounded-full h-min mx-4" src={request.image} alt={''} width="75" height="75" />
-    //               <div className="flex flex-col ml-4">
-    //                 <p className=" mb-2 text-lg font-semibold">{request.username}</p>
-    //                 <div className="flex flex-row justify-around">
-    //                   <button onClick={onRequestDeny} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-    //                   <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(currentRequests[idx].username)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
-    //                 </div>
-    //               </div>
-    //             </div>
-    //           )
-    //         })}
-    //   </>
-    // )
 
   }
 
@@ -276,8 +273,8 @@ const FriendsPage = () => {
         <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`}>
           <div className="flex flex-row">
-            <p className="bg-gray-200 w-1/2 h-16 text-black text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-700 font-extrabold" onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="mx-2 font-light text-md">(Friends: {requestTotal(currentFriends)})</span></p>
-            <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(currentRequests)}</span></p>
+            <p className="bg-gray-200 w-1/2 h-16 text-black text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-700 font-extrabold" onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="mx-2 font-light text-md">(Friends: {requestTotal(friendsFromDatabase)})</span></p>
+            <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(requestFromDatabase)}</span></p>
           </div>
           <div className="flex flex-row flex-grow justify-evenly flex-wrap content-start">
             {selectedTab ? <DisplayCurrentFriends /> : <DisplayCurrentRequests />}

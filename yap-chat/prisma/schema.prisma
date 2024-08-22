@@ -64,6 +64,18 @@ model Friend {
     @@unique([friendId])
 }
 
+model Request {
+    id        String   @id @default(cuid())
+    requestId String
+    name      String?
+    image     String?
+    heading   String?
+    online    Boolean?
+    friend    User     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+    @@unique([requestId])
+}
+
 // does image persist? and does heading and image correctly display?
 model User {
     id            String    @id @default(cuid())
@@ -74,6 +86,7 @@ model User {
     heading       String?
     online        Boolean?
     friends       Friend[]
+    requests      Request[]
     accounts      Account[]
     sessions      Session[]
 }

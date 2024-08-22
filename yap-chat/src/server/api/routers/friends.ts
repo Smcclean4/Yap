@@ -10,5 +10,10 @@ export const friendsRouter = createTRPCRouter({
     return ctx.prisma.friend.findMany({
       take: 50
     })
+  }),
+  getAllRequests: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.request.findMany({
+      take: 50
+    })
   })
 });
