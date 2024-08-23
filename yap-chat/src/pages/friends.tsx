@@ -40,7 +40,7 @@ const FriendsPage = () => {
 
   const [currentFriends, setCurrentFriends]: Array<any> = useState([])
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
-  const [userInfo, setUserInfo] = useState('')
+  const [userInfo, setUserInfo] = useState({ name: '', id: '' })
   const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
@@ -48,11 +48,18 @@ const FriendsPage = () => {
   const [options, setOptions] = useState<boolean[]>([])
   const { data: session } = useSession();
 
+  const ctx = api.useContext()
+
   const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
 
   const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useQuery()
   const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
+  const { mutate: removeFriend } = api.friends.deleteFriend.useMutation({
+    onSettled: () => {
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  })
 
   const handleSelectedTabClick = () => {
     setSelectedTab(!selectedTab)
@@ -79,8 +86,8 @@ const FriendsPage = () => {
     }
   }
 
-  const currentUserData = (ctx: string) => {
-    setUserInfo(ctx)
+  const currentUserData = (ctx: string, id: string) => {
+    setUserInfo({ name: ctx, id: id })
   }
 
   const onRemoveFriend = () => {
@@ -90,19 +97,13 @@ const FriendsPage = () => {
   }
 
   const deleteFriend = () => {
-    setCurrentFriends((state: any[]) => state.filter((friend: FriendInterface, i: React.Key) => {
-      if (currentFriends[i].username === userInfo) {
-        return false
-      } else {
-        return friend
-      }
-    }))
+    removeFriend({ id: userInfo.id })
     toast.error(`${userInfo} removed as a friend.`)
     toggle()
   }
 
   const onMessage = (idx: React.Key) => {
-    setMessageInfo({ username: userInfo, message: 'cash flow cash flow', online: currentFriends[idx].online })
+    setMessageInfo({ username: userInfo.name, message: 'cash flow cash flow', online: currentFriends[idx].online })
     // trigger message modal from messenger
     setMessageTrigger(!messageTrigger)
   }
@@ -177,7 +178,7 @@ const FriendsPage = () => {
               <div className="flex justify-end">
                 <FontAwesomeIcon className="cursor-pointer" onClick={(element) => {
                   optionToggle(element, idx)
-                  currentUserData(friend.name)
+                  currentUserData(friend.name, friend.id)
                 }} icon={faEllipsis} size="xl" tabIndex={0} />
                 {options[idx] && (
                   <div className="absolute bg-gray-700 text-white" ref={optionsRef}>
@@ -193,7 +194,7 @@ const FriendsPage = () => {
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4">{friend.heading}</p>
               <button onClick={() =>
-                onMessage(idx)} onFocus={() => currentUserData(friend.name)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                onMessage(idx)} onFocus={() => currentUserData(friend.name, friend.id)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
           )
         })}
@@ -214,8 +215,8 @@ const FriendsPage = () => {
               <div className="flex flex-col ml-4">
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
-                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request.name)} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                  <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(request.name)} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request.name, request.id)} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(request.name, request.id)} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>
               </div>
             </div>
@@ -231,7 +232,7 @@ const FriendsPage = () => {
       <Toaster />
       <SidebarNav user={session?.user.email} userinfo={messageInfo} triggermessage={messageTrigger} />
       <div className="w-full flex flex-col justify-center items-center mt-28" onClick={(element) => outerDivToggle(element)}>
-        <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
+        <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo.name} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`} ref={outerDivRef}>
           <div className="flex flex-row">
             <p className="bg-gray-200 w-1/2 h-16 text-black text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-700 font-extrabold" onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="mx-2 font-light text-md">(Friends: {requestTotal(friendsFromDatabase)})</span></p>
