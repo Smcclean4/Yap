@@ -30,8 +30,30 @@ const YapsPage = () => {
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteMessage: '', deleteId: '' })
   const [options, setOptions] = useState<boolean[]>([])
   const { isShowing, toggle } = useModal();
+
   const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
+
+  const { mutate: likeYap } = api.yap.likeYap.useMutation()
+  const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
+  const [userMessage, setUserMessage] = useState('')
+  const ctx = api.useContext()
+  const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
+    onSettled: () => {
+      setUserMessage("");
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  })
+  const { mutate: deleteYap } = api.yap.deleteYap.useMutation({
+    onSettled: () => {
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  })
+  const { mutate: editYap } = api.yap.editYap.useMutation({
+    onSettled: () => {
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  });
 
   const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
@@ -69,12 +91,6 @@ const YapsPage = () => {
     setUpdateMessage('')
   }
 
-  const { mutate: editYap } = api.yap.editYap.useMutation({
-    onSettled: () => {
-      void ctx.yap.getAllYaps.invalidate();
-    }
-  });
-
   const editItem = () => {
     if (updateMessage === "") {
       toast.error('Message cannot be empty!')
@@ -91,12 +107,6 @@ const YapsPage = () => {
     setUpdateMessage('')
     toggle()
   }
-
-  const { mutate: deleteYap } = api.yap.deleteYap.useMutation({
-    onSettled: () => {
-      void ctx.yap.getAllYaps.invalidate();
-    }
-  })
 
   const deleteItem = () => {
     deleteYap({ id: deleteInfo.deleteId })
@@ -115,21 +125,6 @@ const YapsPage = () => {
     currentDeleteData(idDatabase)
     toggle()
   }
-
-  // handle all yapsFromDatabase display and current user likes
-  const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
-
-  // sets users message and adds it to post
-  const [userMessage, setUserMessage] = useState('')
-  // gets all context for full refresh
-  const ctx = api.useContext()
-  // creates a user post
-  const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
-    onSettled: () => {
-      setUserMessage("");
-      void ctx.yap.getAllYaps.invalidate();
-    }
-  })
 
   const handleAllYapSend = async () => {
     if (userMessage === '') {
@@ -154,8 +149,6 @@ const YapsPage = () => {
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
   }, [options]);
-
-  const { mutate: likeYap } = api.yap.likeYap.useMutation()
 
   if (!session) return null
 

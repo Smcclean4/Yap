@@ -51,6 +51,9 @@ const FriendsPage = () => {
   const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
 
+  const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useQuery()
+  const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
+
   const handleSelectedTabClick = () => {
     setSelectedTab(!selectedTab)
   }
@@ -145,9 +148,6 @@ const FriendsPage = () => {
     return ctx?.length
   }
 
-  const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useQuery()
-  const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
-
   useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
     if (options.length === 0) {
@@ -162,6 +162,8 @@ const FriendsPage = () => {
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
   }, [options]);
+
+  if (!session) return null;
 
   const DisplayCurrentFriends = () => {
 
