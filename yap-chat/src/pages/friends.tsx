@@ -2,7 +2,7 @@ import { faCheck, faCircle, faEllipsis, faPaperPlane, faX } from '@fortawesome/f
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import { useModal } from '~/hooks/useModal';
@@ -38,81 +38,6 @@ const FriendsPage = () => {
     options: boolean;
   }
 
-  // fix this later
-  const usernameSymbol = '@'
-
-  // handle message and options in the front end treat message the same as options because it toggles
-  // image is already in database and user name could be just name? .. 
-  const defaultFriends: FriendInterface[] = [
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_friend1`,
-      heading: 'This is my default heading',
-      online: true,
-      message: false,
-      options: false
-    },
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_friend2`,
-      heading: 'This is my default heading',
-      message: false,
-      online: false,
-      options: false
-    },
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_friend3`,
-      heading: 'This is my default heading',
-      message: false,
-      online: true,
-      options: false
-    },
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_friend4`,
-      heading: 'This is my default heading',
-      message: false,
-      online: true,
-      options: false
-    }
-  ]
-
-  const defaultRequests: RequestInterface[] = [
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_request1`,
-      heading: 'This is my default heading',
-      message: false,
-      online: false,
-      options: false
-    },
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_request2`,
-      heading: 'This is my default heading',
-      message: false,
-      online: false,
-      options: false
-    },
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_request3`,
-      heading: 'This is my default heading',
-      message: false,
-      online: false,
-      options: false
-    },
-    {
-      image: '/ezgif.com-webp-to-jpg.jpg',
-      username: `${usernameSymbol}default_request4`,
-      heading: 'This is my default heading',
-      message: false,
-      online: false,
-      options: false
-    }
-  ]
-
   const [currentFriends, setCurrentFriends]: Array<any> = useState([])
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
   const [userInfo, setUserInfo] = useState('')
@@ -120,17 +45,35 @@ const FriendsPage = () => {
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
   const [messageTrigger, setMessageTrigger] = useState(false)
-
+  const [options, setOptions] = useState<boolean[]>([])
   const { data: session } = useSession();
+
+  const optionsRef = useRef<HTMLDivElement>(null)
+  const outerDivRef = useRef<HTMLDivElement>(null)
 
   const handleSelectedTabClick = () => {
     setSelectedTab(!selectedTab)
   }
 
-  const onEditFriend = (idx: React.Key) => {
-    setCurrentFriends((state: { options: boolean }[]) => state?.map((friend: { options: boolean }, i: React.Key) => {
-      return i === idx ? { ...friend, options: !friend.options } : friend
-    }))
+  const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
+      setOptions((boolArray) => boolArray.map((options, i) => {
+        return options ? false : false
+      }))
+    }
+  }
+
+
+  const optionToggle = (element: React.MouseEvent<SVGSVGElement, MouseEvent>, idx?: React.Key) => {
+    if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
+      setOptions((boolArray) => boolArray.map((options, i) => {
+        return i === idx ? false : options
+      }))
+    } else {
+      setOptions((boolArray) => boolArray.map((options, i) => {
+        return i === idx ? true : options
+      }))
+    }
   }
 
   const currentUserData = (ctx: string) => {
@@ -179,6 +122,11 @@ const FriendsPage = () => {
     toggle()
   }
 
+  const addOption = () => {
+    setOptions([...options, false])
+  }
+
+
   const approveRequest = (idx: React.Key) => {
     setCurrentRequests((state: any[]) => state.filter((request: RequestInterface, i: React.Key) => {
       if (currentRequests[i].username === userInfo) {
@@ -187,6 +135,7 @@ const FriendsPage = () => {
         return request
       }
     }))
+    addOption()
     // needs delay to filter approved request from current requests?
     toast.success(`${userInfo} request approved! `)
     setCurrentFriends([...currentFriends, currentRequests[idx]])
@@ -200,9 +149,19 @@ const FriendsPage = () => {
   const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
 
   useEffect(() => {
-    setCurrentFriends([...defaultFriends])
-    setCurrentRequests([...defaultRequests])
+    const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
+    if (options.length === 0) {
+      setOptions(optionsFromLocalStorage)
+    } else if (optionsFromLocalStorage.length === 0) {
+      friendsFromDatabase?.forEach(() => {
+        setOptions([...options, false])
+      })
+    }
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem("options", JSON.stringify(options));
+  }, [options]);
 
   const DisplayCurrentFriends = () => {
 
@@ -210,23 +169,23 @@ const FriendsPage = () => {
 
     return (
       <>
-        {friendsFromDatabase?.map((friend: any, idx: React.Key) => {
+        {friendsFromDatabase?.map((friend: any, idx: any) => {
           return (
             <div key={idx} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
               <div className="flex justify-end">
-                <FontAwesomeIcon className="cursor-pointer" onFocus={() => {
-                  onEditFriend(idx)
+                <FontAwesomeIcon className="cursor-pointer" onClick={(element) => {
+                  optionToggle(element, idx)
                   currentUserData(friend.name)
-                }} icon={faEllipsis} size="xl" tabIndex={0} onBlur={() => onEditFriend(idx)} />
-                {currentFriends[idx].options && (
-                  <div className="absolute bg-gray-700 text-white">
+                }} icon={faEllipsis} size="xl" tabIndex={0} />
+                {options[idx] && (
+                  <div className="absolute bg-gray-700 text-white" ref={optionsRef}>
                     <button className="p-2" onMouseDown={onRemoveFriend}>Remove Friend</button>
                   </div>
                 )}
               </div>
               <div className="flex flex-row items-center justify-around">
                 <Image className="rounded-full" src={`${friend.image}`} alt={''} width="75" height="75" />
-                <p className="text-md">{currentFriends[idx].online ? 'Online' : 'Offline'}</p>
+                <p className="text-md">{friend.online ? 'Online' : 'Offline'}</p>
                 <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={friend.online ? 'limegreen' : 'gray'} size="sm" />
               </div>
               <p className="text-xl my-2 font-bold">{friend.name}</p>
@@ -253,8 +212,8 @@ const FriendsPage = () => {
               <div className="flex flex-col ml-4">
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
-                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request.name)} className="bg-gray-900 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                  <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(request.name)} className="bg-gray-900 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request.name)} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(request.name)} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>
               </div>
             </div>
@@ -269,9 +228,9 @@ const FriendsPage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} userinfo={messageInfo} triggermessage={messageTrigger} />
-      <div className="w-full flex flex-col justify-center items-center mt-28">
+      <div className="w-full flex flex-col justify-center items-center mt-28" onClick={(element) => outerDivToggle(element)}>
         <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
-        <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`}>
+        <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`} ref={outerDivRef}>
           <div className="flex flex-row">
             <p className="bg-gray-200 w-1/2 h-16 text-black text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-700 font-extrabold" onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="mx-2 font-light text-md">(Friends: {requestTotal(friendsFromDatabase)})</span></p>
             <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(requestFromDatabase)}</span></p>
