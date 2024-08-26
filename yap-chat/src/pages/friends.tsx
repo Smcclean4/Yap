@@ -98,7 +98,7 @@ const FriendsPage = () => {
 
   const deleteFriend = () => {
     removeFriend({ id: userInfo.id })
-    toast.error(`${userInfo} removed as a friend.`)
+    toast.error(`${userInfo.name} removed as a friend.`)
     toggle()
   }
 
