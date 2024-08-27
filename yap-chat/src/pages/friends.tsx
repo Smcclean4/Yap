@@ -40,7 +40,7 @@ const FriendsPage = () => {
 
   const [currentFriends, setCurrentFriends]: Array<any> = useState([])
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
-  const [userInfo, setUserInfo] = useState({ name: '', id: '' })
+  const [userInfo, setUserInfo] = useState<any[]>([])
   const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
@@ -62,7 +62,7 @@ const FriendsPage = () => {
   })
   const { mutate: approveFriend } = api.friends.approveRequest.useMutation({
     onSettled: () => {
-      void ctx.friends.getAllRequests.invalidate();
+      void ctx.friends.getAllFriends.invalidate() && void ctx.friends.getAllFriends.invalidate();
     }
   })
 
@@ -91,8 +91,8 @@ const FriendsPage = () => {
     }
   }
 
-  const currentUserData = (ctx: string, id: string) => {
-    setUserInfo({ name: ctx, id: id })
+  const currentUserData = (ctx: React.SetStateAction<any[]>) => {
+    setUserInfo(ctx)
   }
 
   const onRemoveFriend = () => {
@@ -137,11 +137,9 @@ const FriendsPage = () => {
 
 
   const approveRequest = (idx: React.Key) => {
-    // figure out why creating friend from request is giving an error.. also adds another request?
-    // approveFriend({ name: userInfo.name })
+    approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online })
     addOption()
-    toast.success(`${userInfo} request approved! `)
-    toggle()
+    toast.success(`${userInfo.name} request approved! `)
   }
 
   const requestTotal = (ctx: string | any[] | undefined) => {
@@ -157,6 +155,7 @@ const FriendsPage = () => {
         setOptions([...options, false])
       })
     }
+    console.log(userInfo)
   }, [])
 
   useEffect(() => {
@@ -177,7 +176,7 @@ const FriendsPage = () => {
               <div className="flex justify-end">
                 <FontAwesomeIcon className="cursor-pointer" onClick={(element) => {
                   optionToggle(element, idx)
-                  currentUserData(friend.name, friend.id)
+                  currentUserData(friend[idx])
                 }} icon={faEllipsis} size="xl" tabIndex={0} />
                 {options[idx] && (
                   <div className="absolute bg-gray-700 text-white" ref={optionsRef}>
@@ -193,7 +192,7 @@ const FriendsPage = () => {
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4">{friend.heading}</p>
               <button onClick={() =>
-                onMessage(idx)} onFocus={() => currentUserData(friend.name, friend.id)} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                onMessage(idx)} onFocus={() => currentUserData(friend[idx])} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
           )
         })}
@@ -214,9 +213,9 @@ const FriendsPage = () => {
               <div className="flex flex-col ml-4">
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
-                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request.name, request.id)} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request[idx])} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
                   <button onClick={() => {
-                    currentUserData(request.name, request.id)
+                    currentUserData(request[idx])
                     approveRequest(idx)
                   }} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>

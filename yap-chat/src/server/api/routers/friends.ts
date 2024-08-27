@@ -26,16 +26,18 @@ export const friendsRouter = createTRPCRouter({
       })
     }),
   approveRequest: publicProcedure
-    .input(z.object({ name: z.string() }))
+    .input(z.object({ name: z.string(), image: z.string(), online: z.boolean() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.user.create({
         include: {
           friends: true
         },
         data: {
-          requests: {
+          friends: {
             create: {
-              name: input.name
+              name: input.name,
+              image: input.image,
+              online: input.online
             }
           }
         }
