@@ -57,7 +57,12 @@ const FriendsPage = () => {
   const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
   const { mutate: removeFriend } = api.friends.deleteFriend.useMutation({
     onSettled: () => {
-      void ctx.yap.getAllYaps.invalidate();
+      void ctx.friends.getAllFriends.invalidate();
+    }
+  })
+  const { mutate: approveFriend } = api.friends.approveRequest.useMutation({
+    onSettled: () => {
+      void ctx.friends.getAllRequests.invalidate();
     }
   })
 
@@ -132,17 +137,11 @@ const FriendsPage = () => {
 
 
   const approveRequest = (idx: React.Key) => {
-    setCurrentRequests((state: any[]) => state.filter((request: RequestInterface, i: React.Key) => {
-      if (currentRequests[i].username === userInfo) {
-        return false
-      } else {
-        return request
-      }
-    }))
+    // figure out why creating friend from request is giving an error.. also adds another request?
+    // approveFriend({ name: userInfo.name })
     addOption()
-    // needs delay to filter approved request from current requests?
     toast.success(`${userInfo} request approved! `)
-    setCurrentFriends([...currentFriends, currentRequests[idx]])
+    toggle()
   }
 
   const requestTotal = (ctx: string | any[] | undefined) => {
@@ -216,7 +215,10 @@ const FriendsPage = () => {
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
                   <button onClick={onRequestDeny} onFocus={() => currentUserData(request.name, request.id)} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                  <button onClick={() => approveRequest(idx)} onFocus={() => currentUserData(request.name, request.id)} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                  <button onClick={() => {
+                    currentUserData(request.name, request.id)
+                    approveRequest(idx)
+                  }} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>
               </div>
             </div>
