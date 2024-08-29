@@ -91,10 +91,6 @@ const FriendsPage = () => {
     }
   }
 
-  const currentUserData = (ctx: React.SetStateAction<any[]>) => {
-    setUserInfo(ctx)
-  }
-
   const onRemoveFriend = () => {
     if (selectedTab) {
       toggle()
@@ -107,8 +103,8 @@ const FriendsPage = () => {
     toggle()
   }
 
-  const onMessage = (idx: React.Key) => {
-    setMessageInfo({ username: userInfo.name, message: 'cash flow cash flow', online: currentFriends[idx].online })
+  const onMessage = (idx: any) => {
+    setMessageInfo({ username: userInfo[idx].name, message: 'cash flow cash flow', online: currentFriends[idx].online })
     // trigger message modal from messenger
     setMessageTrigger(!messageTrigger)
   }
@@ -120,7 +116,7 @@ const FriendsPage = () => {
   }
 
   const deleteRequest = () => {
-    setCurrentRequests((state: any[]) => state.filter((request: RequestInterface, i: React.Key) => {
+    setCurrentRequests((state: any[]) => state.filter((request: RequestInterface, i: any) => {
       if (currentRequests[i].username === userInfo) {
         return false
       } else {
@@ -136,10 +132,10 @@ const FriendsPage = () => {
   }
 
 
-  const approveRequest = (idx: React.Key) => {
-    approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online })
+  const approveRequest = (idx: any) => {
+    approveFriend({ name: userInfo[idx].name, image: userInfo[idx].image, online: userInfo[idx].online })
     addOption()
-    toast.success(`${userInfo.name} request approved! `)
+    toast.success(`${userInfo[idx].name} request approved! `)
   }
 
   const requestTotal = (ctx: string | any[] | undefined) => {
@@ -175,7 +171,7 @@ const FriendsPage = () => {
               <div className="flex justify-end">
                 <FontAwesomeIcon className="cursor-pointer" onClick={(element) => {
                   optionToggle(element, idx)
-                  currentUserData(friend[idx])
+                  setUserInfo(friend)
                 }} icon={faEllipsis} size="xl" tabIndex={0} />
                 {options[idx] && (
                   <div className="absolute bg-gray-700 text-white" ref={optionsRef}>
@@ -191,7 +187,7 @@ const FriendsPage = () => {
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4">{friend.heading}</p>
               <button onClick={() =>
-                onMessage(idx)} onFocus={() => currentUserData(friend[idx])} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                onMessage(idx)} onFocus={() => setUserInfo(friend[idx])} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
           )
         })}
@@ -212,9 +208,9 @@ const FriendsPage = () => {
               <div className="flex flex-col ml-4">
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
-                  <button onClick={onRequestDeny} onFocus={() => currentUserData(request[idx])} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onClick={onRequestDeny} onFocus={() => setUserInfo(request[idx])} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
                   <button onClick={() => {
-                    currentUserData(request[idx])
+                    setUserInfo(request)
                     approveRequest(idx)
                   }} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>
