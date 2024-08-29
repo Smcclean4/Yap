@@ -155,7 +155,6 @@ const FriendsPage = () => {
         setOptions([...options, false])
       })
     }
-    console.log(userInfo)
   }, [])
 
   useEffect(() => {
