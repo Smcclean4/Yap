@@ -40,7 +40,7 @@ const FriendsPage = () => {
 
   const [currentFriends, setCurrentFriends]: Array<any> = useState([])
   const [currentRequests, setCurrentRequests]: Array<any> = useState([])
-  const [userInfo, setUserInfo] = useState<any[]>([])
+  const [userInfo, setUserInfo] = useState({})
   const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
@@ -58,6 +58,11 @@ const FriendsPage = () => {
   const { mutate: removeFriend } = api.friends.deleteFriend.useMutation({
     onSettled: () => {
       void ctx.friends.getAllFriends.invalidate();
+    }
+  })
+  const { mutate: removeRequest } = api.friends.deleteFriend.useMutation({
+    onSettled: () => {
+      void ctx.friends.getAllRequests.invalidate();
     }
   })
   const { mutate: approveFriend } = api.friends.approveRequest.useMutation({
@@ -103,7 +108,7 @@ const FriendsPage = () => {
     toggle()
   }
 
-  const onMessage = (idx: any) => {
+  const onMessage = (idx) => {
     setMessageInfo({ username: userInfo[idx].name, message: 'cash flow cash flow', online: currentFriends[idx].online })
     // trigger message modal from messenger
     setMessageTrigger(!messageTrigger)
@@ -116,14 +121,8 @@ const FriendsPage = () => {
   }
 
   const deleteRequest = () => {
-    setCurrentRequests((state: any[]) => state.filter((request: RequestInterface, i: any) => {
-      if (currentRequests[i].username === userInfo) {
-        return false
-      } else {
-        return request
-      }
-    }))
-    toast.error(`${userInfo} request denied.`)
+    removeRequest({ id: userInfo.id })
+    toast.error(`${userInfo.name} request denied.`)
     toggle()
   }
 
@@ -132,7 +131,7 @@ const FriendsPage = () => {
   }
 
 
-  const approveRequest = (idx: any) => {
+  const approveRequest = (idx: React.Key) => {
     approveFriend({ name: userInfo[idx].name, image: userInfo[idx].image, online: userInfo[idx].online })
     addOption()
     toast.success(`${userInfo[idx].name} request approved! `)
