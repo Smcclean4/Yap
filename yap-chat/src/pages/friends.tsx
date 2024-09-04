@@ -38,10 +38,16 @@ const FriendsPage = () => {
     options: boolean;
   }
 
-  const [currentFriends, setCurrentFriends]: Array<any> = useState([])
-  const [currentRequests, setCurrentRequests]: Array<any> = useState([])
-  const [userInfo, setUserInfo] = useState({})
+  interface UserInfoInterface {
+    name: string;
+    image: string;
+    online: boolean;
+    heading: string;
+    id: any;
+  }
+
   const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
+  const [userInfo, setUserInfo] = useState<UserInfoInterface>({ name: '', image: '', heading: '', id: '', online: false })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
   const [messageTrigger, setMessageTrigger] = useState(false)
@@ -73,6 +79,10 @@ const FriendsPage = () => {
 
   const handleSelectedTabClick = () => {
     setSelectedTab(!selectedTab)
+  }
+
+  const currentUserData = (name: any, image: any, online: boolean, heading: string, id: any) => {
+    setUserInfo({ name: name, image: image, online: online, heading: heading, id: id })
   }
 
   const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -108,9 +118,8 @@ const FriendsPage = () => {
     toggle()
   }
 
-  const onMessage = (idx) => {
-    setMessageInfo({ username: userInfo[idx].name, message: 'cash flow cash flow', online: currentFriends[idx].online })
-    // trigger message modal from messenger
+  const onMessage = () => {
+    setMessageInfo({ username: userInfo.name, message: 'cash flow cash flow', online: userInfo.online })
     setMessageTrigger(!messageTrigger)
   }
 
@@ -131,10 +140,10 @@ const FriendsPage = () => {
   }
 
 
-  const approveRequest = (idx: React.Key) => {
-    approveFriend({ name: userInfo[idx].name, image: userInfo[idx].image, online: userInfo[idx].online })
+  const approveRequest = () => {
+    approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
     addOption()
-    toast.success(`${userInfo[idx].name} request approved! `)
+    toast.success(`${userInfo.name} request approved! `)
   }
 
   const requestTotal = (ctx: string | any[] | undefined) => {
@@ -154,6 +163,7 @@ const FriendsPage = () => {
 
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
+    console.log(userInfo)
   }, [options]);
 
   if (!session) return null;
@@ -168,9 +178,8 @@ const FriendsPage = () => {
           return (
             <div key={idx} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
               <div className="flex justify-end">
-                <FontAwesomeIcon className="cursor-pointer" onClick={(element) => {
+                <FontAwesomeIcon className="cursor-pointer" onMouseDown={() => currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)} onMouseUp={(element) => {
                   optionToggle(element, idx)
-                  setUserInfo(friend)
                 }} icon={faEllipsis} size="xl" tabIndex={0} />
                 {options[idx] && (
                   <div className="absolute bg-gray-700 text-white" ref={optionsRef}>
@@ -186,7 +195,7 @@ const FriendsPage = () => {
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4">{friend.heading}</p>
               <button onClick={() =>
-                onMessage(idx)} onFocus={() => setUserInfo(friend[idx])} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+                onMessage()} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
           )
         })}
@@ -207,11 +216,8 @@ const FriendsPage = () => {
               <div className="flex flex-col ml-4">
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
-                  <button onClick={onRequestDeny} onFocus={() => setUserInfo(request[idx])} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                  <button onClick={() => {
-                    setUserInfo(request)
-                    approveRequest(idx)
-                  }} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                  <button onClick={onRequestDeny} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onMouseDown={() => currentUserData(request.name, request.image, request.online, request.heading, request.id)} onMouseUp={() => approveRequest()} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>
               </div>
             </div>
