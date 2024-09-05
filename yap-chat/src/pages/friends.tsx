@@ -66,7 +66,7 @@ const FriendsPage = () => {
       void ctx.friends.getAllFriends.invalidate();
     }
   })
-  const { mutate: removeRequest } = api.friends.deleteFriend.useMutation({
+  const { mutate: removeRequest } = api.friends.deleteRequest.useMutation({
     onSettled: () => {
       void ctx.friends.getAllRequests.invalidate();
     }
@@ -141,9 +141,14 @@ const FriendsPage = () => {
 
 
   const approveRequest = () => {
-    approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
-    addOption()
-    toast.success(`${userInfo.name} request approved! `)
+    if (userInfo.id !== "undefined" || null) {
+      approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
+      removeRequest({ id: userInfo.id })
+      addOption()
+      toast.success(`${userInfo.name} request approved! `)
+    } else {
+      toast.error(`Was not able to add ${userInfo.name} as a friend.`)
+    }
   }
 
   const requestTotal = (ctx: string | any[] | undefined) => {
@@ -193,7 +198,7 @@ const FriendsPage = () => {
                 <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={friend.online ? 'limegreen' : 'gray'} size="sm" />
               </div>
               <p className="text-xl my-2 font-bold">{friend.name}</p>
-              <p className="text-lg font-light my-4">{friend.heading}</p>
+              <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
               <button onClick={() =>
                 onMessage()} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
@@ -216,7 +221,7 @@ const FriendsPage = () => {
               <div className="flex flex-col ml-4">
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
-                  <button onClick={onRequestDeny} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onMouseDown={() => currentUserData(request.name, request.image, request.online, request.heading, request.id)} onMouseUp={onRequestDeny} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
                   <button onMouseDown={() => currentUserData(request.name, request.image, request.online, request.heading, request.id)} onMouseUp={() => approveRequest()} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>
               </div>
