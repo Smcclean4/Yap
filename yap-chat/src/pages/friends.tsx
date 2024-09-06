@@ -152,6 +152,7 @@ const FriendsPage = () => {
   }
 
   const requestTotal = (ctx: string | any[] | undefined) => {
+    const length = 'something to log'
     return ctx?.length
   }
 
