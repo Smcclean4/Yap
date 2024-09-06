@@ -68,7 +68,7 @@ const FriendsPage = () => {
   })
   const { mutate: removeRequest } = api.friends.deleteRequest.useMutation({
     onSettled: () => {
-      void ctx.friends.getAllRequests.invalidate();
+      void ctx.friends.getAllFriends.invalidate();
     }
   })
   const { mutate: approveFriend } = api.friends.approveRequest.useMutation({
@@ -143,6 +143,7 @@ const FriendsPage = () => {
   const approveRequest = () => {
     if (userInfo.id !== "undefined" || null) {
       approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
+      // request is deleting from friends not getting userinfo from request.. look into this
       removeRequest({ id: userInfo.id })
       addOption()
       toast.success(`${userInfo.name} request approved! `)
@@ -152,7 +153,6 @@ const FriendsPage = () => {
   }
 
   const requestTotal = (ctx: string | any[] | undefined) => {
-    const length = 'something to log'
     return ctx?.length
   }
 
