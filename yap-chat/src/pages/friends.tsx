@@ -73,7 +73,7 @@ const FriendsPage = () => {
   })
   const { mutate: approveFriend } = api.friends.approveRequest.useMutation({
     onSettled: () => {
-      void ctx.friends.getAllFriends.invalidate() && void ctx.friends.getAllFriends.invalidate();
+      void ctx.friends.getAllRequests.invalidate() && void ctx.friends.getAllFriends.invalidate();
     }
   })
 
