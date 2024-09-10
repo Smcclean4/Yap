@@ -1,13 +1,13 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useRef, useState } from 'react'
-import { MessageInfoInterface } from '~/pages/friends';
+import { UserInfoInterface } from '~/pages/friends';
 import { MessageModal } from '~/modals/message';
 import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
 
 interface MessengerInterface {
-  messengeruser?: MessageInfoInterface;
+  messengeruser?: UserInfoInterface;
   trigger?: boolean;
 }
 
@@ -31,7 +31,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const updateMessenger = () => {
-    if (itemExists(messengeruser?.username, chats)) {
+    if (itemExists(messengeruser?.name, chats)) {
       return
     } else {
       setChats([...chats, messengeruser])
@@ -39,8 +39,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const closeChat = () => {
-    setChats((state: any[]) => state.filter((chat: { username: string, message: string, online: boolean }, i: React.Key) => {
-      if (chats[i].username === messengerUser) {
+    setChats((state: any[]) => state.filter((chat: { name: string, message: string, online: boolean }, i: React.Key) => {
+      if (chats[i].name === messengerUser) {
         return false
       } else {
         return chat
@@ -51,13 +51,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const onMessage = (idx: React.Key) => {
-    setMessengerUser(chats[idx].username)
+    setMessengerUser(chats[idx].name)
     // esablish connection here
     toggle()
   }
 
   const triggerMessage = () => {
-    setMessengerUser(messengeruser?.username)
+    setMessengerUser(messengeruser?.name)
     // establish connection here
     toggle()
   }
@@ -89,14 +89,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
       <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={messengerUser} onclosechat={closeChat} />
-      {chats?.map((chats: { username: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
+      {chats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
             <div className="flex flex-row justify-around items-center">
-              <p className="text-xl">{chats?.username}</p>
+              <p className="text-xl">{chats?.name}</p>
               <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={chats?.online ? 'limegreen' : 'gray'} size="sm" />
             </div>
             <div className="font-extralight italic">
+              {/* have messages pull from a database of messages between the user and the current clicked user */}
               <p>{chats?.message}</p>
             </div>
           </div>

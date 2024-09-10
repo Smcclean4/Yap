@@ -10,43 +10,17 @@ import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
-import { request } from 'http';
 
-export interface MessageInfoInterface {
-  username: string;
-  message: string;
+export interface UserInfoInterface {
+  name: string;
+  image: string;
   online: boolean;
+  heading: string;
+  id: any;
 }
 
 const FriendsPage = () => {
 
-  interface FriendInterface {
-    image: string;
-    username: string;
-    heading: string;
-    message: boolean;
-    online: boolean;
-    options: boolean;
-  }
-
-  interface RequestInterface {
-    image: string;
-    username: string;
-    heading: string;
-    message: boolean;
-    online: boolean;
-    options: boolean;
-  }
-
-  interface UserInfoInterface {
-    name: string;
-    image: string;
-    online: boolean;
-    heading: string;
-    id: any;
-  }
-
-  const [messageInfo, setMessageInfo] = useState<MessageInfoInterface>({ username: '', message: '', online: false })
   const [userInfo, setUserInfo] = useState<UserInfoInterface>({ name: '', image: '', heading: '', id: '', online: false })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
@@ -119,7 +93,6 @@ const FriendsPage = () => {
   }
 
   const onMessage = () => {
-    setMessageInfo({ username: userInfo.name, message: 'cash flow cash flow', online: userInfo.online })
     setMessageTrigger(!messageTrigger)
   }
 
@@ -143,7 +116,6 @@ const FriendsPage = () => {
   const approveRequest = () => {
     if (userInfo.id !== "undefined" || null) {
       approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
-      // request is deleting from friends not getting userinfo from request.. look into this
       removeRequest({ id: userInfo.id })
       addOption()
       toast.success(`${userInfo.name} request approved! `)
@@ -200,7 +172,7 @@ const FriendsPage = () => {
               </div>
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
-              <button onClick={() =>
+              <button onMouseDown={() => currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)} onMouseUp={() =>
                 onMessage()} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
           )
@@ -237,7 +209,7 @@ const FriendsPage = () => {
   return (
     <Layout>
       <Toaster />
-      <SidebarNav user={session?.user.email} userinfo={messageInfo} triggermessage={messageTrigger} />
+      <SidebarNav user={session?.user.email} userinfo={userInfo} triggermessage={messageTrigger} />
       <div className="w-full flex flex-col justify-center items-center mt-28" onClick={(element) => outerDivToggle(element)}>
         <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo.name} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
         <div className={`flex flex-col w-full justify-between h-full mt-2 ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`} ref={outerDivRef}>
