@@ -161,7 +161,7 @@ const FriendsPage = () => {
                 }} icon={faEllipsis} size="xl" tabIndex={0} />
                 {options[idx] && (
                   <div className="absolute bg-gray-700 text-white" ref={optionsRef}>
-                    <button className="p-2" onMouseDown={onRemoveFriend}>Remove Friend</button>
+                    <button className="p-2" onClick={onRemoveFriend}>Remove Friend</button>
                   </div>
                 )}
               </div>

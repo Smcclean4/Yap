@@ -22,18 +22,18 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     alert('attempting to send message!')
   }
 
-  const itemExists = (username: string | undefined, item: { username: any; }[]) => {
-    return item.some((chat: { username: any; }) => {
-      return chat?.username === username
+  const itemExists = (name: string | undefined, item: { name: any; }[]) => {
+    return item.some((chat: { name: any; }) => {
+      return chat?.name === name
     })
   }
 
   const updateMessenger = () => {
     if (itemExists(messengeruser?.name, chats)) {
       return
-    } else {
-      setChats([...chats, messengeruser])
     }
+    // messenger creating chats based on when user info changes .. needs to only create chats when message button is clicked
+    setChats([...chats, messengeruser])
   }
 
   const closeChat = () => {
