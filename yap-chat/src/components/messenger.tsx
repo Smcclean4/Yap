@@ -12,8 +12,6 @@ interface MessengerInterface {
 }
 
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
-  // when chat is open.. make new chat messenger in sidebar nav.
-  // when messenger open button is clicked open modal with corresponding chats
   const [chats, setChats]: Array<any> = useState([])
   const [messengerUser, setMessengerUser]: any = useState('')
 
@@ -68,6 +66,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     } else {
       triggerMessage()
     }
+    // figure out how to clear message when friend is removed
   }, [trigger])
 
   useEffect(() => {

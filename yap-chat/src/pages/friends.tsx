@@ -42,7 +42,7 @@ const FriendsPage = () => {
   })
   const { mutate: removeRequest } = api.friends.deleteRequest.useMutation({
     onSettled: () => {
-      void ctx.friends.getAllFriends.invalidate();
+      void ctx.friends.getAllRequests.invalidate();
     }
   })
   const { mutate: approveFriend } = api.friends.approveRequest.useMutation({

@@ -1,11 +1,11 @@
 import React from 'react'
 import { LogoutForm } from './logout'
 import { ChatMessenger } from './messenger'
-import { MessageInfoInterface } from '~/pages/friends';
+import { UserInfoInterface } from '~/pages/friends';
 
 interface SidebarNavInterface {
   user: string | undefined | null;
-  userinfo?: MessageInfoInterface;
+  userinfo?: UserInfoInterface;
   triggermessage?: boolean;
 }
 
