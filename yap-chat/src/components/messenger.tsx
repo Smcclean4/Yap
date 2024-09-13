@@ -32,7 +32,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     if (itemExists(messengeruser?.name, chats)) {
       return
     }
-    // messenger creating chats based on when user info changes .. needs to only create chats when message button is clicked
     setChats([...chats, messengeruser])
   }
 
@@ -67,11 +66,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       triggerMessage()
     }
     // figure out how to clear message when friend is removed
-  }, [trigger])
-
-  useEffect(() => {
     updateMessenger()
-  }, [messengeruser])
+  }, [trigger])
 
   useEffect(() => {
     const chatsStorage = JSON.parse(localStorage.getItem('chatsData') || '[]')
