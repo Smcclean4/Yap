@@ -65,7 +65,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     } else {
       triggerMessage()
     }
-    // figure out how to clear message when friend is removed
     updateMessenger()
   }, [trigger])
 

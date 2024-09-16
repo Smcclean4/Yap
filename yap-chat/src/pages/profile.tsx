@@ -16,7 +16,7 @@ const ProfilePage = () => {
   const [profileData, setProfileData] = useState<ProfileInterface>({
     username: '',
     heading: '',
-    bio: ''
+    bio: '',
   })
 
   const { data: session, status, update } = useSession();
@@ -69,12 +69,13 @@ const ProfilePage = () => {
   useEffect(() => {
     const profileStorage = JSON.parse(localStorage.getItem('profileData') || '{}')
     if (profileStorage) {
-      setProfileData({ ...profileStorage, image: session?.user.image })
+      setProfileData({ ...profileStorage })
     }
   }, [])
 
   useEffect(() => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
+    console.log(session?.user)
   }, [profileData])
 
   return (
@@ -85,7 +86,7 @@ const ProfilePage = () => {
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className=" flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={!session?.user.image ? "/ezgif.com-webp-to-jpg.jpg" : session?.user.image!} alt='' height="200" width="200" priority />
+              <Image src={session?.user.image ? session?.user.image : "/ezgif.com-webp-to-jpg.jpg"} alt='' height="200" width="200" priority />
             </div>
             {editMode && <input className="my-4 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>
