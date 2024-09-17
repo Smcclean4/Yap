@@ -51,7 +51,6 @@ model Session {
     @@index([userId])
 }
 
-// does name transer from user correctly?
 model Friend {
     id       String   @id @default(cuid())
     friendId String
@@ -76,7 +75,6 @@ model Request {
     @@unique([requestId])
 }
 
-// does image persist? and does heading and image correctly display?
 model User {
     id            String    @id @default(cuid())
     name          String?
@@ -84,6 +82,7 @@ model User {
     emailVerified DateTime?
     image         String?
     heading       String?
+    bio           String?
     online        Boolean?
     friends       Friend[]
     requests      Request[]

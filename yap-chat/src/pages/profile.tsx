@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import toast, { Toaster } from 'react-hot-toast';
+import { api } from '~/utils/api';
 
 const ProfilePage = () => {
 
@@ -11,20 +12,29 @@ const ProfilePage = () => {
     username: string;
     heading: string;
     bio: string;
+    image: string;
   }
 
   const [profileData, setProfileData] = useState<ProfileInterface>({
     username: '',
     heading: '',
     bio: '',
+    image: "/ezgif.com-webp-to-jpg.jpg"
   })
 
   const { data: session, status, update } = useSession();
+  const ctx = api.useContext()
 
   const [editMode, setEditMode] = useState(false)
+  const { data: profileInfoFromDatabase, isLoading: profileLoading } = api.profile.getUserProfile.useQuery({ id: session?.user.id! })
+  const { mutate: setProfileInfoDatabase } = api.profile.setUserProfile.useMutation({
+    onSettled: () => {
+      void ctx.profile.getUserProfile.invalidate();
+    }
+  })
 
   const onEditChanges = ({ target: input }: any) => {
-    setProfileData({ ...profileData, [input.name]: input.value })
+    setProfileData({ ...profileData, [input.name]: [input.value] })
   }
 
   const handleEdit = () => {
@@ -44,6 +54,8 @@ const ProfilePage = () => {
       toast.error('Set your bio!')
       return
     }
+    // look into why id is giving undefined.. from here and query
+    setProfileInfoDatabase({ id: session?.user.id!, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
     setEditMode(!editMode)
     toast.success('Profile data saved!')
   }
@@ -75,7 +87,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
-    console.log(session?.user)
+    console.log(profileInfoFromDatabase)
   }, [profileData])
 
   return (
@@ -86,7 +98,7 @@ const ProfilePage = () => {
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className=" flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
-              <Image src={session?.user.image ? session?.user.image : "/ezgif.com-webp-to-jpg.jpg"} alt='' height="200" width="200" priority />
+              <Image src={profileInfoFromDatabase?.image ? profileInfoFromDatabase?.image : profileData.image} alt='' height="200" width="200" priority />
             </div>
             {editMode && <input className="my-4 ml-32" type="file" onChange={handleImageUpload} name="image" accept="image/png, image/jpg, image/gif" />}
           </div>

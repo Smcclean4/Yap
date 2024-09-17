@@ -141,7 +141,6 @@ const FriendsPage = () => {
 
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
-    console.log(userInfo)
   }, [options]);
 
   if (!session) return null;
