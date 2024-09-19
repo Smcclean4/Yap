@@ -55,7 +55,7 @@ const ProfilePage = () => {
       return
     }
     // look into why id is giving undefined.. from here and query
-    setProfileInfoDatabase({ id: session?.user.id!, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
+    setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
     setEditMode(!editMode)
     toast.success('Profile data saved!')
   }

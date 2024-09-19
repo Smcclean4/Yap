@@ -15,8 +15,8 @@ export const profileRouter = createTRPCRouter({
         }
       })
     }),
-  setUserProfile: publicProcedure.input(z.object({ id: z.string(), name: z.string(), heading: z.string(), bio: z.string(), image: z.string() })).mutation(({ ctx, input }) => {
-    return ctx.prisma.user.update({
+  setUserProfile: publicProcedure.input(z.object({ id: z.string(), name: z.string(), heading: z.string(), bio: z.string(), image: z.string() })).mutation(async ({ ctx, input }) => {
+    const setProfile = await ctx.prisma.user.update({
       where: {
         id: input.id
       },
@@ -27,5 +27,7 @@ export const profileRouter = createTRPCRouter({
         image: input.image
       }
     })
+
+    return setProfile
   })
 });
