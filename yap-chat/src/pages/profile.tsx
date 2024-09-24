@@ -64,19 +64,20 @@ const ProfilePage = () => {
     const file = input.files[0];
     if (status === "authenticated") {
       update({ image: URL.createObjectURL(file) })
+      setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: URL.createObjectURL(file) })
     }
   }
 
-  useEffect(() => {
-    const interval = setInterval(() => update(), 1000 * 60 * 60)
-    return () => clearInterval(interval)
-  }, [update])
+  // useEffect(() => {
+  //   const interval = setInterval(() => update(), 1000 * 60 * 60)
+  //   return () => clearInterval(interval)
+  // }, [update])
 
-  useEffect(() => {
-    const visibilityHandler = () => document.visibilityState === "visible" && update()
-    window.addEventListener("visibilitychange", visibilityHandler, false)
-    return () => window.removeEventListener("visibilitychange", visibilityHandler, false)
-  }, [update])
+  // useEffect(() => {
+  //   const visibilityHandler = () => document.visibilityState === "visible" && update()
+  //   window.addEventListener("visibilitychange", visibilityHandler, false)
+  //   return () => window.removeEventListener("visibilitychange", visibilityHandler, false)
+  // }, [update])
 
   useEffect(() => {
     const profileStorage = JSON.parse(localStorage.getItem('profileData') || '{}')
