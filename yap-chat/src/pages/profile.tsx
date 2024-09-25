@@ -34,7 +34,7 @@ const ProfilePage = () => {
   })
 
   const onEditChanges = ({ target: input }: any) => {
-    setProfileData({ ...profileData, [input.name]: [input.value] })
+    setProfileData({ ...profileData, [input.name]: input.value })
   }
 
   const handleEdit = () => {
@@ -68,30 +68,6 @@ const ProfilePage = () => {
     }
   }
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => update(), 1000 * 60 * 60)
-  //   return () => clearInterval(interval)
-  // }, [update])
-
-  // useEffect(() => {
-  //   const visibilityHandler = () => document.visibilityState === "visible" && update()
-  //   window.addEventListener("visibilitychange", visibilityHandler, false)
-  //   return () => window.removeEventListener("visibilitychange", visibilityHandler, false)
-  // }, [update])
-
-  useEffect(() => {
-    const profileStorage = JSON.parse(localStorage.getItem('profileData') || '{}')
-    if (profileStorage) {
-      setProfileData({ ...profileStorage })
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('profileData', JSON.stringify(profileData))
-    console.log(profileInfoFromDatabase)
-    console.log(session?.user.id)
-  }, [profileData])
-
   return (
     <Layout>
       <Toaster />
@@ -108,20 +84,20 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Username</p>
-                <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData.username ?? ""} />
+                <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData?.username ?? ""} />
               </div>
-            ) : <p className="text-xl"><b>@{profileData.username === undefined ?? "" ? <span className="text-red-500">Set Your Username</span> : profileData.username}</b></p>}
+            ) : <p className="text-xl"><b>@{profileData.username === undefined ?? "" ? <span className="text-red-500">Set Your Username</span> : profileInfoFromDatabase?.name}</b></p>}
           </div>
           <div className="w-full flex flex-col justify-center items-center">
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Heading</p>
-                <input type="text" placeholder="Heading" className="p-2 w-2/4" maxLength={40} onChange={onEditChanges} name="heading" value={profileData.heading ?? ""} />
+                <input type="text" placeholder="Heading" className="p-2 w-2/4" maxLength={40} onChange={onEditChanges} name="heading" value={profileData?.heading ?? ""} />
               </div>
             ) : (
               <div className="w-1/2">
                 <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Heading</p>
-                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading === undefined ?? "" ? <p className="text-red-500">Set Your Heading</p> : profileData.heading}</div>
+                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading === undefined ?? "" ? <p className="text-red-500">Set Your Heading</p> : profileInfoFromDatabase?.heading}</div>
               </div>
             )}
           </div>
@@ -129,12 +105,12 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Bio</p>
-                <textarea className="w-2/3 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData.bio ?? ""} />
+                <textarea className="w-2/3 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData?.bio ?? ""} />
               </div>
             ) : (
               <div className="w-2/3 my-6 max-h-48">
                 <p className="bg-blue-400 w-36 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
-                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === undefined ?? "" ? <p className="text-red-500">Set Your Bio</p> : profileData.bio}</div>
+                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === undefined ?? "" ? <p className="text-red-500">Set Your Bio</p> : profileInfoFromDatabase?.bio}</div>
               </div>
             )}
           </div>
