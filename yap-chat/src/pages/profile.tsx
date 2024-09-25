@@ -54,7 +54,7 @@ const ProfilePage = () => {
       toast.error('Set your bio!')
       return
     }
-    // look into why id is giving undefined.. from here and query
+    // when looking into console it shows the values getting pushed through but in individual brackets... look into this
     setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
     setEditMode(!editMode)
     toast.success('Profile data saved!')
@@ -63,8 +63,8 @@ const ProfilePage = () => {
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
     if (status === "authenticated") {
-      update({ image: URL.createObjectURL(file) })
-      setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: URL.createObjectURL(file) })
+      // update({ image: URL.createObjectURL(file) })
+      setProfileData({ ...profileData, image: URL.createObjectURL(file) })
     }
   }
 
@@ -89,6 +89,7 @@ const ProfilePage = () => {
   useEffect(() => {
     localStorage.setItem('profileData', JSON.stringify(profileData))
     console.log(profileInfoFromDatabase)
+    console.log(session?.user.id)
   }, [profileData])
 
   return (
