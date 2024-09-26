@@ -62,8 +62,9 @@ const ProfilePage = () => {
 
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
+    console.log(file)
     if (status === "authenticated") {
-      // update({ image: URL.createObjectURL(file) })
+      update({ image: URL.createObjectURL(file) })
       setProfileData({ ...profileData, image: URL.createObjectURL(file) })
     }
   }
