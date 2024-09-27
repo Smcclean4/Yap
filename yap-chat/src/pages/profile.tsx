@@ -5,6 +5,7 @@ import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
+import { LoadingPage } from '~/shared/loading';
 
 const ProfilePage = () => {
 
@@ -69,12 +70,13 @@ const ProfilePage = () => {
     }
   }
 
-  return (
-    <Layout>
-      <Toaster />
-      <SidebarNav user={session?.user.email} />
-      <div className="w-full flex justify-center items-center mt-28 bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto py-6">
-        <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
+  const DisplayProfile = () => {
+
+    if (profileLoading) return <LoadingPage />
+
+    return (
+      <>
+        {<div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className=" flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
               <Image src={profileInfoFromDatabase?.image ? profileInfoFromDatabase?.image : profileData.image} alt='' height="200" width="200" priority />
@@ -124,7 +126,17 @@ const ProfilePage = () => {
               <button className="text-xl text-white bg-blue-500 py-2 px-6 rounded-full" onClick={handleEdit}>Edit</button>
             )}
           </div>
-        </div>
+        </div>}
+      </>
+    )
+  }
+
+  return (
+    <Layout>
+      <Toaster />
+      <SidebarNav user={session?.user.email} />
+      <div className="w-full flex justify-center items-center mt-28 bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto py-6">
+        <DisplayProfile />
       </div>
     </Layout>
   )
