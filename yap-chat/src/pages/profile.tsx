@@ -55,7 +55,6 @@ const ProfilePage = () => {
       toast.error('Set your bio!')
       return
     }
-    // when looking into console it shows the values getting pushed through but in individual brackets... look into this
     setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
     setEditMode(!editMode)
     toast.success('Profile data saved!')
@@ -63,12 +62,13 @@ const ProfilePage = () => {
 
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
-    console.log(file)
+    const imageSrc = URL.createObjectURL(file)
     if (status === "authenticated") {
-      update({ image: URL.createObjectURL(file) })
-      setProfileData({ ...profileData, image: URL.createObjectURL(file) })
+      setProfileData({ ...profileData, image: imageSrc })
     }
   }
+
+  // look into why its losing focus when typing in profile fields
 
   const DisplayProfile = () => {
 
