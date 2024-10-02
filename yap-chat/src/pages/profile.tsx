@@ -57,7 +57,7 @@ const ProfilePage = () => {
     }
     setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
     setEditMode(!editMode)
-    toast.success('Profile data saved!')
+    toast.success('Profile saved!')
   }
 
   const handleImageUpload = ({ target: input }: any) => {
