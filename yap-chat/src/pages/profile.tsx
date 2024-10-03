@@ -23,7 +23,7 @@ const ProfilePage = () => {
     image: "/ezgif.com-webp-to-jpg.jpg"
   })
 
-  const { data: session, status, update } = useSession();
+  const { data: session } = useSession();
   const ctx = api.useContext()
 
   const [editMode, setEditMode] = useState(false)
