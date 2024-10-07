@@ -63,9 +63,7 @@ const ProfilePage = () => {
   const handleImageUpload = ({ target: input }: any) => {
     const file = input.files[0];
     const imageSrc = URL.createObjectURL(file)
-    if (status === "authenticated") {
-      setProfileData({ ...profileData, image: imageSrc })
-    }
+    setProfileData({ ...profileData, image: imageSrc })
   }
 
   // look into why its losing focus when typing in profile fields
@@ -87,7 +85,7 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Username</p>
-                <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={(e) => onEditChanges(e)} name="username" value={profileData?.username ?? ""} />
+                <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData?.username ?? ""} />
               </div>
             ) : <p className="text-xl"><b>@{profileData.username === undefined ?? "" ? <span className="text-red-500">Set Your Username</span> : profileInfoFromDatabase?.name}</b></p>}
           </div>
@@ -95,7 +93,7 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Heading</p>
-                <input type="text" placeholder="Heading" className="p-2 w-2/4" maxLength={40} onChange={(e) => onEditChanges(e)} name="heading" value={profileData?.heading ?? ""} />
+                <input type="text" placeholder="Heading" className="p-2 w-2/4" maxLength={40} onChange={onEditChanges} name="heading" value={profileData?.heading ?? ""} />
               </div>
             ) : (
               <div className="w-1/2">
@@ -108,7 +106,7 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Bio</p>
-                <textarea className="w-2/3 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={(e) => onEditChanges(e)} name="bio" value={profileData?.bio ?? ""} />
+                <textarea className="w-2/3 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData?.bio ?? ""} />
               </div>
             ) : (
               <div className="w-2/3 my-6 max-h-48">
