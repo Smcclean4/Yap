@@ -43,19 +43,11 @@ const ProfilePage = () => {
   }
 
   const handleSave = () => {
-    if (profileData.username === "") {
-      toast.error('Set your username!')
+    if (profileData.username === "" || profileData.heading === "" || profileData.bio === "") {
+      toast.error('Dont leave blank fields in your profile!')
       return
     }
-    if (profileData.heading === "") {
-      toast.error('Set your heading!')
-      return
-    }
-    if (profileData.bio === "") {
-      toast.error('Set your bio!')
-      return
-    }
-    setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
+    setProfileInfoDatabase({ id: session?.user.id, name: profileData.username === "" ? profileInfoFromDatabase?.name : profileData.username, heading: profileData.heading === "" ? profileInfoFromDatabase?.heading : profileData.heading, bio: profileData.bio === "" ? profileInfoFromDatabase?.bio : profileData.bio, image: profileData.image })
     setEditMode(!editMode)
     toast.success('Profile saved!')
   }
@@ -82,7 +74,7 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Username</p>
-                <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData?.username ?? ""} />
+                <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData.username ?? ""} />
               </div>
             ) : <p className="text-xl"><b>@{profileData.username === undefined ?? "" ? <span className="text-red-500">Set Your Username</span> : profileInfoFromDatabase?.name}</b></p>}
           </div>
