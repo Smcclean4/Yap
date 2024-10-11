@@ -5,7 +5,7 @@ import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
-import { LoadingPage } from '~/shared/loading';
+import { UploadButton } from "~/utils/uploadthing";
 
 const ProfilePage = () => {
 
@@ -68,7 +68,18 @@ const ProfilePage = () => {
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
               <Image src={profileInfoFromDatabase?.image ? profileInfoFromDatabase?.image : profileData.image} alt='' height="200" width="200" priority />
             </div>
-            {editMode && <input className="my-4 ml-32" type="file" onChange={(e) => handleImageUpload(e)} name="image" accept="image/png, image/jpg, image/gif" />}
+            {editMode && <UploadButton
+              endpoint="imageUploader" className="m-6"
+              onClientUploadComplete={(res) => {
+                // Do something with the response
+                setProfileData({ ...profileData, image: `${res[0]!.appUrl}` })
+                console.log(res[0]?.appUrl)
+              }}
+              onUploadError={(error: Error) => {
+                // Do something with the error.
+                alert(`ERROR! ${error.message}`);
+              }}
+            />}
           </div>
           <div className="my-2 w-full">
             {editMode ? (
