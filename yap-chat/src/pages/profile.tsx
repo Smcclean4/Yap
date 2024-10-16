@@ -23,11 +23,13 @@ const ProfilePage = () => {
     image: "/ezgif.com-webp-to-jpg.jpg"
   })
 
+  const [imageInfo, setImageInfo] = useState<string>('')
+
   const { data: session } = useSession();
   const ctx = api.useContext()
 
   const [editMode, setEditMode] = useState(false)
-  const { data: profileInfoFromDatabase, isLoading: profileLoading } = api.profile.getUserProfile.useQuery({ id: session?.user.id! })
+  const { data: profileInfoFromDatabase } = api.profile.getUserProfile.useQuery({ id: session?.user.id! })
   const { mutate: setProfileInfoDatabase } = api.profile.setUserProfile.useMutation({
     onSettled: () => {
       void ctx.profile.getUserProfile.invalidate();
@@ -72,14 +74,17 @@ const ProfilePage = () => {
               endpoint="imageUploader" className="m-6"
               onClientUploadComplete={(res) => {
                 // Do something with the response
-                setProfileData({ ...profileData, image: `${res[0]!.appUrl}` })
-                console.log(res[0]?.appUrl)
+                setProfileData({ ...profileData, image: res[0]!.url })
+                setImageInfo(res[0]!.name)
               }}
               onUploadError={(error: Error) => {
                 // Do something with the error.
                 alert(`ERROR! ${error.message}`);
               }}
             />}
+            <div className="bold text-sm italic">
+              <p>{imageInfo}</p>
+            </div>
           </div>
           <div className="my-2 w-full">
             {editMode ? (
