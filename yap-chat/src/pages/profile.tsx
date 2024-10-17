@@ -74,6 +74,7 @@ const ProfilePage = () => {
               endpoint="imageUploader" className="m-6"
               onClientUploadComplete={(res) => {
                 // Do something with the response
+                // here from working copy ;)  
                 setProfileData({ ...profileData, image: res[0]!.url })
                 setImageInfo(res[0]!.name)
               }}
