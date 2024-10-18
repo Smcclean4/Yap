@@ -83,7 +83,7 @@ const ProfilePage = () => {
               }}
             />}
             <div className="bold text-sm italic">
-              <p>{imageInfo}</p>
+              {editMode ? <p>{imageInfo}</p> : ""}
             </div>
           </div>
           <div className="my-2 w-full">
@@ -92,7 +92,7 @@ const ProfilePage = () => {
                 <p className="text-xl underline mb-2">Username</p>
                 <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData.username ?? ""} />
               </div>
-            ) : <p className="text-xl"><b>@{profileData.username === undefined ?? "" ? <span className="text-red-500">Set Your Username</span> : profileInfoFromDatabase?.name}</b></p>}
+            ) : <p className="text-xl"><b>@{profileData.username === "" ? <span className="text-red-500">Set Your Username</span> : profileInfoFromDatabase?.name}</b></p>}
           </div>
           <div className="w-full flex flex-col justify-center items-center">
             {editMode ? (
@@ -103,7 +103,7 @@ const ProfilePage = () => {
             ) : (
               <div className="w-1/2">
                 <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Heading</p>
-                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading === undefined ?? "" ? <p className="text-red-500">Set Your Heading</p> : profileInfoFromDatabase?.heading}</div>
+                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileData.heading === "" ? <p className="text-red-500">Set Your Heading</p> : profileInfoFromDatabase?.heading}</div>
               </div>
             )}
           </div>
@@ -116,7 +116,7 @@ const ProfilePage = () => {
             ) : (
               <div className="w-2/3 my-6 max-h-48">
                 <p className="bg-blue-400 w-36 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
-                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === undefined ?? "" ? <p className="text-red-500">Set Your Bio</p> : profileInfoFromDatabase?.bio}</div>
+                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileData.bio === "" ? <p className="text-red-500">Set Your Bio</p> : profileInfoFromDatabase?.bio}</div>
               </div>
             )}
           </div>
