@@ -54,11 +54,16 @@ const ProfilePage = () => {
     toast.success('Profile saved!')
   }
 
-  // const handleImageUpload = ({ target: input }: any) => {
-  //   const file = input.files[0];
-  //   const imageSrc = URL.createObjectURL(file)
-  //   setProfileData({ ...profileData, image: imageSrc })
-  // }
+  useEffect(() => {
+    const profileDataFromLocalStorage = JSON.parse(localStorage.getItem("profileData") || "[]");
+    if (profileData === null || undefined) {
+      setProfileData(profileDataFromLocalStorage)
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem("profileData", JSON.stringify(profileData));
+  }, [profileData]);
 
   return (
     <Layout>
