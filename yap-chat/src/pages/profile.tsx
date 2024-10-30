@@ -49,7 +49,7 @@ const ProfilePage = () => {
       toast.error('Dont leave blank fields in your profile!')
       return
     }
-    setProfileInfoDatabase({ id: session?.user.id, name: profileData.username === "" ? profileInfoFromDatabase?.name : profileData.username, heading: profileData.heading === "" ? profileInfoFromDatabase?.heading : profileData.heading, bio: profileData.bio === "" ? profileInfoFromDatabase?.bio : profileData.bio, image: profileData.image === "" ? profileInfoFromDatabase?.image : profileData.image })
+    setProfileInfoDatabase({ id: session?.user.id, name: profileData.username === "" ? profileInfoFromDatabase?.name : profileData.username, heading: profileData.heading === "" ? profileInfoFromDatabase?.heading : profileData.heading, bio: profileData.bio === "" ? profileInfoFromDatabase?.bio : profileData.bio, image: profileData.image === "" || null || undefined ? profileInfoFromDatabase?.image : profileData.image })
     setEditMode(!editMode)
     toast.success('Profile saved!')
   }
