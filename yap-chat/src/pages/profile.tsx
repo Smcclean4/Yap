@@ -49,21 +49,10 @@ const ProfilePage = () => {
       toast.error('Dont leave blank fields in your profile!')
       return
     }
-    setProfileInfoDatabase({ id: session?.user.id, name: profileData.username === "" ? profileInfoFromDatabase?.name : profileData.username, heading: profileData.heading === "" ? profileInfoFromDatabase?.heading : profileData.heading, bio: profileData.bio === "" ? profileInfoFromDatabase?.bio : profileData.bio, image: profileData.image === "" || null || undefined ? profileInfoFromDatabase?.image : profileData.image })
+    setProfileInfoDatabase({ id: session?.user.id, name: profileData.username === "" ? profileInfoFromDatabase?.name : profileData.username, heading: profileData.heading === "" ? profileInfoFromDatabase?.heading : profileData.heading, bio: profileData.bio === "" ? profileInfoFromDatabase?.bio : profileData.bio, image: profileInfoFromDatabase?.image === "" || null || undefined ? profileData.image : profileInfoFromDatabase?.image })
     setEditMode(!editMode)
     toast.success('Profile saved!')
   }
-
-  useEffect(() => {
-    const profileDataFromLocalStorage = JSON.parse(localStorage.getItem("profileData") || "[]");
-    if (profileData === null || undefined) {
-      setProfileData(profileDataFromLocalStorage)
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem("profileData", JSON.stringify(profileData));
-  }, [profileData]);
 
   return (
     <Layout>
