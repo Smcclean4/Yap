@@ -46,7 +46,7 @@ const ProfilePage = () => {
 
   const handleSave = () => {
     if (profileData.username === "" || profileData.heading === "" || profileData.bio === "") {
-      toast.error('Dont leave blank fields in your profile!')
+      toast.error('Finish editing your profile before saving!')
       return
     }
     setProfileInfoDatabase({ id: session?.user.id, name: profileData.username === "" ? profileInfoFromDatabase?.name : profileData.username, heading: profileData.heading === "" ? profileInfoFromDatabase?.heading : profileData.heading, bio: profileData.bio === "" ? profileInfoFromDatabase?.bio : profileData.bio, image: profileInfoFromDatabase?.image === "" || null || undefined ? profileData.image : profileInfoFromDatabase?.image })
@@ -67,12 +67,10 @@ const ProfilePage = () => {
             {editMode && <UploadButton
               endpoint="imageUploader" className="m-6"
               onClientUploadComplete={(res) => {
-                // Do something with the response
                 setProfileData({ ...profileData, image: res[0]!.url })
                 setImageInfo(res[0]!.name)
               }}
               onUploadError={(error: Error) => {
-                // Do something with the error.
                 alert(`ERROR! ${error.message}`);
               }}
             />}
