@@ -1,5 +1,6 @@
 {
   "name": "yap-chat",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -24,6 +25,7 @@
     "@trpc/react-query": "^10.18.0",
     "@trpc/server": "^10.18.0",
     "@uploadthing/react": "^7.0.3",
+    "cors": "^2.8.5",
     "dayjs": "^1.11.9",
     "express": "^4.21.1",
     "next": "^13.2.4",
@@ -34,12 +36,14 @@
     "react-hot-toast": "^2.4.1",
     "react-player": "^2.12.0",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "superjson": "1.12.2",
     "uploadthing": "^7.1.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/eslint": "^8.21.3",
+    "@types/express": "^5.0.0",
     "@types/node": "^18.15.5",
     "@types/prettier": "^2.7.2",
     "@types/react": "^18.0.28",
