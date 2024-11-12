@@ -10,10 +10,10 @@ import { EditModal } from '~/modals/edit'
 import { SidebarNav } from '~/components/sidebar'
 import { api } from '~/utils/api'
 import { LoadingPage } from '~/shared/loading'
-import { io } from 'socket.io-client'
 import dayjs from 'dayjs';
 import relativeTime from "dayjs/plugin/relativeTime"
 import toast, { Toaster } from 'react-hot-toast'
+import { socket } from "./api/socket-client"
 
 dayjs.extend(relativeTime)
 
@@ -137,6 +137,14 @@ const YapsPage = () => {
   }
 
   useEffect(() => {
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
     if (options.length === 0) {
       setOptions(optionsFromLocalStorage)
@@ -150,11 +158,6 @@ const YapsPage = () => {
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
   }, [options]);
-
-  useEffect(() => {
-    const socket = io();
-    console.log(socket)
-  }, [])
 
   if (!session) return null
 

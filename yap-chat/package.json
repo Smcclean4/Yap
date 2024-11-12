@@ -25,7 +25,6 @@
     "@trpc/react-query": "^10.18.0",
     "@trpc/server": "^10.18.0",
     "@uploadthing/react": "^7.0.3",
-    "cors": "^2.8.5",
     "dayjs": "^1.11.9",
     "express": "^4.21.1",
     "next": "^13.2.4",
