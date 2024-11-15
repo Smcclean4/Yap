@@ -136,6 +136,11 @@ const YapsPage = () => {
     addOption()
   }
 
+  const setMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserMessage(e.target.value)
+    socket.emit('chat message', e.target.value)
+  }
+
   useEffect(() => {
     socket.connect();
 
@@ -213,7 +218,7 @@ const YapsPage = () => {
         <div className="h-auto w-full flex flex-row justify-center items-end">
           <div className="bg-gray-300 text-black p-6 w-full flex flex-col justify-center text-center">
             <div className="flex flex-row justify-center">
-              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={userMessage} disabled={isPosting} maxLength={125} onChange={(e) => setUserMessage(e.target.value)} onKeyDown={(e) => e.key === "Enter" &&
+              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={userMessage} disabled={isPosting} maxLength={125} onChange={(e) => setMessage(e)} onKeyDown={(e) => e.key === "Enter" &&
                 handleAllYapSend()} />
               <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={() => handleAllYapSend()}>Send</button>
             </div>
