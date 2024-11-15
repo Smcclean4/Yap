@@ -132,7 +132,10 @@ const YapsPage = () => {
       toast.error('Please type a message!')
       return
     }
-    userYap({ message: userMessage, user: String(session?.user.email) })
+    // figure out how to send and store data here
+    socket.on('chat message', (msg) => {
+      userYap({ message: userMessage, user: String(session?.user.email) })
+    })
     addOption()
   }
 
