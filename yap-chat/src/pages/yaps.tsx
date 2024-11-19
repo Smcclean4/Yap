@@ -134,8 +134,11 @@ const YapsPage = () => {
     }
     // figure out how to send and store data here
     socket.on('chat message', (msg) => {
-      userYap({ message: userMessage, user: String(session?.user.email) })
+      // the below logic immediately sends 3 (assuming because of each socket connection) values to server.. fix this.
+      // setUserMessage(msg)
+      // userYap({ message: userMessage, user: String(session?.user.email) })
     })
+    setUserMessage('')
     addOption()
   }
 
