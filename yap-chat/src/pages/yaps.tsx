@@ -127,28 +127,26 @@ const YapsPage = () => {
     toggle()
   }
 
-  const handleAllYapSend = async () => {
+  const handleAllYapSend = () => {
     if (userMessage === '') {
       toast.error('Please type a message!')
       return
     }
-    // figure out how to send and store data here
-    socket.on('chat message', (msg) => {
-      // the below logic immediately sends 3 (assuming because of each socket connection) values to server.. fix this.
-      // setUserMessage(msg)
-      // userYap({ message: userMessage, user: String(session?.user.email) })
-    })
+    socket.emit("chat message", userMessage)
     setUserMessage('')
     addOption()
   }
 
   const setMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserMessage(e.target.value)
-    socket.emit('chat message', e.target.value)
   }
 
   useEffect(() => {
     socket.connect();
+
+    socket.on("chat message", (msg) => {
+      userYap({ message: msg, user: String(session?.user.email) })
+    })
 
     return () => {
       socket.disconnect();
