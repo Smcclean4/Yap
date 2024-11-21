@@ -150,6 +150,7 @@ const YapsPage = () => {
 
     return () => {
       socket.disconnect();
+      socket.off("chat message")
     };
   }, []);
 
