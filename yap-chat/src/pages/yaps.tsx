@@ -133,7 +133,7 @@ const YapsPage = () => {
       toast.error('Please type a message!')
       return
     }
-		// successfully sending chat message to backend. Sent from Textastic :)
+    // successfully sending chat message to backend. Sent from Textastic :)
     socket.emit("chat message", userMessage)
     setUserMessage('')
     addOption()

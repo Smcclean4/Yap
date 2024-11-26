@@ -18,6 +18,16 @@ app.get("/", (req, res) => {
   res.send("<h1>This Is Your Socket.io Server</h1>");
 });
 
+// future use for verification of user
+// io.use((socket, next) => {
+//   const username = socket.handshake.auth.username;
+//   if (!username) {
+//     return next(new Error("invalid username"));
+//   }
+//   socket.username = username;
+//   next();
+// });
+
 io.on("connection", (socket) => {
   console.log("a user connected");
   socket.on("disconnect", () => {
