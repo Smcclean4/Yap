@@ -10,6 +10,7 @@ import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
+import { socket } from './api/socket-client';
 
 export interface UserInfoInterface {
   name: string;
@@ -47,7 +48,8 @@ const FriendsPage = () => {
   })
   const { mutate: approveFriend } = api.friends.approveRequest.useMutation({
     onSettled: () => {
-      void ctx.friends.getAllRequests.invalidate() && void ctx.friends.getAllFriends.invalidate();
+      void ctx.friends.getAllRequests.invalidate();
+      void ctx.friends.getAllFriends.invalidate();
     }
   })
 
@@ -127,6 +129,16 @@ const FriendsPage = () => {
   const requestTotal = (ctx: string | any[] | undefined) => {
     return ctx?.length
   }
+
+  useEffect(() => {
+    socket.connect()
+
+    socket.on
+
+    return (() => {
+      socket.disconnect()
+    })
+  }, [])
 
   useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");

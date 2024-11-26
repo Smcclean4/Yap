@@ -37,6 +37,7 @@ const YapsPage = () => {
 
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
   const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
+  const { data: uniqueYaps } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
   const [userMessage, setUserMessage] = useState('')
   const ctx = api.useContext()
   const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
@@ -172,8 +173,6 @@ const YapsPage = () => {
   if (!session) return null
 
   const DisplayAllYaps = () => {
-
-    const { data: uniqueYaps } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
 
     if (loadingYaps) return <LoadingPage />
 

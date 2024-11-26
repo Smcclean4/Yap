@@ -31,6 +31,13 @@ io.on("connection", (socket) => {
     console.log("chat message: " + msg);
   });
 });
+// Base layer for socket private messages. Add the front end to connect with specific user and message
+io.on("connection", (socket) => {
+  socket.on("private message", (aDifferentSocketId, msg) => {
+    socket.to(aDifferentSocketId).emit("private message", socket.id, msg);
+    console.log("private message: " + msg);
+  });
+});
 
 server.listen(port, () => {
   console.log(`server running at ${port}`);
