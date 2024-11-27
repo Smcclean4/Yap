@@ -133,7 +133,10 @@ const FriendsPage = () => {
   useEffect(() => {
     socket.connect()
 
-    socket.on
+    // expirimental fill in gaps
+    socket.on('private message', (friendSocketId, msg) => {
+      // connection to friend id and the message that is being sent
+    })
 
     return (() => {
       socket.disconnect()
