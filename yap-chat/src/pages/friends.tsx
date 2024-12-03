@@ -10,7 +10,6 @@ import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
-import { socket } from './api/socket-client';
 
 export interface UserInfoInterface {
   name: string;
@@ -69,7 +68,6 @@ const FriendsPage = () => {
     }
   }
 
-
   const optionToggle = (element: React.MouseEvent<SVGSVGElement, MouseEvent>, idx?: React.Key) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
       setOptions((boolArray) => boolArray.map((options, i) => {
@@ -96,6 +94,7 @@ const FriendsPage = () => {
 
   const onMessage = () => {
     setMessageTrigger(!messageTrigger)
+
   }
 
   const onRequestDeny = () => {
@@ -129,19 +128,6 @@ const FriendsPage = () => {
   const requestTotal = (ctx: string | any[] | undefined) => {
     return ctx?.length
   }
-
-  useEffect(() => {
-    socket.connect()
-
-    // expirimental fill in gaps
-    socket.on('private message', (friendSocketId, msg) => {
-      // connection to friend id and the message that is being sent
-    })
-
-    return (() => {
-      socket.disconnect()
-    })
-  }, [])
 
   useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");

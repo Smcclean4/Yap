@@ -36,13 +36,12 @@ io.on("connection", (socket) => {
 });
 
 io.on("connection", (socket) => {
+  // all chat message
   socket.on("chat message", (msg) => {
     io.emit("chat message", msg);
     console.log("chat message: " + msg);
   });
-});
-// Base layer for socket private messages. Add the front end to connect with specific user and message
-io.on("connection", (socket) => {
+  // socket.io connection for private message
   socket.on("private message", (aDifferentSocketId, msg) => {
     socket.to(aDifferentSocketId).emit("private message", socket.id, msg);
     console.log("private message: " + msg);

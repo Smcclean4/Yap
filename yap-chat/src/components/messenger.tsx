@@ -5,6 +5,7 @@ import { UserInfoInterface } from '~/pages/friends';
 import { MessageModal } from '~/modals/message';
 import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
+import { socket } from '~/pages/api/socket-client';
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -13,13 +14,16 @@ interface MessengerInterface {
 
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [chats, setChats]: Array<any> = useState([])
+  const [userMessage, setUserMessage] = useState('')
   const [messengerUser, setMessengerUser]: any = useState('')
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
 
   const onMessageSend = () => {
-    alert('attempting to send message!')
+    // esablish connection here
+    socket.emit('private message', messengeruser?.name, userMessage)
+    setUserMessage("")
   }
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
@@ -48,8 +52,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const onMessage = (idx: React.Key) => {
-    setMessengerUser(chats[idx].name)
-    // esablish connection here
     toggle()
   }
 
@@ -58,6 +60,24 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     // establish connection here
     toggle()
   }
+
+  const setMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserMessage(e.target.value)
+  }
+
+  useEffect(() => {
+    socket.connect()
+
+    // expirimental fill in gaps
+    socket.on('private message', (friendSocketId, msg) => {
+      setMessengerUser(friendSocketId)
+      setChats([...msg])
+    })
+
+    return (() => {
+      socket.disconnect()
+    })
+  }, [])
 
   useEffect(() => {
     if (initialRender.current) {
@@ -82,7 +102,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} sendmessage={onMessageSend} messages={'user messages here'} user={messengerUser} onclosechat={closeChat} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} messages={userMessage} user={messengerUser} onclosechat={closeChat} />
       {chats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
@@ -91,7 +111,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
               <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={chats?.online ? 'limegreen' : 'gray'} size="sm" />
             </div>
             <div className="font-extralight italic">
-              {/* have messages pull from a database of messages between the user and the current clicked user */}
               <p>{chats?.message}</p>
             </div>
           </div>
