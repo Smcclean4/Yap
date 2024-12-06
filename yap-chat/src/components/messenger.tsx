@@ -71,7 +71,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     // expirimental fill in gaps
     socket.on('private message', (friendSocketId, msg) => {
       setMessengerUser(friendSocketId)
-      setChats([...msg])
+      setChats([msg])
     })
 
     return (() => {
