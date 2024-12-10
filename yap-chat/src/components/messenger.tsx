@@ -71,8 +71,10 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     // expirimental fill in gaps
     socket.on('private message', (friendSocketId, msg) => {
       setMessengerUser(friendSocketId)
-      setChats([msg])
+      setChats([...chats, msg])
     })
+
+    console.log(chats)
 
     return (() => {
       socket.disconnect()
@@ -102,7 +104,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} messages={userMessage} user={messengerUser} onclosechat={closeChat} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} messages={userMessage} allchat={chats} user={messengerUser} onclosechat={closeChat} />
       {chats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
