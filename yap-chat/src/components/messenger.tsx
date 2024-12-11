@@ -13,15 +13,15 @@ interface MessengerInterface {
 }
 
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
-  const [chats, setChats]: Array<any> = useState([])
+  const [sideBarChats, setSideBarChats]: Array<any> = useState([])
   const [userMessage, setUserMessage] = useState('')
+  const [conversationChat, setConversationChat] = useState<string[]>([])
   const [messengerUser, setMessengerUser]: any = useState('')
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
 
   const onMessageSend = () => {
-    // esablish connection here
     socket.emit('private message', messengeruser?.name, userMessage)
     setUserMessage("")
   }
@@ -33,15 +33,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const updateMessenger = () => {
-    if (itemExists(messengeruser?.name, chats)) {
+    if (itemExists(messengeruser?.name, sideBarChats)) {
       return
     }
-    setChats([...chats, messengeruser])
+    setSideBarChats([...sideBarChats, messengeruser])
   }
 
   const closeChat = () => {
-    setChats((state: any[]) => state.filter((chat: { name: string, message: string, online: boolean }, i: React.Key) => {
-      if (chats[i].name === messengerUser) {
+    setSideBarChats((state: any[]) => state.filter((chat: { name: string, message: string, online: boolean }, i: React.Key) => {
+      if (sideBarChats[i].name === messengerUser) {
         return false
       } else {
         return chat
@@ -68,13 +68,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     socket.connect()
 
-    // expirimental fill in gaps
     socket.on('private message', (friendSocketId, msg) => {
       setMessengerUser(friendSocketId)
-      setChats([...chats, msg])
+      // replace with database action
+      setConversationChat([...conversationChat, msg])
     })
-
-    console.log(chats)
 
     return (() => {
       socket.disconnect()
@@ -91,29 +89,30 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }, [trigger])
 
   useEffect(() => {
-    const chatsStorage = JSON.parse(localStorage.getItem('chatsData') || '[]')
-    if (chatsStorage) {
-      setChats(chatsStorage)
+    const sideBarChatStorage = JSON.parse(localStorage.getItem('sideBarChatData') || '[]')
+    const conversationChatStorage = JSON.parse(localStorage.getItem('conversationChatData') || '[]')
+    if (sideBarChatStorage) {
+      setSideBarChats(sideBarChatStorage)
+      setConversationChat(conversationChatStorage)
     }
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('chatsData', JSON.stringify(chats))
-  }, [chats])
+    localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
+    localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
+    console.log(conversationChat)
+  }, [sideBarChats, conversationChat])
 
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} messages={userMessage} allchat={chats} user={messengerUser} onclosechat={closeChat} />
-      {chats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; message: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, idx: React.Key) => {
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={conversationChat} user={messengerUser} onclosechat={closeChat} />
+      {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
             <div className="flex flex-row justify-around items-center">
               <p className="text-xl">{chats?.name}</p>
               <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={chats?.online ? 'limegreen' : 'gray'} size="sm" />
-            </div>
-            <div className="font-extralight italic">
-              <p>{chats?.message}</p>
             </div>
           </div>
         )
