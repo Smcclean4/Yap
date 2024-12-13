@@ -24,7 +24,7 @@ export const MessageModal = ({ isShowing, hide, storewords, sendmessage, message
     <div className="bg-gray-100 h-4/5 w-4/5 flex flex-col justify-center items-center">
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
-      <p>{messages}</p>
+      <p>{messages.map((message) => <li>{message}</li>)}</p>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">
       <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" value={message} type="text" name="message" placeholder="Enter your message here..." maxLength={125} onChange={(e) => storewords(e)} onKeyDown={(e) => e.key === "Enter" &&

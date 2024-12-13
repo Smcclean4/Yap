@@ -72,10 +72,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       setMessengerUser(friendSocketId)
       // replace with database action
       setConversationChat([...conversationChat, msg])
+      console.log(msg)
     })
 
     return (() => {
       socket.disconnect()
+      socket.off("private message")
     })
   }, [])
 
