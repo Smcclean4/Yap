@@ -21,11 +21,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
 
-  const onMessageSend = () => {
-    socket.emit('private message', messengeruser?.name, userMessage)
-    setUserMessage("")
-  }
-
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
       return chat?.name === name
@@ -63,6 +58,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const setMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserMessage(e.target.value)
+  }
+
+  const onMessageSend = () => {
+    socket.emit('private message', messengeruser?.name, userMessage)
+    setUserMessage("")
   }
 
   useEffect(() => {

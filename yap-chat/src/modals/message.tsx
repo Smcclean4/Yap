@@ -29,7 +29,7 @@ export const MessageModal = ({ isShowing, hide, storewords, sendmessage, message
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">
       <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" value={message} type="text" name="message" placeholder="Enter your message here..." maxLength={125} onChange={(e) => storewords(e)} onKeyDown={(e) => e.key === "Enter" &&
         sendmessage()} />
-      <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={sendmessage}>Send</button>
+      <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={() => sendmessage()}>Send</button>
     </div>
   </div>, document.body
 ) : null
