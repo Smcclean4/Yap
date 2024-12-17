@@ -56,23 +56,21 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     toggle()
   }
 
-  const setMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserMessage(e.target.value)
-  }
-
   const onMessageSend = () => {
     socket.emit('private message', messengeruser?.name, userMessage)
+    setConversationChat([...conversationChat, userMessage])
     setUserMessage("")
+  }
+
+  const setMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserMessage(e.target.value)
   }
 
   useEffect(() => {
     socket.connect()
 
     socket.on('private message', (friendSocketId, msg) => {
-      setMessengerUser(friendSocketId)
-      // replace with database action
-      setConversationChat([...conversationChat, msg])
-      console.log(msg)
+      // put database storing here
     })
 
     return (() => {
