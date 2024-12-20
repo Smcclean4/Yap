@@ -7,19 +7,21 @@ import {
 } from "~/server/api/trpc";
 
 export const messengerRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.example.findMany();
+  getChatMessages: publicProcedure.input(z.object({ id: z.string() })).query(({ ctx, input }) => {
+    return ctx.prisma.messages.findUnique({
+      where: {
+        id: input.id
+      }
+    })
   }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
+  postMessage: publicProcedure
+    .input(z.object({ message: z.string(), user: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.message.create({
+        data: {
+          text: input.message,
+          user: input.user,
+        }
+      })
+    })
 });

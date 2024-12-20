@@ -25,7 +25,7 @@ export const MessageModal = ({ isShowing, hide, storewords, sendmessage, message
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
       <div>
-        {messages.map((message, id) => <ul><li key={id}>{message}</li></ul>)}
+        {messages.map((message, id) => <ul key={id}><li>{message}</li></ul>)}
       </div>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">
