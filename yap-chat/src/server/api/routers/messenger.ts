@@ -19,8 +19,8 @@ export const messengerRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return ctx.prisma.message.create({
         data: {
-          text: input.message,
           user: input.user,
+          text: input.message
         }
       })
     })
