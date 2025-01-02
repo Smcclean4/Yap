@@ -99,7 +99,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
-    console.log(conversationChat)
   }, [sideBarChats, conversationChat])
 
   return (
