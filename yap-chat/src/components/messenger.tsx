@@ -6,6 +6,7 @@ import { MessageModal } from '~/modals/message';
 import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
 import { socket } from '~/pages/api/socket-client';
+import { api } from '~/utils/api';
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -20,6 +21,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
+
+  const ctx = api.useContext();
+
+  // query or mutation? look into this and also which ID to show private messages
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useMutation({
+    onSettled: () => {
+      void ctx.messenger.invalidate();
+    }
+  })
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
