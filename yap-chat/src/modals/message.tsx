@@ -1,6 +1,8 @@
 import { faToiletPaper, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { createPortal } from 'react-dom'
+import { Message } from '@prisma/client';
+import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal, Key } from 'react';
 
 interface MessageInterface {
   isShowing: boolean;
@@ -8,7 +10,7 @@ interface MessageInterface {
   storewords: (e: any) => void;
   sendmessage: () => void;
   message: string;
-  messages: string[];
+  messages: any;
   user: string;
   onclosechat?: () => void;
 }
@@ -25,7 +27,7 @@ export const MessageModal = ({ isShowing, hide, storewords, sendmessage, message
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
       <div>
-        {messages.map((message, id) => <ul key={id}><li>{message}</li></ul>)}
+        {messages.map((message: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined, id: Key | null | undefined) => <ul key={id}><li>{message}</li></ul>)}
       </div>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">

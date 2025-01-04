@@ -16,20 +16,16 @@ interface MessengerInterface {
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [sideBarChats, setSideBarChats]: Array<any> = useState([])
   const [userMessage, setUserMessage] = useState('')
-  const [conversationChat, setConversationChat] = useState<string[]>([])
+  const [conversationChat, setConversationChat] = useState<any>([])
   const [messengerUser, setMessengerUser]: any = useState('')
+  const [friendId, setFriendId] = useState('')
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
 
   const ctx = api.useContext();
 
-  // query or mutation? look into this and also which ID to show private messages
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useMutation({
-    onSettled: () => {
-      void ctx.messenger.invalidate();
-    }
-  })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: friendId })
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
@@ -79,7 +75,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (friendSocketId, msg) => {
-      // put database storing here
+      setFriendId(friendSocketId)
     })
 
     return (() => {
@@ -109,6 +105,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
+    // thowing null and blank value for each.. maybe friendId isnt getting id value like when i first started private messages .. check backend socket.io.. 
+    console.log(friendId)
+    console.log(displayAllMessages)
   }, [sideBarChats, conversationChat])
 
   return (

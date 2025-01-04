@@ -7,7 +7,7 @@ import {
 } from "~/server/api/trpc";
 
 export const messengerRouter = createTRPCRouter({
-  getChatMessages: publicProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
+  getChatMessages: publicProcedure.input(z.object({ id: z.string() })).query(({ ctx, input }) => {
     return ctx.prisma.message.findUnique({
       where: {
         id: input.id
