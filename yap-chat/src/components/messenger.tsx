@@ -81,7 +81,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (friendSocketId, msg) => {
-      sendPrivateMessage({ id: friendId, message: msg, user: friendSocketId })
+      // still not sending and showing up .. look into this.
+      sendPrivateMessage({ id: friendId, message: msg, user: String(messengeruser?.name) })
     })
 
     return (() => {
@@ -112,7 +113,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
     console.log(friendId)
-    // getting id.. backend express/trpc routes seem to be working. need to display messages now.. also figure out friendId and friendSocketId and how they relate or differenciate to make accurate connection. Also clear messages.
     console.log(displayAllMessages)
   }, [sideBarChats, conversationChat])
 

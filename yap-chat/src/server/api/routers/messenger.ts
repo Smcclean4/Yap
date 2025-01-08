@@ -8,7 +8,7 @@ import {
 
 export const messengerRouter = createTRPCRouter({
   getChatMessages: publicProcedure.input(z.object({ id: z.string() })).query(({ ctx, input }) => {
-    return ctx.prisma.message.findUnique({
+    return ctx.prisma.message.findMany({
       where: {
         id: input.id
       }
