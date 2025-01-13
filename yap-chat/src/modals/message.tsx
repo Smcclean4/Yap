@@ -1,7 +1,6 @@
 import { faToiletPaper, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { createPortal } from 'react-dom'
-import { Message } from '@prisma/client';
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal, Key } from 'react';
 
 interface MessageInterface {
