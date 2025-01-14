@@ -18,19 +18,18 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const [userMessage, setUserMessage] = useState('')
   const [conversationChat, setConversationChat] = useState<any>([])
   const [messengerUser, setMessengerUser]: any = useState('')
-  const [friendId, setFriendId] = useState('')
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
 
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: friendId })
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ user: messengerUser })
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
@@ -63,12 +62,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    setFriendId(`${socket.id}`)
     toggle()
   }
 
   const onMessageSend = () => {
-    socket.emit('private message', socket.id, userMessage)
+    socket.emit('private message', socket.id, conversationChat)
     setConversationChat([...conversationChat, userMessage])
     setUserMessage("")
   }
@@ -81,8 +79,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (friendSocketId, msg) => {
-      // still not sending and showing up .. look into this.
-      sendPrivateMessage({ id: friendId, message: msg, user: String(messengeruser?.name) })
+      // fix messaging parameters
+      sendPrivateMessage({ id: friendSocketId, messages: msg, user: String(messengerUser) })
     })
 
     return (() => {
@@ -112,7 +110,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
-    console.log(friendId)
     console.log(displayAllMessages)
   }, [sideBarChats, conversationChat])
 

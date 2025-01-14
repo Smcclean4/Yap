@@ -14,24 +14,18 @@ const io = new Server(server, {
   connectionStateRecovery: {},
 });
 
+const connectedUsers = {};
+
 app.get("/", (req, res) => {
   res.send("<h1>This Is Your Socket.io Server</h1>");
 });
 
-// future use for verification of user
-// io.use((socket, next) => {
-//   const username = socket.handshake.auth.username;
-//   if (!username) {
-//     return next(new Error("invalid username"));
-//   }
-//   socket.username = username;
-//   next();
-// });
-
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  console.log("a user connected: " + socket.id);
   socket.on("disconnect", () => {
-    console.log("a user disconnected");
+    console.log("a user disconnected: " + socket.id);
+    // @ts-ignore
+    delete connectedUsers[socket.id];
   });
 });
 
@@ -43,8 +37,11 @@ io.on("connection", (socket) => {
   });
   // socket.io connection for private message
   socket.on("private message", (aDifferentSocketId, msg) => {
+    // @ts-ignore
+    connectedUsers[socket.id] = aDifferentSocketId;
+    console.log(aDifferentSocketId + "received a private message!");
     socket.to(aDifferentSocketId).emit("private message", socket.id, msg);
-    console.log("private message: " + msg);
+    console.log("Private Chat: " + msg);
   });
 });
 
