@@ -16,6 +16,7 @@ interface MessengerInterface {
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [sideBarChats, setSideBarChats]: Array<any> = useState([])
   const [userMessage, setUserMessage] = useState('')
+  const [friendId, setFriendId] = useState('')
   const [conversationChat, setConversationChat] = useState<any>([])
   const [messengerUser, setMessengerUser]: any = useState('')
 
@@ -29,7 +30,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ user: messengerUser })
+
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: friendId })
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
@@ -53,6 +55,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       }
     }))
     toast.error(`Chat with ${messengerUser} cleared.`)
+    setConversationChat([])
     toggle()
   }
 
@@ -62,6 +65,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
+    setFriendId(`${socket.id}`)
     toggle()
   }
 
@@ -101,7 +105,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     const sideBarChatStorage = JSON.parse(localStorage.getItem('sideBarChatData') || '[]')
     const conversationChatStorage = JSON.parse(localStorage.getItem('conversationChatData') || '[]')
-    if (sideBarChatStorage) {
+    if (sideBarChatStorage || conversationChatStorage) {
       setSideBarChats(sideBarChatStorage)
       setConversationChat(conversationChatStorage)
     }
@@ -111,6 +115,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
     console.log(displayAllMessages)
+    console.log(friendId)
   }, [sideBarChats, conversationChat])
 
   return (

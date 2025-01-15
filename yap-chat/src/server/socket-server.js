@@ -39,7 +39,8 @@ io.on("connection", (socket) => {
   socket.on("private message", (aDifferentSocketId, msg) => {
     // @ts-ignore
     connectedUsers[socket.id] = aDifferentSocketId;
-    console.log(aDifferentSocketId + "received a private message!");
+    console.log(aDifferentSocketId + " received a private message!");
+    console.log(connectedUsers);
     socket.to(aDifferentSocketId).emit("private message", socket.id, msg);
     console.log("Private Chat: " + msg);
   });
