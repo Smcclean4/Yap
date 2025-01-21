@@ -83,8 +83,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (friendSocketId, msg) => {
-      // fix messaging parameters
-      sendPrivateMessage({ messages: msg, user: String(messengerUser) })
+      // trying to attach an id to private message so that it can be retrieved
+      sendPrivateMessage({ id: friendSocketId, messages: msg, user: String(messengerUser) })
     })
 
     return (() => {

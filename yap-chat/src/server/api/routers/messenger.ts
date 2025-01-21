@@ -15,14 +15,15 @@ export const messengerRouter = createTRPCRouter({
     })
   }),
   postMessage: publicProcedure
-    .input(z.object({ messages: z.array(z.string()), user: z.string() }))
+    .input(z.object({ id: z.string(), messages: z.array(z.string()), user: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.messages.create({
         data: {
           messages: {
             create: {
-              user: input.user,
-              chat: input.messages
+              id: input.id,
+              chat: input.messages,
+              user: input.user
             }
           }
         }
