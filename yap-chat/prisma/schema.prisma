@@ -84,6 +84,7 @@ model User {
     heading       String?
     bio           String?
     online        Boolean?
+    messages      Threads[]
     friends       Friend[]
     requests      Request[]
     accounts      Account[]
@@ -124,19 +125,14 @@ model Yap {
     updatedAt DateTime @updatedAt
 }
 
-model Thread {
+model Threads {
     id        String   @id @default(cuid())
     threadId  String
     chat      String[]
     user      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    message   Messages @relation(fields: [threadId], references: [id], onDelete: Cascade)
+    message   User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
     @@unique([threadId])
-}
-
-model Messages {
-    id       String   @id @default(cuid())
-    messages Thread[]
 }

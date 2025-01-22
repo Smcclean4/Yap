@@ -8,24 +8,20 @@ import {
 
 export const messengerRouter = createTRPCRouter({
   getChatMessages: publicProcedure.input(z.object({ id: z.string() })).query(({ ctx, input }) => {
-    return ctx.prisma.thread.findUnique({
+    return ctx.prisma.threads.findUnique({
       where: {
-        threadId: input.id
+        id: input.id
       }
     })
   }),
   postMessage: publicProcedure
     .input(z.object({ id: z.string(), messages: z.array(z.string()), user: z.string() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.messages.create({
+      return ctx.prisma.threads.create({
         data: {
-          messages: {
-            create: {
-              id: input.id,
-              chat: input.messages,
-              user: input.user
-            }
-          }
+          threadId: input.id,
+          chat: input.messages,
+          user: input.user
         }
       })
     })
