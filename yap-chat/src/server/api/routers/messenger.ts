@@ -21,7 +21,7 @@ export const messengerRouter = createTRPCRouter({
         data: {
           threadId: input.id,
           chat: input.messages,
-          user: input.user
+          messenger: input.user
         }
       })
     })

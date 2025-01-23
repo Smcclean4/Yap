@@ -129,10 +129,10 @@ model Threads {
     id        String   @id @default(cuid())
     threadId  String
     chat      String[]
-    user      String
+    messenger String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    message   User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
     @@unique([threadId])
 }
