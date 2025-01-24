@@ -31,7 +31,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   })
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: friendId })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery()
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
