@@ -25,13 +25,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const ctx = api.useContext();
 
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery()
+
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
-
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery()
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
@@ -83,7 +83,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (friendSocketId, msg) => {
-      // trying to attach an id to private message so that it can be retrieved
+      setFriendId(friendSocketId)
       sendPrivateMessage({ id: friendSocketId, messages: msg, user: String(messengerUser) })
     })
 
