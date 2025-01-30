@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useRef, useState } from 'react'
 import { UserInfoInterface } from '~/pages/friends';
 import { MessageModal } from '~/modals/message';
+import { useSession } from 'next-auth/react'
 import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
 import { socket } from '~/pages/api/socket-client';
@@ -23,9 +24,10 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
 
+  const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery()
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: String(session?.user.id) })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
     onSettled: () => {
@@ -84,7 +86,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     socket.on('private message', (friendSocketId, msg) => {
       setFriendId(friendSocketId)
-      sendPrivateMessage({ id: friendSocketId, messages: msg, user: String(messengerUser) })
+      sendPrivateMessage({ referenceId: String(session?.user.id), chat: msg, user: String(messengerUser) })
     })
 
     return (() => {
