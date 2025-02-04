@@ -27,15 +27,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const tryingToBuildConsistency = () => {
-    let somethingImportant = 0
-
-    while (somethingImportant < 5) {
-      console.log('keep trying!!')
-      somethingImportant++;
-    }
-  }
-
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: String(session?.user.id) })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
@@ -83,7 +74,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const onMessageSend = () => {
     socket.emit('private message', friendId, conversationChat)
     setConversationChat([...conversationChat, userMessage])
-    tryingToBuildConsistency()
     setUserMessage("")
   }
 
