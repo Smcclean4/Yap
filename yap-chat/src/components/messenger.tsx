@@ -72,7 +72,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const onMessageSend = () => {
-    socket.emit('private message', friendId, conversationChat)
+    socket.emit('private message', friendId, ...conversationChat)
     setConversationChat([...conversationChat, userMessage])
     setUserMessage("")
   }

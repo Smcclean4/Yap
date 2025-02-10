@@ -9,9 +9,12 @@ import {
 
 export const messengerRouter = createTRPCRouter({
   getChatMessages: publicProcedure.input(z.object({ id: z.string() })).query(({ ctx, input }) => {
-    return ctx.prisma.threads.findUnique({
+    return ctx.prisma.user.findUnique({
+      include: {
+        messages: true
+      },
       where: {
-        threadId: input.id
+        id: input.id
       }
     })
   }),
