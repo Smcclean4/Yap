@@ -72,8 +72,10 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const onMessageSend = () => {
-    socket.emit('private message', friendId, ...conversationChat)
+    socket.emit('private message', friendId, userMessage)
     setConversationChat([...conversationChat, userMessage])
+    console.log(displayAllMessages)
+    console.log(friendId)
     setUserMessage("")
   }
 
@@ -116,8 +118,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
-    console.log(displayAllMessages)
-    console.log(friendId)
   }, [sideBarChats, conversationChat])
 
   return (

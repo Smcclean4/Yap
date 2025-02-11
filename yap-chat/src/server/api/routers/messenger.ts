@@ -10,7 +10,7 @@ import {
 export const messengerRouter = createTRPCRouter({
   getChatMessages: publicProcedure.input(z.object({ id: z.string() })).query(({ ctx, input }) => {
     return ctx.prisma.user.findUnique({
-      include: {
+      select: {
         messages: true
       },
       where: {
@@ -18,13 +18,19 @@ export const messengerRouter = createTRPCRouter({
       }
     })
   }),
+  // look into creating thread when the user is selected .. and then use the following code.
   postMessage: publicProcedure
     .input(z.object({ referenceId: z.string(), chat: z.array(z.string()), user: z.string() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.threads.create({
+      return ctx.prisma.threads.update({
+        where: {
+          id: input.referenceId
+        },
         data: {
           threadId: input.referenceId,
-          chat: input.chat,
+          chat: {
+            push: input.chat
+          },
           messenger: input.user
         }
       })
