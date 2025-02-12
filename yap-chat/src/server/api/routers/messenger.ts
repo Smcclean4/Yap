@@ -18,20 +18,27 @@ export const messengerRouter = createTRPCRouter({
       }
     })
   }),
-  // look into creating thread when the user is selected .. and then use the following code.
+  // apply logic from here to "triggerMessage" so that thread gets created and can be updated. 
+  createThread: publicProcedure.input(z.object({ threadId: z.string(), chatMessage: z.string(), userToSendMessage: z.string() })).mutation(({ ctx, input }) => {
+    return ctx.prisma.threads.create({
+      data: {
+        threadId: input.threadId,
+        chat: input.chatMessage,
+        messenger: input.userToSendMessage
+      }
+    })
+  }),
   postMessage: publicProcedure
-    .input(z.object({ referenceId: z.string(), chat: z.array(z.string()), user: z.string() }))
+    .input(z.object({ referenceId: z.string(), chat: z.array(z.string()) }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.threads.update({
         where: {
           id: input.referenceId
         },
         data: {
-          threadId: input.referenceId,
           chat: {
             push: input.chat
-          },
-          messenger: input.user
+          }
         }
       })
     })
