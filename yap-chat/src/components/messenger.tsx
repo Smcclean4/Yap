@@ -27,7 +27,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: String(session?.user.id) })
+  const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
+    onSettled: () => {
+      void ctx.messenger.getChatMessages.invalidate();
+    }
+  })
+
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: friendId })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
     onSettled: () => {
@@ -67,6 +73,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
+    createMessageThread({ threadId: friendId, chatMessage: userMessage, userToSendMessage: String(session?.user.email) })
     setFriendId(`${socket.id}`)
     toggle()
   }
@@ -88,7 +95,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     socket.on('private message', (friendSocketId, msg) => {
       setFriendId(friendSocketId)
-      sendPrivateMessage({ referenceId: String(session?.user.id), chat: msg })
+      sendPrivateMessage({ referenceId: friendId, chat: msg })
     })
 
     return (() => {
