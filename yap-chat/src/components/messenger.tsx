@@ -33,7 +33,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   })
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ id: friendId })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ referenceId: String(session?.user.id) })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
     onSettled: () => {
@@ -73,7 +73,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    createMessageThread({ threadId: friendId, chatMessage: userMessage, userToSendMessage: String(session?.user.email) })
+    createMessageThread({ referenceId: String(session?.user.id), threadId: friendId, chatMessage: userMessage, userToSendMessage: String(session?.user.email) })
     setFriendId(`${socket.id}`)
     toggle()
   }
