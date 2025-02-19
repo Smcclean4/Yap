@@ -73,7 +73,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    createMessageThread({ referenceId: String(session?.user.id), threadId: friendId, chatMessage: userMessage, userToSendMessage: String(session?.user.email) })
+    createMessageThread({ referenceId: friendId, threadId: friendId, chatMessage: userMessage, userToSendMessage: messengerUser })
     setFriendId(`${socket.id}`)
     toggle()
   }
