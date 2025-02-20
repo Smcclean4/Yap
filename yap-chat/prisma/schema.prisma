@@ -128,11 +128,22 @@ model Yap {
 model Threads {
     id        String   @id @default(cuid())
     threadId  String
-    chat      String[]
-    messenger String
+    chat      Chat[]
+    messenger String?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     user      User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
     @@unique([threadId])
+}
+
+model Chat {
+    id        String   @id @default(cuid())
+    message   String
+    senderId  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    threads   Threads  @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+    @@unique([senderId])
 }
