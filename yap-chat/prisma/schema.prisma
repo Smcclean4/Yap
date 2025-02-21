@@ -138,12 +138,10 @@ model Threads {
 }
 
 model Chat {
-    id        String   @id @default(cuid())
-    message   String
-    senderId  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    threads   Threads  @relation(fields: [senderId], references: [id], onDelete: Cascade)
+    id       String  @id @default(cuid())
+    message  String
+    senderId String
+    threads  Threads @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
     @@unique([senderId])
 }
