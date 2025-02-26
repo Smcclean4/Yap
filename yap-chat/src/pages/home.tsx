@@ -14,6 +14,11 @@ const HomePage = () => {
 
   if (!session) return null
 
+  const defaultHomeUpdates = {
+    heading: 'Welcome to Yap!',
+    description: 'Yap is a chat application where you can message your friends and send out Yaps - opinionated global messages that allow you to share your thoughts and ideas with the world!'
+  }
+
   const RecentNews = () => {
     const { data, isLoading } = api.home.getHomeUpdates.useQuery()
 
@@ -21,7 +26,7 @@ const HomePage = () => {
 
     return (
       <>
-        {data?.map((content, idx: React.Key | null | undefined) => {
+        {data?.map((content: { heading: string | number | boolean | React.ReactFragment | React.ReactPortal | React.ReactElement<any, string | React.JSXElementConstructor<any>> | null | undefined; createdAt: string | number | Date | dayjs.Dayjs | null | undefined; description: string | number | boolean | React.ReactFragment | React.ReactPortal | React.ReactElement<any, string | React.JSXElementConstructor<any>> | null | undefined; }, idx: React.Key | null | undefined) => {
           return (
             <div key={idx}>
               <p className="text-md md:text-2xl"><i className="underline">{content.heading}</i><span className="font-extralight">{` • ${dayjs(content.createdAt).fromNow()}`}</span></p>

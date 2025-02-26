@@ -63,7 +63,7 @@ export const yapRouter = createTRPCRouter({
         }
       })
 
-      if (existingYap?.likes.map(val => val.user).includes(input.user)) {
+      if (existingYap?.likes.map((val: { user: any; }) => val.user).includes(input.user)) {
         const alreadyExists = await ctx.prisma.yap.update({
           include: {
             likes: true
