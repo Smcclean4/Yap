@@ -187,7 +187,7 @@ const FriendsPage = () => {
 
     return (
       <>
-        requestFromDatabase : {requestFromDatabase?.map((request: any, idx: React.Key) => {
+        {requestFromDatabase?.map((request: any, idx: React.Key) => {
           return (
             <div key={idx} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
               <Image className="rounded-full h-min mx-4" src={request.image} alt={''} width="75" height="75" />
@@ -200,7 +200,7 @@ const FriendsPage = () => {
               </div>
             </div>
           )
-        })} ? "No requests"
+        })}
       </>
     )
 

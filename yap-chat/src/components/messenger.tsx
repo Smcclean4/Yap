@@ -93,8 +93,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     socket.connect()
 
-    // authentication email fixed. broke again and then fixed again
-
     socket.on('private message', (friendSocketId, msg) => {
       setFriendId(friendSocketId)
       sendPrivateMessage({ referenceId: friendId, chat: msg, userSendingMessage: String(session?.user.email) })
