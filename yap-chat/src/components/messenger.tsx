@@ -90,6 +90,10 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     setUserMessage(e.target.value)
   }
 
+  const createFunction = () => {
+    // create function that incorporates user edits and controls
+  }
+
   useEffect(() => {
     socket.connect()
 
