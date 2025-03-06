@@ -6,6 +6,7 @@ import {
   publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { prisma } from "~/server/db";
 
 export const messengerRouter = createTRPCRouter({
   getChatMessages: publicProcedure.input(z.object({ referenceId: z.string() })).query(({ ctx, input }) => {
@@ -25,7 +26,7 @@ export const messengerRouter = createTRPCRouter({
       }
     })
 
-    if (String(existingThread?.threadId) == input.referenceId) {
+    if (String(existingThread?.threadId) === input.referenceId) {
       return existingThread
     } else {
       const threadDoesntExist = await ctx.prisma.threads.create({
@@ -40,12 +41,23 @@ export const messengerRouter = createTRPCRouter({
   }),
   postMessage: publicProcedure
     .input(z.object({ referenceId: z.string(), chat: z.string(), userSendingMessage: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.chat.create({
+    .mutation(async ({ ctx, input }) => {
+      // maybe instead of update use create like "postYap" but try something else that will maybe work? maybe asyn is the issue? or maybe the input is wrong?
+      const newMessagePost = await ctx.prisma.threads.update({
+        include: {
+          chat: true
+        },
+        where: {
+          threadId: input.referenceId
+        },
         data: {
-          message: input.chat,
-          senderId: input.userSendingMessage
+          chat: {
+            create: {
+              message: input.chat
+            }
+          }
         }
       })
+      return newMessagePost
     })
-})
+});

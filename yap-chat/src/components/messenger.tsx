@@ -33,13 +33,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   })
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ referenceId: friendId })
-
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
+
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ referenceId: friendId })
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
@@ -90,16 +90,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     setUserMessage(e.target.value)
   }
 
-  const createFunction = () => {
-    // create function that incorporates user edits and controls
-  }
-
   useEffect(() => {
     socket.connect()
 
     socket.on('private message', (friendSocketId, msg) => {
       setFriendId(friendSocketId)
-      sendPrivateMessage({ referenceId: friendId, chat: msg, userSendingMessage: String(session?.user.email) })
+      sendPrivateMessage({ referenceId: friendSocketId, chat: msg, userSendingMessage: String(session?.user.email) })
     })
 
     return (() => {
