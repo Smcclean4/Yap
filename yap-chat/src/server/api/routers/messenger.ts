@@ -19,7 +19,7 @@ export const messengerRouter = createTRPCRouter({
       }
     })
   }),
-  createThread: publicProcedure.input(z.object({ referenceId: z.string(), threadId: z.string(), chatMessage: z.string(), userToSendMessage: z.string() })).mutation(async ({ ctx, input }) => {
+  createThread: publicProcedure.input(z.object({ referenceId: z.string(), friend: z.string(), chatMessage: z.string(), userToSendMessage: z.string() })).mutation(async ({ ctx, input }) => {
     const existingThread = await ctx.prisma.threads.findUnique({
       where: {
         threadId: input.referenceId
@@ -32,7 +32,14 @@ export const messengerRouter = createTRPCRouter({
       const threadDoesntExist = await ctx.prisma.threads.create({
         data: {
           threadId: input.referenceId,
-          messenger: input.userToSendMessage
+          messenger: input.userToSendMessage,
+          chat: {
+            create: {
+              message: input.chatMessage,
+              friendId: input.friend,
+              user: input.userToSendMessage
+            }
+          }
         }
       })
 
@@ -40,15 +47,15 @@ export const messengerRouter = createTRPCRouter({
     }
   }),
   postMessage: publicProcedure
-    .input(z.object({ referenceId: z.string(), chat: z.string(), userSendingMessage: z.string() }))
+    .input(z.object({ referenceId: z.string(), friend: z.string(), chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // maybe instead of update use create like "postYap" but try something else that will maybe work? maybe asyn is the issue? or maybe the input is wrong?
+      // yapId like threadId gets automatically created? look into this.. so that means i might need to reference user.. not sure.
       const newMessagePost = await ctx.prisma.threads.update({
-        include: {
-          chat: true
-        },
         where: {
           threadId: input.referenceId
+        },
+        include: {
+          chat: true
         },
         data: {
           chat: {

@@ -73,7 +73,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    createMessageThread({ referenceId: friendId, threadId: friendId, chatMessage: userMessage, userToSendMessage: messengerUser })
+    createMessageThread({ referenceId: String(session?.user.id), friend: friendId, chatMessage: userMessage, userToSendMessage: messengerUser })
     setFriendId(`${socket.id}`)
     toggle()
   }
@@ -95,7 +95,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     socket.on('private message', (friendSocketId, msg) => {
       setFriendId(friendSocketId)
-      sendPrivateMessage({ referenceId: friendSocketId, chat: msg, userSendingMessage: String(session?.user.email) })
+      sendPrivateMessage({ referenceId: String(session?.user.id), friend: friendSocketId, chat: msg, userSendingMessage: String(session?.user.email) })
     })
 
     return (() => {
