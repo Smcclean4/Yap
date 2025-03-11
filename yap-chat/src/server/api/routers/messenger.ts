@@ -42,7 +42,7 @@ export const messengerRouter = createTRPCRouter({
   postMessage: publicProcedure
     .input(z.object({ referenceId: z.string(), friend: z.string(), chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // yapId like threadId gets automatically created? look into this.. so that means i might need to reference user.. not sure.
+      // thread id seems to be differenct from regular id... maybe reference the current thread id somehow to find the thread.
       const newMessagePost = await ctx.prisma.threads.update({
         where: {
           threadId: input.referenceId

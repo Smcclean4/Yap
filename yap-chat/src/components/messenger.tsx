@@ -27,6 +27,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ referenceId: String(session?.user.id) })
+
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
@@ -38,8 +40,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
-
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ referenceId: String(session?.user.id) })
 
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
