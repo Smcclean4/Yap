@@ -38,6 +38,7 @@ io.on("connection", (socket) => {
   // socket.io connection for private message
   socket.on("private message", (aDifferentSocketId, msg) => {
     // @ts-ignore
+    // socket connection string changes so often that searching for thread throws error. save friend id so that thread can be found for that connection
     connectedUsers[socket.id] = aDifferentSocketId;
     console.log(aDifferentSocketId + " received a private message!");
     console.log(connectedUsers);
