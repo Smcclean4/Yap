@@ -42,7 +42,7 @@ export const messengerRouter = createTRPCRouter({
   postMessage: publicProcedure
     .input(z.object({ referenceId: z.string(), friend: z.string(), chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // thread id seems to be differenct from regular id... maybe reference the current thread id somehow to find the thread.
+      // not getting user and friend id when getting data.. maybe pulling from an old instance of thread? maybe delete from supabase. 
       const newMessagePost = await ctx.prisma.threads.update({
         where: {
           threadId: input.referenceId
@@ -54,7 +54,8 @@ export const messengerRouter = createTRPCRouter({
           chat: {
             create: {
               message: input.chat,
-              user: input.userSendingMessage
+              user: input.userSendingMessage,
+              friendId: input.friend
             }
           }
         }
