@@ -53,7 +53,8 @@ export const messengerRouter = createTRPCRouter({
         data: {
           chat: {
             create: {
-              message: input.chat
+              message: input.chat,
+              user: input.userSendingMessage
             }
           }
         }
