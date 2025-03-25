@@ -127,8 +127,8 @@ model Yap {
 
 model Threads {
     id        String   @id @default(cuid())
-    // remove thread id? yap doesnt have sub id like threads.. and all references of yaps use "id" distinguish the two.
     threadId  String
+    friendId  String
     chat      Chat[]
     messenger String?
     createdAt DateTime @default(now())
@@ -142,7 +142,6 @@ model Chat {
     id        String   @id @default(cuid())
     message   String
     user      String?
-    friendId  String?
     senderId  String
     threads   Threads  @relation(fields: [senderId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())

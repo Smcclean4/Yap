@@ -12,26 +12,27 @@ export const messengerRouter = createTRPCRouter({
   getChatMessages: publicProcedure.input(z.object({ referenceId: z.string() })).query(({ ctx, input }) => {
     return ctx.prisma.threads.findUnique({
       where: {
-        threadId: input.referenceId
+        id: input.referenceId
       },
       include: {
         chat: true
       }
     })
   }),
-  createThread: publicProcedure.input(z.object({ referenceId: z.string(), chatMessage: z.string(), userToSendMessage: z.string() })).mutation(async ({ ctx, input }) => {
+  createThread: publicProcedure.input(z.object({ referenceId: z.string(), friendId: z.string(), chatMessage: z.string(), userToSendMessage: z.string() })).mutation(async ({ ctx, input }) => {
     const existingThread = await ctx.prisma.threads.findUnique({
       where: {
-        threadId: input.referenceId
+        id: input.referenceId
       }
     })
-
-    if (String(existingThread?.threadId) === input.referenceId) {
+    // reference id to get the user thats whos thread its supposed to be .. current user controlling things. And then get the specific thread by getting the friend id and display that chat message and also reference that friend id when adding chats to the current thread.
+    if (existingThread?.id.includes(input.referenceId)) {
       return existingThread
     } else {
       const threadDoesntExist = await ctx.prisma.threads.create({
         data: {
           threadId: input.referenceId,
+          friendId: input.friendId,
           messenger: input.userToSendMessage
         }
       })
@@ -40,11 +41,11 @@ export const messengerRouter = createTRPCRouter({
     }
   }),
   postMessage: publicProcedure
-    .input(z.object({ referenceId: z.string(), friend: z.string(), chat: z.string(), userSendingMessage: z.string() }))
+    .input(z.object({ referenceId: z.string(), chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const newMessagePost = await ctx.prisma.threads.update({
         where: {
-          threadId: input.referenceId
+          id: input.referenceId
         },
         include: {
           chat: true
@@ -54,7 +55,6 @@ export const messengerRouter = createTRPCRouter({
             create: {
               message: input.chat,
               user: input.userSendingMessage,
-              friendId: input.friend
             }
           }
         }
