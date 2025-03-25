@@ -127,6 +127,7 @@ model Yap {
 
 model Threads {
     id        String   @id @default(cuid())
+    // remove thread id? yap doesnt have sub id like threads.. and all references of yaps use "id" distinguish the two.
     threadId  String
     chat      Chat[]
     messenger String?

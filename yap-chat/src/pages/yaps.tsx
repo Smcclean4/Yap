@@ -167,6 +167,7 @@ const YapsPage = () => {
 
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
+    console.log(yapsFromDatabase)
   }, [options]);
 
   if (!session) return null
