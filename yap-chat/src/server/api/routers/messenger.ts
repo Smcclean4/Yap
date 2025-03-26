@@ -25,7 +25,7 @@ export const messengerRouter = createTRPCRouter({
         id: input.referenceId
       }
     })
-    // reference id to get the user thats whos thread its supposed to be .. current user controlling things. And then get the specific thread by getting the friend id and display that chat message and also reference that friend id when adding chats to the current thread.
+    // reference id to get the user whos thread its supposed to be .. current user controlling things. And then get the specific thread by getting the friend id and display that chat message and also reference that friend id when adding chats to the current thread.
     if (existingThread?.id.includes(input.referenceId)) {
       return existingThread
     } else {
