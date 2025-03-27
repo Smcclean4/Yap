@@ -128,7 +128,7 @@ model Yap {
 model Threads {
     id        String   @id @default(cuid())
     threadId  String
-    friendId  String
+    friendId  String @unique
     chat      Chat[]
     messenger String?
     createdAt DateTime @default(now())

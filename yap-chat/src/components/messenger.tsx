@@ -80,7 +80,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    createMessageThread({ referenceId: String(session?.user.id), friendId: friendId, chatMessage: userMessage, userToSendMessage: messengerUser })
+    createMessageThread({ referenceId: String(session?.user.id), friendId: `${socket.id}`, userToSendMessage: messengerUser })
     toggle()
   }
 
@@ -136,7 +136,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={conversationChat} user={messengerUser} onclosechat={closeChat} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} />
       {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
