@@ -19,39 +19,10 @@ export const messengerRouter = createTRPCRouter({
       }
     })
   }),
-  createThread: publicProcedure.input(z.object({ referenceId: z.string(), friendId: z.string(), chatMessage: z.string(), userToSendMessage: z.string() })).mutation(async ({ ctx, input }) => {
-    const existingThread = await ctx.prisma.threads.findUnique({
-      where: {
-        threadId: input.referenceId
-      }
-    })
-    if (existingThread?.threadId === input.referenceId) {
-      return existingThread
-    } else {
-      const threadDoesntExist = await ctx.prisma.user.update({
-        where: {
-          id: input.referenceId
-        },
-        include: {
-          messages: true
-        },
-        data: {
-          messages: {
-            create: {
-              friendId: input.friendId,
-              messenger: input.userToSendMessage
-            }
-          }
-        }
-      })
-
-      return threadDoesntExist
-    }
-  }),
-  postMessage: publicProcedure
-    .input(z.object({ referenceId: z.string(), chat: z.string(), userSendingMessage: z.string(), friendId: z.string() }))
+  createThread: publicProcedure
+    .input(z.object({ referenceId: z.string(), friendId: z.string(), chatMessage: z.string(), userToSendMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const oldMessagePost = await ctx.prisma.threads.findUnique({
+      const existingThread = await ctx.prisma.threads.findUnique({
         where: {
           threadId: input.referenceId
         },
@@ -59,27 +30,72 @@ export const messengerRouter = createTRPCRouter({
           chat: true
         }
       })
-      // so threadId is the exact same as id from user.. it reference that so you can relate back to the main user. im assuming the trick is that you have to then find the "friend" based on other conditions within that specification.
-      if (oldMessagePost?.friendId === input.friendId) {
-        return oldMessagePost
-      } else {
-        const newMessagePost = await ctx.prisma.threads.update({
-          where: {
-            threadId: input.referenceId
-          },
-          include: {
-            chat: true
-          },
-          data: {
-            chat: {
-              create: {
-                message: input.chat,
-                user: input.userSendingMessage
-              }
+
+      if (existingThread) {
+        return existingThread;
+      }
+
+      const createThread = await ctx.prisma.threads.create({
+        include: {
+          chat: true
+        },
+        data: {
+          threadId: input.referenceId,
+          friendId: input.friendId,
+          messenger: input.userToSendMessage,
+          chat: {
+            create: {
+              message: input.chatMessage,
+              user: input.userToSendMessage
             }
           }
-        })
-        return newMessagePost
+        }
+      })
+
+      return createThread;
+    }),
+  postMessage: publicProcedure
+    .input(z.object({ referenceId: z.string(), chat: z.string(), userSendingMessage: z.string(), friendId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const threadFound = await ctx.prisma.threads.findUnique({
+        where: {
+          threadId: input.referenceId
+        },
+        include: {
+          chat: true
+        }
+      })
+
+      if (!threadFound) {
+        throw new Error("Thread not found")
       }
+
+      const updatedThread = await ctx.prisma.threads.update({
+        where: {
+          threadId: input.referenceId
+        },
+        include: {
+          chat: true
+        },
+        data: {
+          chat: {
+            create: {
+              message: input.chat,
+              user: input.userSendingMessage
+            }
+          }
+        }
+      })
+
+      return updatedThread
+    }),
+  deleteThread: publicProcedure
+    .input(z.object({ referenceId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.threads.delete({
+        where: {
+           threadId: input.referenceId 
+          }
+      })
     })
 });

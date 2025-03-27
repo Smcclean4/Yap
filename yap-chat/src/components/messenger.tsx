@@ -41,6 +41,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   })
 
+  const { mutate: deleteThread, isLoading: loadingThreadDeletion } = api.messenger.deleteThread.useMutation({
+    onSettled: () => {
+      void ctx.messenger.getChatMessages.invalidate();
+    }
+  })
+
   const itemExists = (name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
       return chat?.name === name
@@ -63,6 +69,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       }
     }))
     toast.error(`Chat with ${messengerUser} cleared.`)
+    deleteThread({ referenceId: String(session?.user.id) })
     setConversationChat([])
     toggle()
   }
