@@ -1,4 +1,3 @@
-import { Input } from "postcss";
 import { z } from "zod";
 
 import {
@@ -9,10 +8,10 @@ import {
 import { prisma } from "~/server/db";
 
 export const messengerRouter = createTRPCRouter({
-  getChatMessages: publicProcedure.input(z.object({ referenceId: z.string() })).query(({ ctx, input }) => {
+  getChatMessages: publicProcedure.input(z.object({ friendId: z.string() })).query(({ ctx, input }) => {
     return ctx.prisma.threads.findUnique({
       where: {
-        threadId: input.referenceId
+        friendId: input.friendId
       },
       include: {
         chat: true
@@ -55,7 +54,7 @@ export const messengerRouter = createTRPCRouter({
       return createThread;
     }),
   postMessage: publicProcedure
-    .input(z.object({ referenceId: z.string(), chat: z.string(), userSendingMessage: z.string(), friendId: z.string() }))
+    .input(z.object({ referenceId: z.string(), chat: z.string(),friendId: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
@@ -90,11 +89,11 @@ export const messengerRouter = createTRPCRouter({
       return updatedThread
     }),
   deleteThread: publicProcedure
-    .input(z.object({ referenceId: z.string() }))
+    .input(z.object({ friendId: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.threads.delete({
         where: {
-           threadId: input.referenceId 
+           friendId: input.friendId 
           }
       })
     })

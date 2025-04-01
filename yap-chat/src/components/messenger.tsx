@@ -17,7 +17,7 @@ interface MessengerInterface {
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [sideBarChats, setSideBarChats]: Array<any> = useState([])
   const [userMessage, setUserMessage] = useState('')
-  const [friendId, setFriendId] = useState('')
+  const [friendSocketId, setFriendSocketId] = useState('')
   const [conversationChat, setConversationChat] = useState<any>([])
   const [messengerUser, setMessengerUser]: any = useState('')
 
@@ -27,7 +27,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ referenceId: String(session?.user.id) })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ friendId: friendSocketId })
 
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
@@ -69,7 +69,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       }
     }))
     toast.error(`Chat with ${messengerUser} cleared.`)
-    deleteThread({ referenceId: String(session?.user.id) })
+    deleteThread({ friendId: friendSocketId })
     setConversationChat([])
     toggle()
   }
@@ -80,15 +80,16 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    createMessageThread({ referenceId: String(session?.user.id), friendId: `${socket.id}`, userToSendMessage: messengerUser })
+    // create thread is triggering before socket connection is established so friendSocketId is undefined/null
+    createMessageThread({ referenceId: String(session?.user.id), friendId: friendSocketId, userToSendMessage: messengerUser })
     toggle()
   }
 
   const onMessageSend = () => {
-    socket.emit('private message', friendId, userMessage)
+    socket.emit('private message', friendSocketId, userMessage)
     setConversationChat([...conversationChat, userMessage])
     console.log(displayAllMessages)
-    console.log(friendId)
+    console.log(friendSocketId)
     setUserMessage("")
   }
 
@@ -99,9 +100,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     socket.connect()
 
-    socket.on('private message', (friendSocketId, msg) => {
-      setFriendId(friendSocketId)
-      sendPrivateMessage({ referenceId: String(session?.user.id), chat: msg, userSendingMessage: messengerUser, friendId: friendId })
+    socket.on('private message', (friendSocketIdFromServer, msg) => {
+      setFriendSocketId(friendSocketIdFromServer)
+      sendPrivateMessage({ referenceId: String(session?.user.id), chat: msg, userSendingMessage: messengerUser, friendId: friendSocketIdFromServer })
     })
 
     return (() => {
