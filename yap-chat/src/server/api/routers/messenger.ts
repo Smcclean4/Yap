@@ -5,7 +5,6 @@ import {
   publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
-import { prisma } from "~/server/db";
 
 export const messengerRouter = createTRPCRouter({
   getChatMessages: publicProcedure.input(z.object({ friendId: z.string() })).query(({ ctx, input }) => {
@@ -54,7 +53,7 @@ export const messengerRouter = createTRPCRouter({
       return createThread;
     }),
   postMessage: publicProcedure
-    .input(z.object({ referenceId: z.string(), chat: z.string(),friendId: z.string(), userSendingMessage: z.string() }))
+    .input(z.object({ chat: z.string(), userSendingMessage: z.string(), friendId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
@@ -69,12 +68,12 @@ export const messengerRouter = createTRPCRouter({
         throw new Error("Thread not found")
       }
 
-      const updatedThread = await ctx.prisma.threads.update({
-        where: {
-          friendId: input.friendId
-        },
+      const createChat = await ctx.prisma.threads.update({
         include: {
           chat: true
+        },
+        where: {
+          friendId: input.friendId
         },
         data: {
           chat: {
@@ -86,7 +85,7 @@ export const messengerRouter = createTRPCRouter({
         }
       })
 
-      return updatedThread
+      return createChat
     }),
   deleteThread: publicProcedure
     .input(z.object({ friendId: z.string() }))
