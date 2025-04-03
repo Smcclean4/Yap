@@ -38,6 +38,7 @@ export const messengerRouter = createTRPCRouter({
           chat: true
         },
         data: {
+          // look into the below reference .. 
           threadId: input.referenceId,
           friendId: input.friendId,
           messenger: input.userToSendMessage,
@@ -53,21 +54,27 @@ export const messengerRouter = createTRPCRouter({
       return createThread;
     }),
   postMessage: publicProcedure
-    .input(z.object({ referenceId: z.string(),chat: z.string(), userSendingMessage: z.string(), friendId: z.string() }))
+    .input(z.object({ chat: z.string(), userSendingMessage: z.string(), friendId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
           friendId: input.friendId
         },
-        include: {
-          chat: true
+        select: {
+          messenger: true,
+          chat: {
+            select: {
+              user: true
+            }
+          }
         }
       })
+
       // look at yap front end and make sure that the referenced id to create like is similar to this
-      if (threadFound) {
+      if (threadFound?.chat.map((val: { user: string | null}) => val.user).includes(input.userSendingMessage)) {
         const createChat = await ctx.prisma.threads.update({
           where: {
-            threadId: input.referenceId
+            friendId: input.friendId
           },
           include: {
             chat: true
@@ -81,7 +88,7 @@ export const messengerRouter = createTRPCRouter({
             }
           }
         })
-  
+        
         return createChat
       } else {
         throw new Error("Thread not found")
