@@ -102,7 +102,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     socket.on('private message', (friendSocketIdFromServer, msg) => {
       setFriendSocketId(friendSocketIdFromServer)
-      sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser, friendId: `${socket.id}` })
+      sendPrivateMessage({ referenceId: String(session?.user.id), chat: msg, userSendingMessage: messengerUser, friendId: `${socket.id}` })
     })
 
     return (() => {
