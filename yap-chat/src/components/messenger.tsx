@@ -80,7 +80,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    // create thread is triggering before socket connection is established so `${socket.id}` is undefined/null
     createMessageThread({ referenceId: String(session?.user.id), friendId: `${socket.id}`, userToSendMessage: messengerUser })
     toggle()
   }

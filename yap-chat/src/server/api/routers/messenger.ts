@@ -38,16 +38,9 @@ export const messengerRouter = createTRPCRouter({
           chat: true
         },
         data: {
-          // look into the below reference .. 
           threadId: input.referenceId,
           friendId: input.friendId,
-          messenger: input.userToSendMessage,
-          chat: {
-            create: {
-              message: `Started a conversation with ${input.userToSendMessage}`,
-              user: input.userToSendMessage
-            }
-          }
+          messenger: input.userToSendMessage
         }
       })
 
@@ -59,19 +52,10 @@ export const messengerRouter = createTRPCRouter({
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
           friendId: input.friendId
-        },
-        select: {
-          messenger: true,
-          chat: {
-            select: {
-              user: true
-            }
-          }
         }
       })
-
-      // look at yap front end and make sure that the referenced id to create like is similar to this
-      if (threadFound?.chat.map((val: { user: string | null}) => val.user).includes(input.userSendingMessage)) {
+      // continue to look into the bug that doesnt allow post
+      if (threadFound) {
         const createChat = await ctx.prisma.threads.update({
           where: {
             friendId: input.friendId
