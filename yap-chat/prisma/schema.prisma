@@ -146,5 +146,5 @@ model Chat {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@unique([senderId])
+    @@index([senderId])
 }

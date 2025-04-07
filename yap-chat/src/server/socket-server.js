@@ -37,8 +37,10 @@ io.on("connection", (socket) => {
   });
   // socket.io connection for private message
   socket.on("private message", (userId, msg) => {
-    socket.to(userId).emit("private message", msg);
-    console.log("Private Chat: " + msg);
+    socket.join(userId)
+    console.log("joined room: " + userId)
+    io.in(userId).emit("private message", msg);
+    console.log("Private Message to " + userId + ": " + msg);
   });
 });
 

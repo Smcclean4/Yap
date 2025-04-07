@@ -97,8 +97,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     socket.connect()
 
-    socket.on('private message', (userIdFromServer, msg) => {
-      sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser, threadId: userIdFromServer })
+    socket.on('private message', (msg) => {
+      sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser });
     })
 
     return (() => {
