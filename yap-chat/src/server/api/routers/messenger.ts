@@ -7,10 +7,10 @@ import {
 } from "~/server/api/trpc";
 
 export const messengerRouter = createTRPCRouter({
-  getChatMessages: publicProcedure.input(z.object({ friendId: z.string() })).query(({ ctx, input }) => {
+  getChatMessages: publicProcedure.input(z.object({ sender: z.string() })).query(({ ctx, input }) => {
     return ctx.prisma.threads.findUnique({
       where: {
-        friendId: input.friendId
+        messenger: input.sender
       },
       include: {
         chat: true
@@ -18,11 +18,11 @@ export const messengerRouter = createTRPCRouter({
     })
   }),
   createThread: publicProcedure
-    .input(z.object({ referenceId: z.string(), friendId: z.string(), userToSendMessage: z.string() }))
+    .input(z.object({ referenceId: z.string(), userToSendMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const existingThread = await ctx.prisma.threads.findUnique({
         where: {
-          friendId: input.friendId
+          threadId: input.referenceId
         },
         include: {
           chat: true
@@ -39,7 +39,6 @@ export const messengerRouter = createTRPCRouter({
         },
         data: {
           threadId: input.referenceId,
-          friendId: input.friendId,
           messenger: input.userToSendMessage
         }
       })
@@ -47,43 +46,43 @@ export const messengerRouter = createTRPCRouter({
       return createThread;
     }),
   postMessage: publicProcedure
-    .input(z.object({ chat: z.string(), userSendingMessage: z.string(), friendId: z.string() }))
+    .input(z.object({ chat: z.string(), userSendingMessage: z.string(), threadId: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
-          friendId: input.friendId
+          threadId: input.threadId
         }
       })
-      // continue to look into the bug that doesnt allow post
-      if (threadFound) {
-        const createChat = await ctx.prisma.threads.update({
-          where: {
-            friendId: input.friendId
-          },
-          include: {
-            chat: true
-          },
-          data: {
-            chat: {
-              create: {
-                message: input.chat,
-                user: input.userSendingMessage
-              }
-            }
-          }
-        })
-        
-        return createChat
-      } else {
+
+      if (!threadFound) {
         throw new Error("Thread not found")
       }
+
+      const createChat = await ctx.prisma.threads.update({
+        where: {
+          threadId: input.threadId
+        },
+        include: {
+          chat: true
+        },
+        data: {
+          chat: {
+            create: {
+              message: input.chat,
+              user: input.userSendingMessage
+            }
+          }
+        }
+      })
+
+      return createChat;
     }),
   deleteThread: publicProcedure
-    .input(z.object({ friendId: z.string() }))
+    .input(z.object({ threadId: z.string().optional() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.threads.delete({
         where: {
-           friendId: input.friendId 
+           threadId: input.threadId 
           }
       })
     })
