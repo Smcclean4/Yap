@@ -17,7 +17,6 @@ interface MessengerInterface {
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [sideBarChats, setSideBarChats]: Array<any> = useState([])
   const [userMessage, setUserMessage] = useState('')
-  const [friendId, setFriendId] = useState('')
   const [conversationChat, setConversationChat] = useState<any>([])
   const [messengerUser, setMessengerUser]: any = useState('')
 
@@ -27,7 +26,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ referenceId: String(session?.user.id) })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengerUser })
 
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
@@ -36,6 +35,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
+    onSettled: () => {
+      void ctx.messenger.getChatMessages.invalidate();
+    }
+  })
+
+  const { mutate: deleteThread, isLoading: loadingThreadDeletion } = api.messenger.deleteThread.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
     }
@@ -63,6 +68,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       }
     }))
     toast.error(`Chat with ${messengerUser} cleared.`)
+    deleteThread({ threadId: displayAllMessages?.threadId })
     setConversationChat([])
     toggle()
   }
@@ -73,16 +79,14 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const triggerMessage = () => {
     setMessengerUser(messengeruser?.name)
-    createMessageThread({ referenceId: String(session?.user.id), chatMessage: userMessage, userToSendMessage: messengerUser })
-    setFriendId(`${socket.id}`)
+    createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: messengerUser })
     toggle()
   }
 
   const onMessageSend = () => {
-    socket.emit('private message', friendId, userMessage)
+    socket.emit('private message', displayAllMessages?.threadId, userMessage)
     setConversationChat([...conversationChat, userMessage])
     console.log(displayAllMessages)
-    console.log(friendId)
     setUserMessage("")
   }
 
@@ -93,9 +97,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     socket.connect()
 
-    socket.on('private message', (friendSocketId, msg) => {
-      setFriendId(friendSocketId)
-      sendPrivateMessage({ referenceId: String(session?.user.id), friend: friendSocketId, chat: msg, userSendingMessage: messengerUser })
+    socket.on('private message', (msg) => {
+      sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser });
     })
 
     return (() => {
@@ -130,7 +133,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={conversationChat} user={messengerUser} onclosechat={closeChat} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} />
       {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
