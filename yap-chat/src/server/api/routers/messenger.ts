@@ -33,17 +33,17 @@ export const messengerRouter = createTRPCRouter({
         return existingThread;
       }
 
-      const createThread = await ctx.prisma.threads.create({
+      const createThread = await ctx.prisma.user.update({
         include: {
-          chat: true
+          messages: true
+        },
+        where: {
+          id: input.referenceId
         },
         data: {
-          threadId: input.referenceId,
-          messenger: input.userToSendMessage,
-          chat: {
+          messages: {
             create: {
-              message: `Started a conversation with ${input.userToSendMessage}`,
-              user: input.userToSendMessage
+              messenger: input.userToSendMessage
             }
           }
         }
@@ -54,6 +54,21 @@ export const messengerRouter = createTRPCRouter({
   postMessage: publicProcedure
     .input(z.object({ chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const threadFound = await ctx.prisma.threads.findUnique({
+        include: {
+          chat: true
+        },
+        // thread is not being found.. assuming because it is only looking for one thread and not looping through and checking maybe?
+        // look into this. But everything thing else is working fine including create chat which worked a few days ago.
+        where: {
+          messenger: input.userSendingMessage
+        }
+      })
+
+      if (!threadFound) {
+        throw Error('Thread not found!')
+      }
+
       const createChat = await ctx.prisma.threads.update({
         include: {
           chat: true
