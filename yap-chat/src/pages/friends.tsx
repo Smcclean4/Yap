@@ -131,6 +131,7 @@ const FriendsPage = () => {
 
   useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
+    const userInfoFromLocalStorage = JSON.parse(localStorage.getItem("userinfo") || "[]")
     if (options.length === 0) {
       setOptions(optionsFromLocalStorage)
     } else if (optionsFromLocalStorage.length === 0) {
@@ -138,11 +139,16 @@ const FriendsPage = () => {
         setOptions([...options, false])
       })
     }
+
+    if (userInfo.name === "") {
+      setUserInfo(userInfoFromLocalStorage)
+    }
   }, [])
 
   useEffect(() => {
+    localStorage.setItem("userinfo", JSON.stringify(userInfo))
     localStorage.setItem("options", JSON.stringify(options));
-  }, [options]);
+  }, [options, userInfo]);
 
   if (!session) return null;
 

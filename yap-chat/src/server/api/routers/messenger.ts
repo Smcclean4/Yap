@@ -52,15 +52,16 @@ export const messengerRouter = createTRPCRouter({
       return createThread;
     }),
   postMessage: publicProcedure
-    .input(z.object({ chat: z.string(), userSendingMessage: z.string() }))
+    .input(z.object({ chat: z.string(), userSendingMessage: z.string(), id: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
+      // i think the issue lies where sidebar nav gets its userinfo maybe? .. on referesh it probably loses the userinfo.. 
+      // but that wouldnt explain why threadId would work right? .. look into this.
       const threadFound = await ctx.prisma.threads.findUnique({
+        where: {
+          id: input.id
+        },
         include: {
           chat: true
-        },
-        // need to find a new method of getting this thread .. gets fidgety when refereshing page
-        where: {
-          messenger: input.userSendingMessage
         }
       })
 
