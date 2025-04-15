@@ -18,7 +18,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const [sideBarChats, setSideBarChats]: Array<any> = useState([])
   const [userMessage, setUserMessage] = useState('')
   const [conversationChat, setConversationChat] = useState<any>([])
-  const [messengerUser, setMessengerUser]: any = useState('')
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
@@ -26,7 +25,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengerUser })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengeruser?.name })
 
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
@@ -61,13 +60,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const closeChat = () => {
     setSideBarChats((state: any[]) => state.filter((chat: { name: string, message: string, online: boolean }, i: React.Key) => {
-      if (sideBarChats[i].name === messengerUser) {
+      if (sideBarChats[i].name === messengeruser?.name) {
         return false
       } else {
         return chat
       }
     }))
-    toast.error(`Chat with ${messengerUser} cleared.`)
+    toast.error(`Chat with ${messengeruser?.name} cleared.`)
     deleteThread({ threadId: displayAllMessages?.threadId })
     setConversationChat([])
     toggle()
@@ -78,8 +77,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const triggerMessage = () => {
-    setMessengerUser(messengeruser?.name)
-    createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: messengerUser })
+    createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: String(messengeruser?.name) })
     toggle()
   }
 
@@ -133,7 +131,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={String(messengeruser?.name)} onclosechat={closeChat} />
       {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>

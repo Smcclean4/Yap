@@ -22,7 +22,7 @@ export const messengerRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const existingThread = await ctx.prisma.threads.findUnique({
         where: {
-          threadId: input.referenceId
+          messenger: input.userToSendMessage
         },
         include: {
           chat: true
@@ -58,8 +58,7 @@ export const messengerRouter = createTRPCRouter({
         include: {
           chat: true
         },
-        // I think the issue was that "messengerUser" in the front end wasnt being set before it was being displayed
-        // which was causing it to fail.
+        // need to find a new method of getting this thread .. gets fidgety when refereshing page
         where: {
           messenger: input.userSendingMessage
         }
