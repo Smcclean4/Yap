@@ -139,8 +139,8 @@ const FriendsPage = () => {
         setOptions([...options, false])
       })
     }
-
-    if (userInfo.name === "") {
+    // maybe something with this ... 
+    if (userInfo === undefined || null) {
       setUserInfo(userInfoFromLocalStorage)
     }
   }, [])

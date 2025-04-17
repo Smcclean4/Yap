@@ -52,13 +52,12 @@ export const messengerRouter = createTRPCRouter({
       return createThread;
     }),
   postMessage: publicProcedure
-    .input(z.object({ chat: z.string(), userSendingMessage: z.string(), id: z.string().optional() }))
+    .input(z.object({ chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // i think the issue lies where sidebar nav gets its userinfo maybe? .. on referesh it probably loses the userinfo.. 
-      // but that wouldnt explain why threadId would work right? .. look into this.
+      // could also be that database storage of friends needs to be set up in friends tab to consistently persist userinfo data.. 
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
-          id: input.id
+          messenger: input.userSendingMessage
         },
         include: {
           chat: true
