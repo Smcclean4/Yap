@@ -94,7 +94,6 @@ const FriendsPage = () => {
 
   const onMessage = () => {
     setMessageTrigger(!messageTrigger)
-
   }
 
   const onRequestDeny = () => {
@@ -131,7 +130,6 @@ const FriendsPage = () => {
 
   useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
-    const userInfoFromLocalStorage = JSON.parse(localStorage.getItem("userinfo") || "[]")
     if (options.length === 0) {
       setOptions(optionsFromLocalStorage)
     } else if (optionsFromLocalStorage.length === 0) {
@@ -139,16 +137,12 @@ const FriendsPage = () => {
         setOptions([...options, false])
       })
     }
-    // maybe something with this ... 
-    if (userInfo === undefined || null) {
-      setUserInfo(userInfoFromLocalStorage)
-    }
   }, [])
-
+  
+  // local storage for userinfo isnt the current problem find the real issue
   useEffect(() => {
-    localStorage.setItem("userinfo", JSON.stringify(userInfo))
     localStorage.setItem("options", JSON.stringify(options));
-  }, [options, userInfo]);
+  }, [options]);
 
   if (!session) return null;
 
