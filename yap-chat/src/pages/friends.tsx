@@ -138,6 +138,8 @@ const FriendsPage = () => {
         setOptions([...options, false])
       })
     }
+    console.log(friendsFromDatabase)
+    console.log(userInfo)
   }, [])
   
   // local storage for userinfo isnt the current problem find the real issue

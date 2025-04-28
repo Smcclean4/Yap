@@ -8,6 +8,7 @@ import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
 import { socket } from '~/pages/api/socket-client';
 import { api } from '~/utils/api';
+import { LoadingPage } from '~/shared/loading';
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -26,7 +27,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const ctx = api.useContext();
 
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengeruser?.name })
-
+  const { isLoading: friendsLoading } = api.friends.getAllFriends.useQuery()
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
@@ -129,10 +130,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
   }, [sideBarChats, conversationChat])
 
-  return (
-    <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
-      <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} />
+  const DisplayAllMessages = () => {
+    // trying to side load different things to see if undefined does not come back first. working around this issue.
+    if (friendsLoading && loadingMessages) return <LoadingPage />
+
+    return (
+      <>
       {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
@@ -143,6 +146,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
           </div>
         )
       })}
+      </>
+    )
+  }
+
+  return (
+    <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
+      <Toaster />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} />
+      <DisplayAllMessages />
     </div>
   )
 }
