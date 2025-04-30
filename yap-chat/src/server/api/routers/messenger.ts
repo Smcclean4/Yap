@@ -58,8 +58,6 @@ export const messengerRouter = createTRPCRouter({
         include: {
           chat: true
         },
-        // thread is not being found.. assuming because it is only looking for one thread and not looping through and checking maybe?
-        // look into this. But everything thing else is working fine including create chat which worked a few days ago.
         where: {
           messenger: input.userSendingMessage
         }

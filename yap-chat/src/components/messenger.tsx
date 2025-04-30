@@ -8,6 +8,7 @@ import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
 import { socket } from '~/pages/api/socket-client';
 import { api } from '~/utils/api';
+import { LoadingPage } from '~/shared/loading';
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -86,7 +87,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const onMessageSend = () => {
     socket.emit('private message', displayAllMessages?.threadId, userMessage)
     setConversationChat([...conversationChat, userMessage])
-    console.log(displayAllMessages)
     setUserMessage("")
   }
 
@@ -128,12 +128,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   useEffect(() => {
     localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
+    console.log(displayAllMessages)
   }, [sideBarChats, conversationChat])
+
 
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} />
+      {/* somewhere along this path. i think that it needs to load before it dipslay message contents.. maybe reference home */}
+      {loadingMessages || loadingThreadCreation ? <LoadingPage /> : <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} />}
       {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
