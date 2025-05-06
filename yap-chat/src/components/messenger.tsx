@@ -70,7 +70,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       }
     }))
     toast.error(`Chat with ${messengerUser} cleared.`)
-    deleteThread({ threadId: displayAllMessages?.threadId })
+    deleteThread({ userSendingMessage: messengerUser })
     setConversationChat([])
     toggle()
   }
