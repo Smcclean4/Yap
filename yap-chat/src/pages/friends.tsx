@@ -94,7 +94,6 @@ const FriendsPage = () => {
 
   const onMessage = () => {
     setMessageTrigger(!messageTrigger)
-
   }
 
   const onRequestDeny = () => {
