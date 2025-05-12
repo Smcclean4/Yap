@@ -95,10 +95,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     setUserMessage(e.target.value)
   }
 
+  if (!session) return null
+
   useEffect(() => {
     socket.connect()
 
     socket.on('private message', (msg) => {
+      console.log(msg)
       sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser });
     })
 
