@@ -20,47 +20,57 @@ export const messengerRouter = createTRPCRouter({
   createThread: publicProcedure
     .input(z.object({ referenceId: z.string(), userToSendMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const existingThread = await ctx.prisma.threads.findUnique({
+      // looking into this
+      const existingThread = await ctx.prisma.user.findUnique({
         where: {
+<<<<<<< HEAD
           messenger: input.userToSendMessage
+=======
+          id: input.referenceId
+>>>>>>> development
         },
-        include: {
-          chat: true
+        select: {
+          messages: true
         }
       })
 
       if (existingThread) {
         return existingThread;
-      }
-
-      const createThread = await ctx.prisma.user.update({
-        include: {
-          messages: true
-        },
-        where: {
-          id: input.referenceId
-        },
-        data: {
-          messages: {
-            create: {
-              messenger: input.userToSendMessage
+      } else {
+        const createThread = await ctx.prisma.user.update({
+          where: {
+            id: input.referenceId
+          },
+          data: {
+            messages: {
+              create: {
+                messenger: input.userToSendMessage
+              }
             }
           }
-        }
-      })
-
-      return createThread;
+        })
+  
+        return createThread;
+      }
     }),
   postMessage: publicProcedure
     .input(z.object({ chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
+<<<<<<< HEAD
       // could also be that database storage of friends needs to be set up in friends tab to consistently persist userinfo data.. 
+=======
+      // look into this
+>>>>>>> development
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
           messenger: input.userSendingMessage
         },
         include: {
+<<<<<<< HEAD
           chat: true
+=======
+          chat: true,
+>>>>>>> development
         }
       })
 
@@ -88,11 +98,11 @@ export const messengerRouter = createTRPCRouter({
       return createChat;
     }),
   deleteThread: publicProcedure
-    .input(z.object({ threadId: z.string().optional() }))
+    .input(z.object({ userSendingMessage: z.string().optional() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.threads.delete({
         where: {
-           threadId: input.threadId 
+           messenger: input.userSendingMessage
           }
       })
     })

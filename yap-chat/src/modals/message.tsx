@@ -2,6 +2,7 @@ import { faToiletPaper, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { createPortal } from 'react-dom'
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal, Key } from 'react';
+import { LoadingPage } from '~/shared/loading';
 
 interface MessageInterface {
   isShowing: boolean;
@@ -12,9 +13,10 @@ interface MessageInterface {
   messages: any;
   user: string;
   onclosechat?: () => void;
+  loading: boolean;
 }
 
-export const MessageModal = ({ isShowing, hide, storewords, sendmessage, message, messages, user, onclosechat }: MessageInterface) => isShowing ? createPortal(
+export const MessageModal = ({ isShowing, hide, storewords, sendmessage, message, messages, user, onclosechat, loading }: MessageInterface) => isShowing ? createPortal(
   <div className="absolute top-0 right-0 left-0 bottom-0 bg-white w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl">
     <div className="w-full flex justify-between p-6 top-0 absolute">
       <FontAwesomeIcon className="text-4xl text-red-500 cursor-pointer" onClick={hide} icon={faXmark} />
@@ -26,7 +28,11 @@ export const MessageModal = ({ isShowing, hide, storewords, sendmessage, message
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
       <div className="h-full w-full overflow-scroll px-48">
+<<<<<<< HEAD
         {messages?.chat.map((message: any, id: Key) => <ul key={id}><li className="m-2">{message.message}</li></ul>)}
+=======
+        {!loading ? messages?.map((message: any, id: Key) => <ul key={id}><li className="m-2">{message.message}</li></ul>) : <LoadingPage />}
+>>>>>>> development
       </div>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">

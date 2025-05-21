@@ -27,7 +27,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const ctx = api.useContext();
 
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengeruser?.name })
+<<<<<<< HEAD
   const { isLoading: friendsLoading } = api.friends.getAllFriends.useQuery()
+=======
+
+>>>>>>> development
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
@@ -53,6 +57,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const updateMessenger = () => {
+    setMessengerUser(messengeruser?.name)
     if (itemExists(messengeruser?.name, sideBarChats)) {
       return
     }
@@ -67,8 +72,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
         return chat
       }
     }))
+<<<<<<< HEAD
     toast.error(`Chat with ${messengeruser?.name} cleared.`)
     deleteThread({ threadId: displayAllMessages?.threadId })
+=======
+    toast.error(`Chat with ${messengerUser} cleared.`)
+    deleteThread({ userSendingMessage: messengerUser })
+>>>>>>> development
     setConversationChat([])
     toggle()
   }
@@ -78,15 +88,19 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const triggerMessage = () => {
+<<<<<<< HEAD
     createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: String(messengeruser?.name) })
     console.log(displayAllMessages)
+=======
+    createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: messengerUser })
+>>>>>>> development
     toggle()
   }
 
   const onMessageSend = () => {
     socket.emit('private message', displayAllMessages?.threadId, userMessage)
-    setConversationChat([...conversationChat, userMessage])
     console.log(displayAllMessages)
+    setConversationChat([...conversationChat, userMessage])
     setUserMessage("")
   }
 
@@ -94,11 +108,18 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     setUserMessage(e.target.value)
   }
 
+  if (!session) return null
+
   useEffect(() => {
     socket.connect()
 
     socket.on('private message', (msg) => {
+<<<<<<< HEAD
       sendPrivateMessage({ chat: msg, userSendingMessage: String(messengeruser?.name) });
+=======
+      console.log(msg, messengerUser)
+      sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser });
+>>>>>>> development
     })
 
     return (() => {
@@ -130,12 +151,20 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
   }, [sideBarChats, conversationChat])
 
+<<<<<<< HEAD
   const DisplayAllMessages = () => {
     // trying to side load different things to see if undefined does not come back first. working around this issue.
     if (friendsLoading && loadingMessages) return <LoadingPage />
 
     return (
       <>
+=======
+
+  return (
+    <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
+      <Toaster />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} loading={loadingMessages} />
+>>>>>>> development
       {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
