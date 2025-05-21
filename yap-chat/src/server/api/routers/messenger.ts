@@ -20,46 +20,45 @@ export const messengerRouter = createTRPCRouter({
   createThread: publicProcedure
     .input(z.object({ referenceId: z.string(), userToSendMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const existingThread = await ctx.prisma.threads.findUnique({
+      // looking into this
+      const existingThread = await ctx.prisma.user.findUnique({
         where: {
-          messenger: input.userToSendMessage
+          id: input.referenceId
         },
-        include: {
-          chat: true
+        select: {
+          messages: true
         }
       })
 
       if (existingThread) {
         return existingThread;
-      }
-
-      const createThread = await ctx.prisma.user.update({
-        include: {
-          messages: true
-        },
-        where: {
-          id: input.referenceId
-        },
-        data: {
-          messages: {
-            create: {
-              messenger: input.userToSendMessage
+      } else {
+        const createThread = await ctx.prisma.user.update({
+          where: {
+            id: input.referenceId
+          },
+          data: {
+            messages: {
+              create: {
+                messenger: input.userToSendMessage
+              }
             }
           }
-        }
-      })
-
-      return createThread;
+        })
+  
+        return createThread;
+      }
     }),
   postMessage: publicProcedure
     .input(z.object({ chat: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      // look into this
       const threadFound = await ctx.prisma.threads.findUnique({
-        include: {
-          chat: true
-        },
         where: {
           messenger: input.userSendingMessage
+        },
+        include: {
+          chat: true,
         }
       })
 

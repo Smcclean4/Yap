@@ -26,7 +26,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengerUser })
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengeruser?.name })
 
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
@@ -53,10 +53,10 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const updateMessenger = () => {
+    setMessengerUser(messengeruser?.name)
     if (itemExists(messengeruser?.name, sideBarChats)) {
       return
     }
-    setMessengerUser(messengeruser?.name)
     setSideBarChats([...sideBarChats, messengeruser])
   }
 
@@ -79,7 +79,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const triggerMessage = () => {
-    setMessengerUser(messengeruser?.name)
     createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: messengerUser })
     toggle()
   }
@@ -101,7 +100,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (msg) => {
-      console.log(msg)
+      console.log(msg, messengerUser)
       sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser });
     })
 
@@ -138,7 +137,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages?.chat} user={messengerUser} onclosechat={closeChat} loading={loadingMessages} />
       {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
         return (
           <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
