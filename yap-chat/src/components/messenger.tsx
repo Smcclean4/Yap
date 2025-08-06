@@ -79,7 +79,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const triggerMessage = () => {
-    createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: messengerUser })
+    createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: String(messengeruser?.name) })
     toggle()
   }
 
@@ -101,7 +101,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     socket.on('private message', (msg) => {
       console.log(msg, messengerUser)
-      sendPrivateMessage({ chat: msg, userSendingMessage: messengerUser });
+      sendPrivateMessage({ chat: msg, userSendingMessageId: displayAllMessages?.threadId, userSendingMessage: String(messengeruser?.name) });
     })
 
     return (() => {
