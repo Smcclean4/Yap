@@ -21,16 +21,12 @@ export const messengerRouter = createTRPCRouter({
     .input(z.object({ referenceId: z.string(), userToSendMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
       // looking into this
-      const existingThread = await ctx.prisma.user.findUnique({
+      const existingThread = await ctx.prisma.threads.findUnique({
         where: {
-<<<<<<< HEAD
           messenger: input.userToSendMessage
-=======
-          id: input.referenceId
->>>>>>> development
         },
         select: {
-          messages: true
+          chat: true
         }
       })
 
@@ -49,28 +45,20 @@ export const messengerRouter = createTRPCRouter({
             }
           }
         })
-  
-        return createThread;
+
+        return createThread
       }
     }),
   postMessage: publicProcedure
-    .input(z.object({ chat: z.string(), userSendingMessage: z.string() }))
+    .input(z.object({ chat: z.string(), userSendingMessageId: z.string().optional(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-<<<<<<< HEAD
-      // could also be that database storage of friends needs to be set up in friends tab to consistently persist userinfo data.. 
-=======
       // look into this
->>>>>>> development
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
           messenger: input.userSendingMessage
         },
         include: {
-<<<<<<< HEAD
-          chat: true
-=======
           chat: true,
->>>>>>> development
         }
       })
 
