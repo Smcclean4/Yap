@@ -26,7 +26,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery({ sender: messengeruser?.name })
+
+  // not delivering .. and not getting next so it can send message
+  const currentUserId = session?.user?.id;
+  const currentMessengerName = messengeruser?.name;
+
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
+    { threadId: currentUserId, sender: currentMessengerName },
+    { enabled: Boolean(currentUserId && currentMessengerName) }
+  )
 
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
     onSettled: () => {
@@ -68,7 +76,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       }
     }))
     toast.error(`Chat with ${messengeruser?.name} cleared.`)
-    deleteThread({ userSendingMessage: messengeruser?.name })
+    if (currentUserId && currentMessengerName) {
+      deleteThread({ userId: currentUserId, userSendingMessage: currentMessengerName })
+    }
     setConversationChat([])
     toggle()
   }
@@ -78,13 +88,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const triggerMessage = () => {
-    createMessageThread({ referenceId: String(session?.user.id), userToSendMessage: String(messengeruser?.name) })
+    if (!currentUserId || !currentMessengerName) return;
+    createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
     console.log(displayAllMessages)
     toggle()
   }
 
   const onMessageSend = () => {
-    socket.emit('private message', displayAllMessages?.threadId, userMessage)
+    if (!displayAllMessages?.threadId) return;
+    socket.emit('private message', displayAllMessages.threadId, userMessage)
     console.log(displayAllMessages)
     setConversationChat([...conversationChat, userMessage])
     setUserMessage("")
@@ -101,7 +113,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     socket.on('private message', (msg) => {
       console.log(msg, messengeruser?.name)
-      sendPrivateMessage({ chat: msg, userSendingMessage: String(messengeruser?.name) });
+      if (currentUserId && currentMessengerName) {
+        sendPrivateMessage({ chat: msg, userSendingMessageId: currentUserId, userSendingMessage: currentMessengerName });
+      }
     })
 
     return (() => {
