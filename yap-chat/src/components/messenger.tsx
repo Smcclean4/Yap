@@ -26,12 +26,10 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-
-  // not delivering .. and not getting next so it can send message
   const currentUserId = session?.user?.id;
   const currentMessengerName = messengeruser?.name;
 
-  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
+  const { data: displayAllMessages, isLoading: loadingMessages, isFetching } = api.messenger.getChatMessages.useQuery(
     { threadId: currentUserId, sender: currentMessengerName },
     { enabled: Boolean(currentUserId && currentMessengerName) }
   )
@@ -88,16 +86,21 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const triggerMessage = () => {
-    if (!currentUserId || !currentMessengerName) return;
+    if (!currentUserId || !currentMessengerName) {
+      console.log("either current user id or current messenger name does not exist")
+      return
+    };
     createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
     console.log(displayAllMessages)
     toggle()
   }
 
   const onMessageSend = () => {
-    if (!displayAllMessages?.threadId) return;
+    if (!displayAllMessages?.threadId) {
+      console.log("no thread")
+      return
+    }
     socket.emit('private message', displayAllMessages.threadId, userMessage)
-    console.log(displayAllMessages)
     setConversationChat([...conversationChat, userMessage])
     setUserMessage("")
   }
@@ -112,7 +115,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (msg) => {
-      console.log(msg, messengeruser?.name)
       if (currentUserId && currentMessengerName) {
         sendPrivateMessage({ chat: msg, userSendingMessageId: currentUserId, userSendingMessage: currentMessengerName });
       }
@@ -148,8 +150,10 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }, [sideBarChats, conversationChat])
 
   const DisplayAllMessages = () => {
-    // trying to side load different things to see if undefined does not come back first. working around this issue.
-    if (loadingMessages) return <LoadingPage />
+    // Show loading if we're fetching or if we don't have the required parameters yet
+    if (loadingMessages || isFetching || !currentUserId || !currentMessengerName) {
+      return <LoadingPage />
+    }
 
     return (
       <>
@@ -170,7 +174,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} loading={loadingMessages} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} loading={loadingMessages || isFetching || !currentUserId || !currentMessengerName} />
       <DisplayAllMessages />
     </div>
   )
