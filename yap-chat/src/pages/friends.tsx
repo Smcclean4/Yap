@@ -21,7 +21,14 @@ export interface UserInfoInterface {
 
 const FriendsPage = () => {
 
-  const [userInfo, setUserInfo] = useState<UserInfoInterface>({ name: '', image: '', heading: '', id: '', online: false })
+  const [userInfo, setUserInfo] = useState<UserInfoInterface>(() => {
+    // Try to restore from localStorage on initial load, but only in browser
+    if (typeof window !== 'undefined') {
+      const savedUserInfo = localStorage.getItem('selectedMessenger');
+      return savedUserInfo ? JSON.parse(savedUserInfo) : { name: '', image: '', heading: '', id: '', online: false };
+    }
+    return { name: '', image: '', heading: '', id: '', online: false };
+  })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
   const [messageTrigger, setMessageTrigger] = useState(false)
@@ -58,7 +65,12 @@ const FriendsPage = () => {
   }
 
   const currentUserData = (name: any, image: any, online: boolean, heading: string, id: any) => {
-    setUserInfo({ name: name, image: image, online: online, heading: heading, id: id })
+    const newUserInfo = { name: name, image: image, online: online, heading: heading, id: id };
+    setUserInfo(newUserInfo);
+    // Save to localStorage for persistence, but only in browser
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedMessenger', JSON.stringify(newUserInfo));
+    }
   }
 
   const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -90,6 +102,11 @@ const FriendsPage = () => {
   const deleteFriend = () => {
     removeFriend({ id: userInfo.id })
     toast.error(`${userInfo.name} removed as a friend.`)
+    // Clear the selected messenger if it's the one being removed, but only in browser
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('selectedMessenger');
+    }
+    setUserInfo({ name: '', image: '', heading: '', id: '', online: false });
     toggle()
   }
 

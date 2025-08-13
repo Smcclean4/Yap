@@ -26,12 +26,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const { data: session } = useSession();
   const ctx = api.useContext();
 
-  const currentUserId = session?.user?.id;
+  const currentUserId = session?.user.id;
   const currentMessengerName = messengeruser?.name;
 
-  const { data: displayAllMessages, isLoading: loadingMessages, isFetching } = api.messenger.getChatMessages.useQuery(
+  const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
     { threadId: currentUserId, sender: currentMessengerName },
-    { enabled: Boolean(currentUserId && currentMessengerName) }
+    { enabled: Boolean(currentUserId && currentMessengerName && currentMessengerName.trim() !== '') }
   )
 
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
@@ -96,11 +96,36 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const onMessageSend = () => {
-    if (!displayAllMessages?.threadId) {
-      console.log("no thread")
+    console.log("onMessageSend called", { 
+      displayAllMessages, 
+      threadId: displayAllMessages?.threadId, 
+      userMessage,
+      currentUserId,
+      currentMessengerName 
+    })
+    
+    if (!userMessage.trim()) {
+      console.log("empty message")
       return
     }
-    socket.emit('private message', displayAllMessages.threadId, userMessage)
+    
+    if (!currentUserId || !currentMessengerName) {
+      console.log("missing user or messenger info")
+      return
+    }
+    
+    // If no thread exists, create one first
+    if (!displayAllMessages?.threadId) {
+      console.log("creating thread before sending message")
+      createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
+      // Add message to local state for immediate feedback
+      setConversationChat([...conversationChat, userMessage])
+      setUserMessage("")
+      return
+    }
+    
+    // Emit to the messenger's room, not the current user's room
+    socket.emit('private message', currentMessengerName, userMessage)
     setConversationChat([...conversationChat, userMessage])
     setUserMessage("")
   }
@@ -115,8 +140,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     socket.connect()
 
     socket.on('private message', (msg) => {
+      console.log("Socket received message:", { msg, currentUserId, currentMessengerName })
       if (currentUserId && currentMessengerName) {
+        console.log("Sending private message to API:", { chat: msg, userSendingMessageId: currentUserId, userSendingMessage: currentMessengerName })
         sendPrivateMessage({ chat: msg, userSendingMessageId: currentUserId, userSendingMessage: currentMessengerName });
+      } else {
+        console.log("Missing required parameters for sending message")
       }
     })
 
@@ -136,24 +165,26 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }, [trigger])
 
   useEffect(() => {
-    const sideBarChatStorage = JSON.parse(localStorage.getItem('sideBarChatData') || '[]')
-    const conversationChatStorage = JSON.parse(localStorage.getItem('conversationChatData') || '[]')
-    if (sideBarChatStorage || conversationChatStorage) {
-      setSideBarChats(sideBarChatStorage)
-      setConversationChat(conversationChatStorage)
+    if (typeof window !== 'undefined') {
+      const sideBarChatStorage = JSON.parse(localStorage.getItem('sideBarChatData') || '[]')
+      const conversationChatStorage = JSON.parse(localStorage.getItem('conversationChatData') || '[]')
+      if (sideBarChatStorage || conversationChatStorage) {
+        setSideBarChats(sideBarChatStorage)
+        setConversationChat(conversationChatStorage)
+      }
     }
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
-    localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
+      localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
+    }
   }, [sideBarChats, conversationChat])
 
   const DisplayAllMessages = () => {
     // Show loading if we're fetching or if we don't have the required parameters yet
-    if (loadingMessages || isFetching || !currentUserId || !currentMessengerName) {
-      return <LoadingPage />
-    }
+    if (loadingMessages || !currentUserId || !currentMessengerName || currentMessengerName.trim() === '') return <LoadingPage />
 
     return (
       <>
@@ -174,7 +205,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} loading={loadingMessages || isFetching || !currentUserId || !currentMessengerName} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} loading={loadingMessages || !currentUserId || !currentMessengerName || currentMessengerName.trim() === ''} />
       <DisplayAllMessages />
     </div>
   )

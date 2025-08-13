@@ -66,7 +66,7 @@ export const messengerRouter = createTRPCRouter({
   postMessage: publicProcedure
     .input(z.object({ chat: z.string(), userSendingMessageId: z.string(), userSendingMessage: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // look into this
+
       const threadFound = await ctx.prisma.threads.findUnique({
         where: {
           threadId_messenger: {
