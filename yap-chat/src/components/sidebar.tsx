@@ -5,8 +5,8 @@ import { UserInfoInterface } from '~/pages/friends';
 
 interface SidebarNavInterface {
   user: string | undefined | null;
-  userinfo?: UserInfoInterface;
-  triggermessage?: boolean;
+  userinfo: UserInfoInterface;
+  triggermessage: boolean;
 }
 
 export const SidebarNav = ({ user, userinfo, triggermessage }: SidebarNavInterface) => {

@@ -183,8 +183,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }, [sideBarChats, conversationChat])
 
   const DisplayAllMessages = () => {
-    // Show loading if we're fetching or if we don't have the required parameters yet
-    if (loadingMessages || !currentUserId || !currentMessengerName || currentMessengerName.trim() === '') return <LoadingPage />
+    // Only show loading when a fetch is actually in progress with valid params
+    if (loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '') return <LoadingPage />
 
     return (
       <>
@@ -205,7 +205,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} loading={loadingMessages || !currentUserId || !currentMessengerName || currentMessengerName.trim() === ''} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
       <DisplayAllMessages />
     </div>
   )
