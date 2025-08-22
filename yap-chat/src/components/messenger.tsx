@@ -9,6 +9,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { socket } from '~/pages/api/socket-client';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
+import { useChatContext } from '~/contexts/ChatContext';
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -16,18 +17,28 @@ interface MessengerInterface {
 }
 
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
-  const [sideBarChats, setSideBarChats]: Array<any> = useState([])
   const [userMessage, setUserMessage] = useState('')
-  const [conversationChat, setConversationChat] = useState<any>([])
-
+  const [currentMessengerUser, setCurrentMessengerUser] = useState<UserInfoInterface | null>(null)
+  
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
 
   const { data: session } = useSession();
   const ctx = api.useContext();
+  
+  // Use global chat context instead of local state
+  const { 
+    sideBarChats, 
+    conversationChat, 
+    addChat, 
+    removeChat, 
+    addMessage, 
+    clearConversation, 
+    setConversationChat 
+  } = useChatContext();
 
   const currentUserId = session?.user.id;
-  const currentMessengerName = messengeruser?.name;
+  const currentMessengerName = currentMessengerUser?.name || messengeruser?.name;
 
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
     { threadId: currentUserId, sender: currentMessengerName },
@@ -59,29 +70,45 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   const updateMessenger = () => {
-    if (itemExists(messengeruser?.name, sideBarChats)) {
-      return
+    if (messengeruser && !itemExists(messengeruser.name, sideBarChats)) {
+      addChat(messengeruser)
     }
-    setSideBarChats([...sideBarChats, messengeruser])
   }
 
+  // Only update messenger if we have a messengeruser
+  useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+    } else if (trigger && messengeruser) {
+      setCurrentMessengerUser(messengeruser)
+      triggerMessage()
+    }
+    if (messengeruser) {
+      updateMessenger()
+    }
+  }, [trigger, messengeruser])
+
   const closeChat = () => {
-    setSideBarChats((state: any[]) => state.filter((chat: { name: string, message: string, online: boolean }, i: React.Key) => {
-      if (sideBarChats[i].name === messengeruser?.name) {
-        return false
-      } else {
-        return chat
-      }
-    }))
-    toast.error(`Chat with ${messengeruser?.name} cleared.`)
+    const chatName = currentMessengerUser?.name || messengeruser?.name;
+    if (chatName) {
+      removeChat(chatName)
+      toast.error(`Chat with ${chatName} cleared.`)
+    }
     if (currentUserId && currentMessengerName) {
       deleteThread({ userId: currentUserId, userSendingMessage: currentMessengerName })
     }
-    setConversationChat([])
+    clearConversation()
+    setCurrentMessengerUser(null)
     toggle()
   }
 
   const onMessage = (idx: React.Key) => {
+    // Get the selected chat user from the sidebar chats
+    const selectedChat = sideBarChats[idx as number];
+    if (selectedChat) {
+      // Set the current messenger user for this conversation
+      setCurrentMessengerUser(selectedChat);
+    }
     toggle()
   }
 
@@ -118,15 +145,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     if (!displayAllMessages?.threadId) {
       console.log("creating thread before sending message")
       createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
-      // Add message to local state for immediate feedback
-      setConversationChat([...conversationChat, userMessage])
+      // Add message to context for immediate feedback
+      addMessage(userMessage)
       setUserMessage("")
       return
     }
     
     // Emit to the messenger's room, not the current user's room
     socket.emit('private message', currentMessengerName, userMessage)
-    setConversationChat([...conversationChat, userMessage])
+    addMessage(userMessage)
     setUserMessage("")
   }
 
@@ -155,36 +182,22 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     })
   }, [])
 
-  useEffect(() => {
-    if (initialRender.current) {
-      initialRender.current = false;
-    } else {
-      triggerMessage()
-    }
-    updateMessenger()
-  }, [trigger])
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const sideBarChatStorage = JSON.parse(localStorage.getItem('sideBarChatData') || '[]')
-      const conversationChatStorage = JSON.parse(localStorage.getItem('conversationChatData') || '[]')
-      if (sideBarChatStorage || conversationChatStorage) {
-        setSideBarChats(sideBarChatStorage)
-        setConversationChat(conversationChatStorage)
-      }
-    }
-  }, [])
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sideBarChatData', JSON.stringify(sideBarChats))
-      localStorage.setItem('conversationChatData', JSON.stringify(conversationChat))
-    }
-  }, [sideBarChats, conversationChat])
+
 
   const DisplayAllMessages = () => {
     // Only show loading when a fetch is actually in progress with valid params
     if (loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '') return <LoadingPage />
+
+    if (sideBarChats.length === 0) {
+      return (
+        <div className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 text-center">
+          <p className="text-lg">No active chats</p>
+          <p className="text-sm text-gray-400">Go to Friends to start messaging</p>
+        </div>
+      )
+    }
 
     return (
       <>
@@ -205,7 +218,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(currentMessengerUser?.name || messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
       <DisplayAllMessages />
     </div>
   )

@@ -14,11 +14,6 @@ const HomePage = () => {
 
   if (!session) return null
 
-  const defaultHomeUpdates = {
-    heading: 'Welcome to Yap!',
-    description: 'Yap is a chat application where you can message your friends and send out Yaps - opinionated global messages that allow you to share your thoughts and ideas with the world!'
-  }
-
   const RecentNews = () => {
     const { data, isLoading } = api.home.getHomeUpdates.useQuery()
 
