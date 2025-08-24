@@ -1,6 +1,6 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { UserInfoInterface } from '~/pages/friends';
 import { MessageModal } from '~/modals/message';
 import { useSession } from 'next-auth/react'
@@ -41,8 +41,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const currentMessengerName = currentMessengerUser?.name || messengeruser?.name;
 
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
-    { threadId: currentUserId, sender: currentMessengerName },
-    { enabled: Boolean(currentUserId && currentMessengerName && currentMessengerName.trim() !== '') }
+    { threadId: currentUserId || '', sender: currentMessengerName || '' },
+    { 
+      enabled: Boolean(currentUserId && currentMessengerName && currentMessengerName.trim() !== ''),
+      retry: 3,
+      retryDelay: 1000
+    }
   )
 
   const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
@@ -63,17 +67,27 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   })
 
-  const itemExists = (name: string | undefined, item: { name: any; }[]) => {
+  const itemExists = useCallback((name: string | undefined, item: { name: any; }[]) => {
     return item.some((chat: { name: any; }) => {
       return chat?.name === name
     })
-  }
+  }, [])
 
-  const updateMessenger = () => {
+  const updateMessenger = useCallback(() => {
     if (messengeruser && !itemExists(messengeruser.name, sideBarChats)) {
       addChat(messengeruser)
     }
-  }
+  }, [messengeruser, itemExists, sideBarChats, addChat])
+
+  const triggerMessage = useCallback(() => {
+    if (!currentUserId || !currentMessengerName) {
+      console.log("either current user id or current messenger name does not exist")
+      return
+    };
+    createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
+    console.log(displayAllMessages)
+    toggle()
+  }, [currentUserId, currentMessengerName, createMessageThread, displayAllMessages, toggle])
 
   // Only update messenger if we have a messengeruser
   useEffect(() => {
@@ -86,7 +100,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     if (messengeruser) {
       updateMessenger()
     }
-  }, [trigger, messengeruser])
+  }, [trigger, messengeruser, updateMessenger, triggerMessage])
 
   const closeChat = () => {
     const chatName = currentMessengerUser?.name || messengeruser?.name;
@@ -112,15 +126,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     toggle()
   }
 
-  const triggerMessage = () => {
-    if (!currentUserId || !currentMessengerName) {
-      console.log("either current user id or current messenger name does not exist")
-      return
-    };
-    createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
-    console.log(displayAllMessages)
-    toggle()
-  }
+  // triggerMessage is now defined above with useCallback
 
   const onMessageSend = () => {
     console.log("onMessageSend called", { 
@@ -161,12 +167,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     setUserMessage(e.target.value)
   }
 
-  if (!session) return null
+  // Move session check after all hooks are called to prevent hook order issues
 
   useEffect(() => {
     socket.connect()
 
-    socket.on('private message', (msg) => {
+    const handlePrivateMessage = (msg: string) => {
       console.log("Socket received message:", { msg, currentUserId, currentMessengerName })
       if (currentUserId && currentMessengerName) {
         console.log("Sending private message to API:", { chat: msg, userSendingMessageId: currentUserId, userSendingMessage: currentMessengerName })
@@ -174,13 +180,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       } else {
         console.log("Missing required parameters for sending message")
       }
-    })
+    }
 
-    return (() => {
+    socket.on('private message', handlePrivateMessage)
+
+    return () => {
       socket.disconnect()
-      socket.off("private message")
-    })
-  }, [])
+      socket.off("private message", handlePrivateMessage)
+    }
+  }, [currentUserId, currentMessengerName, sendPrivateMessage])
 
 
 
@@ -214,6 +222,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       </>
     )
   }
+
+  // Early return after all hooks are called
+  if (!session) return null
 
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
