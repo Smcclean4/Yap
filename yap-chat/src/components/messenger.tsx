@@ -22,9 +22,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
-
-  const { data: session } = useSession();
-  const ctx = api.useContext();
   
   // Use global chat context instead of local state
   const { 
@@ -36,6 +33,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     clearConversation, 
     setConversationChat 
   } = useChatContext();
+
+  const { data: session } = useSession();
+  const ctx = api.useContext();
 
   const currentUserId = session?.user.id;
   const currentMessengerName = currentMessengerUser?.name || messengeruser?.name;
@@ -87,7 +87,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
     console.log(displayAllMessages)
     toggle()
-  }, [currentUserId, currentMessengerName, createMessageThread, displayAllMessages, toggle])
+  }, [currentUserId, currentMessengerName])
 
   // Only update messenger if we have a messengeruser
   useEffect(() => {

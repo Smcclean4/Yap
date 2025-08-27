@@ -186,7 +186,7 @@ const FriendsPage = () => {
                 )}
               </div>
               <div className="flex flex-row items-center justify-around">
-                <Image className="rounded-full" src={`${friend.image}`} alt={''} width="75" height="75" />
+                <Image className="rounded-full object-cover aspect-square border-4 border-blue-500 shadow-lg" src={`${friend.image}`} alt={'friend image'} width="125" height="125" />
                 <p className="text-md">{friend.online ? 'Online' : 'Offline'}</p>
                 <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={friend.online ? 'limegreen' : 'gray'} size="sm" />
               </div>

@@ -75,29 +75,11 @@ const ProfilePage = () => {
     toast.success('Profile saved!')
   }, [profileData, session, setProfileInfoDatabase])
 
-  const handleImageUpload = useCallback(({ target: input }: any) => {
-    const file = input.files[0];
-    if (file) {
-      const imageSrc = URL.createObjectURL(file)
-      console.log('Image uploaded:', imageSrc)
-      setProfileData(prev => ({ ...prev, image: imageSrc }))
-    }
-  }, [])
+  const ProfileData = () => {
+    if (profileLoading) return <LoadingPage />
 
-  // Render profile data directly instead of using a nested component
-  if (profileLoading) return <LoadingPage />
-  
-  // Handle case where no session or profile data is available
-  if (!session?.user.id) {
-    return <div className="w-full flex justify-center items-center mt-28">Please log in to view your profile.</div>
-  }
-
-  return (
-    <Layout>
-      <Toaster />
-      <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto py-6">
-        <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
+    return (
+      <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className=" flex flex-col items-center">
             <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
               <Image 
@@ -110,10 +92,11 @@ const ProfilePage = () => {
             </div>
             {editMode && <UploadButton
         endpoint="imageUploader"
-        onClientUploadComplete={(res) => {
+        onClientUploadComplete={(res: any) => {
           // Do something with the response
           console.log("Files: ", res);
-          alert("Upload Completed");
+          setProfileData(prev => ({...prev, image: res[0].url}))
+          toast.success('Image upload complete!')
         }}
         onUploadError={(error: Error) => {
           // Do something with the error.
@@ -165,6 +148,15 @@ const ProfilePage = () => {
             )}
           </div>
         </div>
+    )
+  }
+
+  return (
+    <Layout>
+      <Toaster />
+      <SidebarNav user={session?.user.email} />
+      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto py-6">
+        <ProfileData />
       </div>
     </Layout>
   )
