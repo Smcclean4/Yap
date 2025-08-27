@@ -74,10 +74,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }, [])
 
   const updateMessenger = useCallback(() => {
-    if (messengeruser && !itemExists(messengeruser.name, sideBarChats)) {
+    // Only add to chats if we have a messengeruser AND the trigger is true (meaning message was clicked)
+    if (messengeruser && trigger && !itemExists(messengeruser.name, sideBarChats)) {
       addChat(messengeruser)
     }
-  }, [messengeruser, itemExists, sideBarChats, addChat])
+  }, [messengeruser, trigger, itemExists, sideBarChats, addChat])
 
   const triggerMessage = useCallback(() => {
     if (!currentUserId || !currentMessengerName) {
@@ -229,7 +230,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(currentMessengerUser?.name || messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} loadingmessages={loadingMessageSend} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(currentMessengerUser?.name || messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
       <DisplayAllMessages />
     </div>
   )
