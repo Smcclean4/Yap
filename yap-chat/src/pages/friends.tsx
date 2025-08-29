@@ -132,8 +132,8 @@ const FriendsPage = () => {
 
 
   const approveRequest = () => {
-    if (userInfo.id !== "undefined" || null) {
-      approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
+    if (userInfo.id && userInfo.id !== "undefined" && session?.user?.id) {
+      approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: session.user.id })
       removeRequest({ id: userInfo.id })
       addOption()
       toast.success(`${userInfo.name} request approved! `)

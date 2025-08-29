@@ -28,20 +28,14 @@ export const friendsRouter = createTRPCRouter({
   approveRequest: publicProcedure
     .input(z.object({ name: z.string(), image: z.string(), online: z.boolean(), heading: z.string(), id: z.string() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.user.create({
-        include: {
-          friends: true
-        },
+      // Create a friend record that references the current user (the one approving the request)
+      return ctx.prisma.friend.create({
         data: {
-          friends: {
-            create: {
-              name: input.name,
-              image: input.image,
-              online: input.online,
-              heading: input.heading,
-              id: input.id,
-            }
-          }
+          friendId: input.id, // This should be the current user's ID
+          name: input.name,
+          image: input.image,
+          online: input.online,
+          heading: input.heading,
         }
       })
     }),

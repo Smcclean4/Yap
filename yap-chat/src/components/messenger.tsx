@@ -80,28 +80,29 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   }, [messengeruser, trigger, itemExists, sideBarChats, addChat])
 
-  const triggerMessage = useCallback(() => {
-    if (!currentUserId || !currentMessengerName) {
-      console.log("either current user id or current messenger name does not exist")
-      return
-    };
-    createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
-    console.log(displayAllMessages)
-    toggle()
-  }, [currentUserId, currentMessengerName])
-
   // Only update messenger if we have a messengeruser
   useEffect(() => {
     if (initialRender.current) {
       initialRender.current = false;
-    } else if (trigger && messengeruser) {
-      setCurrentMessengerUser(messengeruser)
-      triggerMessage()
+      return;
     }
+    
     if (messengeruser) {
       updateMessenger()
     }
-  }, [trigger, messengeruser, updateMessenger, triggerMessage])
+    
+    if (trigger && messengeruser && currentUserId && messengeruser.name) {
+      setCurrentMessengerUser(messengeruser)
+      createMessageThread({ userToSendMessage: messengeruser.name })
+    }
+  }, [trigger, messengeruser, updateMessenger, currentUserId, createMessageThread])
+
+  // Handle toggle separately to avoid infinite loops
+  useEffect(() => {
+    if (trigger && messengeruser) {
+      toggle()
+    }
+  }, [trigger])
 
   const closeChat = () => {
     const chatName = currentMessengerUser?.name || messengeruser?.name;
@@ -151,7 +152,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     // If no thread exists, create one first
     if (!displayAllMessages?.threadId) {
       console.log("creating thread before sending message")
-      createMessageThread({ referenceId: currentUserId, userToSendMessage: currentMessengerName })
+      createMessageThread({ userToSendMessage: currentMessengerName })
       // Add message to context for immediate feedback
       addMessage(userMessage)
       setUserMessage("")
