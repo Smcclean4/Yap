@@ -10,6 +10,7 @@ import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
+import FindUserPage from '~/components/finduser';
 
 export interface UserInfoInterface {
   name: string;
@@ -111,7 +112,9 @@ const FriendsPage = () => {
   }
 
   const onMessage = () => {
-    setMessageTrigger(!messageTrigger)
+    setMessageTrigger(true)
+    // Reset the trigger after a short delay to allow the modal to open
+    setTimeout(() => setMessageTrigger(false), 100)
   }
 
   const onRequestDeny = () => {
@@ -192,8 +195,12 @@ const FriendsPage = () => {
               </div>
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
-              <button onMouseDown={() => currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)} onMouseUp={() =>
-                onMessage()} className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+              <button onClick={() => 
+                {
+                  currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)
+                  onMessage()
+                }
+               } className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
           )
         })}
@@ -238,6 +245,7 @@ const FriendsPage = () => {
             <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(requestFromDatabase)}</span></p>
           </div>
           <div className="flex flex-row flex-grow justify-evenly flex-wrap content-start">
+            {selectedTab ? null : <FindUserPage />}
             {selectedTab ? <DisplayCurrentFriends /> : <DisplayCurrentRequests />}
           </div>
         </div>

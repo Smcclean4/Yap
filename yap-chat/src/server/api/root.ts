@@ -5,6 +5,7 @@ import { yapRouter } from "./routers/yaps";
 import { friendsRouter } from "./routers/friends";
 import { profileRouter } from "./routers/profile";
 import { messengerRouter } from "./routers/messenger";
+import { userRouter } from "./routers/user";
 
 /**
  * This is the primary router for your server.
@@ -17,7 +18,8 @@ export const appRouter = createTRPCRouter({
   yap: yapRouter,
   friends: friendsRouter,
   profile: profileRouter,
-  messenger: messengerRouter
+  messenger: messengerRouter,
+  user: userRouter
 });
 
 // export type definition of API
