@@ -1,7 +1,7 @@
 import { faToiletPaper, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { createPortal } from 'react-dom'
-import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal, Key } from 'react';
+import { Key } from 'react';
 import { LoadingPage } from '~/shared/loading';
 
 interface MessageInterface {
