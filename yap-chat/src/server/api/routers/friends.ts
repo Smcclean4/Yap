@@ -16,8 +16,17 @@ export const friendsRouter = createTRPCRouter({
       take: 50
     })
   }),
+  findSpecificFriend: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.friend.findMany({
+        where: {
+          name: input.name
+        }
+      })
+    }),
   deleteFriend: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.string().optional() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.friend.delete({
         where: {
