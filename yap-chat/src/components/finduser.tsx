@@ -28,6 +28,9 @@ const FindUserPage = () => {
     toggle()
   }
 
+  // change on request send to be in request friend? but it cant be on div click it has to be on check mark
+  // and on x close modal.. maybe other features?
+
   useEffect(() => {
     console.log(searchQuery)
     console.log(userResults)
