@@ -4,7 +4,7 @@ import { api } from '~/utils/api'
 import { LoadingPage } from '~/shared/loading'
 import { useModal } from '~/hooks/useModal'
 import { RequestModal } from '~/modals/request'
-import { RequestFriend } from './request'
+import { RequestFriend } from './sendrequest'
 
 const FindUserPage = () => {
 
@@ -28,8 +28,7 @@ const FindUserPage = () => {
     toggle()
   }
 
-  // change on request send to be in request friend? but it cant be on div click it has to be on check mark
-  // and on x close modal.. maybe other features?
+  // on request send.. i.e. when the user clicks on the check mark.. pop up with modal that asks if they are sure .. 
 
   useEffect(() => {
     console.log(searchQuery)
