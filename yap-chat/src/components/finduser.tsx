@@ -24,11 +24,8 @@ const FindUserPage = () => {
   }
 
   const onRequestSend = () => {
-    alert('Sending a request!')
     toggle()
   }
-
-  // on request send.. i.e. when the user clicks on the check mark.. pop up with modal that asks if they are sure .. 
 
   useEffect(() => {
     console.log(searchQuery)
@@ -37,11 +34,12 @@ const FindUserPage = () => {
 
   return (
     <div className="flex flex-row items-center justify-center w-full my-4">
-      <RequestModal isShowing={isShowing} hide={toggle} item={'random user'} sendrequest={onRequestSend} />
+      {/* find specific user and display that name in modal.. right now im sure it displays all names since its getting all user results */}
+      <RequestModal isShowing={isShowing} hide={toggle} user={userResults?.map((user: any) => user.name)} sendrequest={onRequestSend} />
       <div className="flex flex-col items-center w-3/5 justify-center">
         <input onChange={handleSearch} className="p-2 rounded-full border-2 border-blue-500 w-full mr-2" type="text" placeholder="Search for a user" />
         <div className="w-full bg-white">
-          {loadingSearch ? <div className="p-2"><LoadingPage /></div> : searchQuery.length === 0 ? null : userResults?.map((user: any) => <div className={`flex flex-row justify-between items-center ${searchIfUserExistsInFriendsDB(user.name) ? '' : 'hover:bg-gray-200 hover:cursor-pointer'} text-xl p-2`} onClick={() => { searchIfUserExistsInFriendsDB(user.name) ? null : toggle() }}><p key={user.id}>{user.name}</p><p>{fetchedUsers ? searchIfUserExistsInFriendsDB(user.name) ? 'Already added' : <RequestFriend /> : ''}</p></div>)}
+          {loadingSearch ? <div className="p-2"><LoadingPage /></div> : searchQuery.length === 0 ? null : userResults?.map((user: any) => <div key={user.id} className='flex flex-row justify-between items-center text-xl p-2'><p>{user.name}</p><p>{fetchedUsers ? searchIfUserExistsInFriendsDB(user.name) ? 'Already added' : <RequestFriend onAccept={onRequestSend} /> : ''}</p></div>)}
         </div>
       </div>
     </div>
