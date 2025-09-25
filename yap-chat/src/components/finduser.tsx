@@ -24,6 +24,9 @@ const FindUserPage = () => {
   }
 
   const onRequestSend = () => {
+    // on request send logic here
+    // on request send - send request to backend.. and then after the user approves it add to friend list and
+    // change the button to "Already added"
     toggle()
   }
 
@@ -34,7 +37,6 @@ const FindUserPage = () => {
 
   return (
     <div className="flex flex-row items-center justify-center w-full my-4">
-      {/* find specific user and display that name in modal.. right now im sure it displays all names since its getting all user results */}
       <RequestModal isShowing={isShowing} hide={toggle} user={userResults?.map((user: any) => user.name)} sendrequest={onRequestSend} />
       <div className="flex flex-col items-center w-3/5 justify-center">
         <input onChange={handleSearch} className="p-2 rounded-full border-2 border-blue-500 w-full mr-2" type="text" placeholder="Search for a user" />
