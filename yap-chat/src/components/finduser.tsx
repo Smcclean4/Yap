@@ -12,6 +12,8 @@ const FindUserPage = () => {
 
   const { isShowing, toggle } = useModal()
 
+  const [requestSent, setRequestSent] = useState(false)
+
   const { data: userResults, isLoading: loadingSearch, isFetched: fetchedUsers } = api.user.searchUsers.useQuery({ query: searchQuery })
   const { data: getAllFriends } = api.friends.getAllFriends.useQuery()
 
@@ -24,9 +26,7 @@ const FindUserPage = () => {
   }
 
   const onRequestSend = () => {
-    // on request send logic here
-    // on request send - send request to backend.. and then after the user approves it add to friend list and
-    // change the button to "Already added"
+    setRequestSent(true)
     toggle()
   }
 
@@ -41,7 +41,7 @@ const FindUserPage = () => {
       <div className="flex flex-col items-center w-3/5 justify-center">
         <input onChange={handleSearch} className="p-2 rounded-full border-2 border-blue-500 w-full mr-2" type="text" placeholder="Search for a user" />
         <div className="w-full bg-white">
-          {loadingSearch ? <div className="p-2"><LoadingPage /></div> : searchQuery.length === 0 ? null : userResults?.map((user: any) => <div key={user.id} className='flex flex-row justify-between items-center text-xl p-2'><p>{user.name}</p><p>{fetchedUsers ? searchIfUserExistsInFriendsDB(user.name) ? 'Already added' : <RequestFriend onAccept={onRequestSend} /> : ''}</p></div>)}
+          {loadingSearch ? <div className="p-2"><LoadingPage /></div> : searchQuery.length === 0 ? null : userResults?.map((user: any) => <div key={user.id} className='flex flex-row justify-between items-center text-xl p-2'><p>{user.name}</p><p>{fetchedUsers ? searchIfUserExistsInFriendsDB(user.name) ? 'Already added' : requestSent ? <RequestFriend sent={requestSent} text={'Request Sent'} /> : <RequestFriend onAccept={onRequestSend} /> : ''}</p></div>)}
         </div>
       </div>
     </div>
