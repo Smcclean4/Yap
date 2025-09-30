@@ -41,7 +41,7 @@ const FindUserPage = () => {
       <div className="flex flex-col items-center w-3/5 justify-center">
         <input onChange={handleSearch} className="p-2 rounded-full border-2 border-blue-500 w-full mr-2" type="text" placeholder="Search for a user" />
         <div className="w-full bg-white">
-          {loadingSearch ? <div className="p-2"><LoadingPage /></div> : searchQuery.length === 0 ? null : userResults?.map((user: any) => <div key={user.id} className='flex flex-row justify-between items-center text-xl p-2'><p>{user.name}</p><p>{fetchedUsers ? searchIfUserExistsInFriendsDB(user.name) ? 'Already added' : requestSent ? <RequestFriend sent={requestSent} text={'Request Sent'} /> : <RequestFriend onAccept={onRequestSend} /> : ''}</p></div>)}
+          {loadingSearch ? <div className="p-2"><LoadingPage /></div> : searchQuery.length === 0 ? null : userResults?.map((user: any) => <div key={user.id} className='flex flex-row justify-between items-center text-xl p-2'><p>{user.name}</p><div>{fetchedUsers ? searchIfUserExistsInFriendsDB(user.name) ? <p className="text-gray-500">Already added</p> : requestSent ? <RequestFriend sent={requestSent} text={'Request Sent'} /> : <RequestFriend onAccept={onRequestSend} /> : ''}</div></div>)}
         </div>
       </div>
     </div>
