@@ -63,6 +63,17 @@ model Friend {
     @@unique([friendId])
 }
 
+// example of friendship model that will relate two friends
+// model Friendship {
+//     id String @id @default(cuid())
+//     userId Int
+//     friendId Int
+//     user User @relation("UserFriends", fields: [userId], references: [id])
+//     friend User @relation("FriendOf", fields: [friendId], references: [id])
+
+//     @@unique([userId, friendId])
+// }
+
 model Request {
     id        String   @id @default(cuid())
     requestId String
