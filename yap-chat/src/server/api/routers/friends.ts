@@ -7,7 +7,7 @@ import {
 
 export const friendsRouter = createTRPCRouter({
   getAllFriends: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.friend.findMany({
+    return ctx.prisma.friendships.findMany({
       take: 50
     })
   }),
@@ -19,7 +19,7 @@ export const friendsRouter = createTRPCRouter({
   findSpecificFriend: publicProcedure
     .input(z.object({ name: z.string() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.friend.findMany({
+      return ctx.prisma.friendships.findMany({
         where: {
           name: input.name
         }
@@ -28,7 +28,7 @@ export const friendsRouter = createTRPCRouter({
   deleteFriend: publicProcedure
     .input(z.object({ id: z.string().optional() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.friend.delete({
+      return ctx.prisma.friendships.delete({
         where: {
           id: input.id
         }
@@ -38,7 +38,7 @@ export const friendsRouter = createTRPCRouter({
     .input(z.object({ name: z.string(), image: z.string(), online: z.boolean(), heading: z.string(), id: z.string() }))
     .mutation(({ ctx, input }) => {
       // Create a friend record that references the current user (the one approving the request)
-      return ctx.prisma.friend.create({
+      return ctx.prisma.friendships.create({
         data: {
           friendId: input.id, // This should be the current user's ID
           name: input.name,
