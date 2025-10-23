@@ -6,14 +6,32 @@ import {
 } from "~/server/api/trpc";
 
 export const friendsRouter = createTRPCRouter({
-  getAllFriends: publicProcedure.query(({ ctx }) => {
+  getAllFriends: publicProcedure.input(z.object({
+    userId: z.string()
+  })).query(({ ctx, input }) => {
     return ctx.prisma.friendships.findMany({
-      take: 50
+      where: {
+        friendId: input.userId,
+        status: 'ACCEPTED'
+      },
+      take: 50,
+      include: {
+        friends: true
+      }
     })
   }),
-  getAllRequests: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.request.findMany({
-      take: 50
+  getAllRequests: publicProcedure.input(z.object({
+    userId: z.string()
+  })).query(({ ctx, input }) => {
+    return ctx.prisma.friendships.findMany({
+      where: {
+        friendsWithId: input.userId,
+        status: 'PENDING'
+      },
+      take: 50,
+      include: {
+        friendsWith: true
+      }
     })
   }),
   findSpecificFriend: publicProcedure
@@ -21,7 +39,9 @@ export const friendsRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return ctx.prisma.friendships.findMany({
         where: {
-          name: input.name
+          friends: {
+            name: input.name
+          }
         }
       })
     }),
@@ -38,20 +58,26 @@ export const friendsRouter = createTRPCRouter({
     .input(z.object({ name: z.string(), image: z.string(), online: z.boolean(), heading: z.string(), id: z.string() }))
     .mutation(({ ctx, input }) => {
       // Create a friend record that references the current user (the one approving the request)
-      return ctx.prisma.friendships.create({
+      return ctx.prisma.friendships.update({
+        where: {
+          id: input.id
+        },
         data: {
-          friendId: input.id, // This should be the current user's ID
-          name: input.name,
-          image: input.image,
-          online: input.online,
-          heading: input.heading,
+          friends: {
+            create: {
+              name: input.name,
+              image: input.image,
+              online: input.online ? "ONLINE" : "OFFLINE",
+              heading: input.heading
+            }
+          }
         }
       })
     }),
   deleteRequest: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.request.delete({
+      return ctx.prisma.friendships.delete({
         where: {
           id: input.id
         }

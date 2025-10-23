@@ -52,11 +52,18 @@ model Session {
 }
 
 model Friendships {
-    id       String @id @default(cuid())
-    friendId String
-    friends  User[]
+    id            String       @id @default(cuid())
+    friendId      String
+    friendsWithId String
+    friends       User         @relation("UserFriends", fields: [friendId], references: [id])
+    friendsWith   User         @relation("WhoImFriendsWith", fields: [friendsWithId], references: [id])
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    status        FriendStatus @default(PENDING)
 
-    @@unique([friendId])
+    @@unique([friendId, friendsWithId])
+    @@index([friendId])
+    @@index([friendsWithId])
 }
 
 enum FriendStatus {
@@ -72,7 +79,8 @@ model User {
     emailVerified DateTime?
     image         String?
     heading       String?
-    friends       Friendships[]
+    friends       Friendships[] @relation("UserFriends")
+    friendsWith   Friendships[] @relation("WhoImFriendsWith")
     online        OnlineStatus?
     messages      Threads[]
     accounts      Account[]
