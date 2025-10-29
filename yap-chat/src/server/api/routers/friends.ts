@@ -8,7 +8,7 @@ import {
 export const friendsRouter = createTRPCRouter({
   getAllFriends: publicProcedure.input(z.object({
     userId: z.string()
-  })).query(({ ctx, input }) => {
+  })).mutation(({ ctx, input }) => {
     return ctx.prisma.friendships.findMany({
       where: {
         friendId: input.userId,
@@ -22,7 +22,7 @@ export const friendsRouter = createTRPCRouter({
   }),
   getAllRequests: publicProcedure.input(z.object({
     userId: z.string()
-  })).query(({ ctx, input }) => {
+  })).mutation(({ ctx, input }) => {
     return ctx.prisma.friendships.findMany({
       where: {
         friendsWithId: input.userId,

@@ -52,18 +52,18 @@ model Session {
 }
 
 model Friendships {
-    id            String       @id @default(cuid())
-    friendId      String
-    friendsWithId String
-    friends       User         @relation("UserFriends", fields: [friendId], references: [id])
-    friendsWith   User         @relation("WhoImFriendsWith", fields: [friendsWithId], references: [id])
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-    status        FriendStatus @default(PENDING)
+    id                 String       @id @default(cuid())
+    pendingFriendId    String
+    whoImFriendsWithId String
+    pendingFriends     User         @relation("UserFriends", fields: [pendingFriendId], references: [id])
+    whoImFriendsWith   User         @relation("WhoImFriendsWith", fields: [whoImFriendsWithId], references: [id])
+    createdAt          DateTime     @default(now())
+    updatedAt          DateTime     @updatedAt
+    status             FriendStatus @default(PENDING)
 
-    @@unique([friendId, friendsWithId])
-    @@index([friendId])
-    @@index([friendsWithId])
+    @@unique([pendingFriendId, whoImFriendsWithId])
+    @@index([pendingFriendId])
+    @@index([whoImFriendsWithId])
 }
 
 enum FriendStatus {

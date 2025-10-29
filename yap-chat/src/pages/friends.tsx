@@ -42,8 +42,8 @@ const FriendsPage = () => {
   const outerDivRef = useRef<HTMLDivElement>(null)
 
   // maybe sending friends from database down to message and then pulling that data might be more reliable?
-  const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useQuery()
-  const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
+  const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useMutation()
+  const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useMutation()
   const { mutate: removeFriend } = api.friends.deleteFriend.useMutation({
     onSettled: () => {
       void ctx.friends.getAllFriends.invalidate();
@@ -161,7 +161,7 @@ const FriendsPage = () => {
     console.log(friendsFromDatabase)
     console.log(userInfo)
   }, [])
-  
+
   // local storage for userinfo isnt the current problem find the real issue
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
@@ -195,12 +195,11 @@ const FriendsPage = () => {
               </div>
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
-              <button onClick={() => 
-                {
-                  currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)
-                  onMessage()
-                }
-               } className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+              <button onClick={() => {
+                currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)
+                onMessage()
+              }
+              } className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
             </div>
           )
         })}
