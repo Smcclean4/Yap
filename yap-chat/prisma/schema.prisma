@@ -52,18 +52,18 @@ model Session {
 }
 
 model Friendships {
-    id                 String       @id @default(cuid())
-    pendingFriendId    String
-    whoImFriendsWithId String
-    pendingFriends     User         @relation("UserFriends", fields: [pendingFriendId], references: [id])
-    whoImFriendsWith   User         @relation("WhoImFriendsWith", fields: [whoImFriendsWithId], references: [id])
-    createdAt          DateTime     @default(now())
-    updatedAt          DateTime     @updatedAt
-    status             FriendStatus @default(PENDING)
+    id              String       @id @default(cuid())
+    pendingFriendId String
+    mutualFriendId  String
+    pendingFriend   User         @relation("UserFriends", fields: [pendingFriendId], references: [id])
+    mutualFriend    User         @relation("WhoImFriendsWith", fields: [mutualFriendId], references: [id])
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    status          FriendStatus @default(PENDING)
 
-    @@unique([pendingFriendId, whoImFriendsWithId])
+    @@unique([pendingFriendId, mutualFriendId])
     @@index([pendingFriendId])
-    @@index([whoImFriendsWithId])
+    @@index([mutualFriendId])
 }
 
 enum FriendStatus {
@@ -73,18 +73,18 @@ enum FriendStatus {
 }
 
 model User {
-    id            String        @id @default(cuid())
-    name          String?       @unique
-    email         String?       @unique
-    emailVerified DateTime?
-    image         String?
-    heading       String?
-    friends       Friendships[] @relation("UserFriends")
-    friendsWith   Friendships[] @relation("WhoImFriendsWith")
-    online        OnlineStatus?
-    messages      Threads[]
-    accounts      Account[]
-    sessions      Session[]
+    id             String        @id @default(cuid())
+    name           String?       @unique
+    email          String?       @unique
+    emailVerified  DateTime?
+    image          String?
+    heading        String?
+    pendingFriends Friendships[] @relation("UserFriends")
+    mutualFriends  Friendships[] @relation("WhoImFriendsWith")
+    online         OnlineStatus?
+    messages       Threads[]
+    accounts       Account[]
+    sessions       Session[]
 }
 
 enum OnlineStatus {

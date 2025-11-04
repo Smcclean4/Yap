@@ -42,8 +42,8 @@ const FriendsPage = () => {
   const outerDivRef = useRef<HTMLDivElement>(null)
 
   // maybe sending friends from database down to message and then pulling that data might be more reliable?
-  const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useMutation()
-  const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useMutation()
+  const { data: friendsFromDatabase, isLoading: loadingFriends } = api.friends.getAllFriends.useQuery()
+  const { data: requestFromDatabase, isLoading: loadingRequests } = api.friends.getAllRequests.useQuery()
   const { mutate: removeFriend } = api.friends.deleteFriend.useMutation({
     onSettled: () => {
       void ctx.friends.getAllFriends.invalidate();

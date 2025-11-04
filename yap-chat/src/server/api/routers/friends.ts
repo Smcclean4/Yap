@@ -1,3 +1,4 @@
+import { FriendStatus } from "@prisma/client";
 import { z } from "zod";
 
 import {
@@ -6,31 +7,17 @@ import {
 } from "~/server/api/trpc";
 
 export const friendsRouter = createTRPCRouter({
-  getAllFriends: publicProcedure.input(z.object({
-    userId: z.string()
-  })).mutation(({ ctx, input }) => {
+  getAllFriends: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.friendships.findMany({
       where: {
-        friendId: input.userId,
-        status: 'ACCEPTED'
-      },
-      take: 50,
-      include: {
-        friends: true
+        status: "ACCEPTED"
       }
     })
   }),
-  getAllRequests: publicProcedure.input(z.object({
-    userId: z.string()
-  })).mutation(({ ctx, input }) => {
+  getAllRequests: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.friendships.findMany({
       where: {
-        friendsWithId: input.userId,
-        status: 'PENDING'
-      },
-      take: 50,
-      include: {
-        friendsWith: true
+        status: "PENDING"
       }
     })
   }),
@@ -39,7 +26,7 @@ export const friendsRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return ctx.prisma.friendships.findMany({
         where: {
-          friends: {
+          mutualFriend: {
             name: input.name
           }
         }
@@ -51,6 +38,9 @@ export const friendsRouter = createTRPCRouter({
       return ctx.prisma.friendships.delete({
         where: {
           id: input.id
+        },
+        select: {
+          mutualFriendId: true,
         }
       })
     }),
@@ -62,15 +52,11 @@ export const friendsRouter = createTRPCRouter({
         where: {
           id: input.id
         },
+        select: {
+          pendingFriendId: true
+        },
         data: {
-          friends: {
-            create: {
-              name: input.name,
-              image: input.image,
-              online: input.online ? "ONLINE" : "OFFLINE",
-              heading: input.heading
-            }
-          }
+          status: "ACCEPTED"
         }
       })
     }),
@@ -80,7 +66,10 @@ export const friendsRouter = createTRPCRouter({
       return ctx.prisma.friendships.delete({
         where: {
           id: input.id
-        }
+        },
+        select: {
+          pendingFriendId: true
+        },
       })
     })
 });
