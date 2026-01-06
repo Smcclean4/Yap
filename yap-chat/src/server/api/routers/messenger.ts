@@ -2,37 +2,49 @@ import { z } from "zod";
 
 import {
   createTRPCRouter,
-  publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
 
+// Helper to compute a stable, symmetric thread key for a pair of users.
+// We always use the "smaller" userId as threadId and the "larger" as messenger.
+const getThreadKey = (userAId: string, userBId: string) => {
+  const [threadOwnerId, otherId] =
+    userAId < userBId ? [userAId, userBId] : [userBId, userAId];
+
+  return {
+    threadId: threadOwnerId,
+    messenger: otherId,
+  };
+};
+
 export const messengerRouter = createTRPCRouter({
-  getChatMessages: publicProcedure
-    .input(z.object({ threadId: z.string().optional(), sender: z.string().optional() }))
+  // Fetch all messages between the logged-in user and a friend.
+  getChatMessages: protectedProcedure
+    .input(z.object({ friendName: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (!input.threadId || !input.sender) {
-        return null;
-      }
-      
-      // Find the friend's user record to get their ID
+      const currentUserId = ctx.session.user.id;
+
+      // Find the friend's user record by name
       const friendUser = await ctx.prisma.user.findUnique({
         where: {
-          name: input.sender
+          name: input.friendName,
         },
         select: {
-          id: true
-        }
-      })
-      
+          id: true,
+        },
+      });
+
       if (!friendUser) {
         return null;
       }
-      
+
+      const { threadId, messenger } = getThreadKey(currentUserId, friendUser.id);
+
       return ctx.prisma.threads.findUnique({
         where: {
           threadId_messenger: {
-            threadId: friendUser.id, // Use friend's ID as thread ID
-            messenger: input.sender, // Friend's name as messenger
+            threadId,
+            messenger,
           },
         },
         include: {
@@ -40,159 +52,139 @@ export const messengerRouter = createTRPCRouter({
         },
       });
     }),
-  createThread: publicProcedure
-    .input(z.object({ userToSendMessage: z.string() }))
+
+  // Ensure a thread exists between the logged-in user and a friend.
+  createThread: protectedProcedure
+    .input(z.object({ friendName: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      try {
-        // Find the friend/user you're messaging by their name
-        const friendUser = await ctx.prisma.user.findUnique({
-          where: {
-            name: input.userToSendMessage
-          },
-          select: {
-            id: true,
-            name: true
-          }
-        })
+      const currentUserId = ctx.session.user.id;
 
-        if (!friendUser) {
-          throw new Error('Friend user not found')
-        }
-
-        // Check if thread already exists using the friend's ID as threadId
-        const existingThread = await ctx.prisma.threads.findUnique({
-          where: {
-            threadId_messenger: {
-              threadId: friendUser.id, // Use friend's ID as thread ID
-              messenger: input.userToSendMessage, // Friend's name as messenger
-            },
-          },
-          select: {
-            id: true,
-            threadId: true,
-            messenger: true,
-            chat: true,
-          },
-        })
-
-        if (existingThread) {
-          console.log('Thread already exists, returning existing thread')
-          return existingThread;
-        }
-
-        // Create thread using friend's ID as threadId
-        const createThread = await ctx.prisma.user.update({
-          where: {
-            id: friendUser.id // Update the friend's user record
-          },
-          data: {
-            messages: {
-              create: {
-                messenger: input.userToSendMessage // Friend's name
-              }
-            }
-          }
-        })
-
-        return createThread
-      } catch (error) {
-        console.error('Error in createThread:', error)
-        // If it's a unique constraint error, try to find and return the existing thread
-        if (error instanceof Error && error.message.includes('Unique constraint failed')) {
-          const friendUser = await ctx.prisma.user.findUnique({
-            where: {
-              name: input.userToSendMessage
-            }
-          })
-          
-          if (friendUser) {
-            const existingThread = await ctx.prisma.threads.findUnique({
-              where: {
-                threadId_messenger: {
-                  threadId: friendUser.id,
-                  messenger: input.userToSendMessage,
-                },
-              },
-              select: {
-                id: true,
-                threadId: true,
-                messenger: true,
-                chat: true,
-              },
-            })
-            if (existingThread) {
-              return existingThread
-            }
-          }
-        }
-        throw error
-      }
-    }),
-  postMessage: publicProcedure
-    .input(z.object({ chat: z.string(), userSendingMessageId: z.string(), userSendingMessage: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      // Find the friend's user record to get their ID
       const friendUser = await ctx.prisma.user.findUnique({
         where: {
-          name: input.userSendingMessage
+          name: input.friendName,
         },
         select: {
-          id: true
-        }
-      })
-      
+          id: true,
+        },
+      });
+
       if (!friendUser) {
-        throw Error('Friend user not found!')
+        throw new Error("Friend user not found");
       }
-      
-      const threadFound = await ctx.prisma.threads.findUnique({
+
+      const { threadId, messenger } = getThreadKey(currentUserId, friendUser.id);
+
+      const existingThread = await ctx.prisma.threads.findUnique({
         where: {
           threadId_messenger: {
-            threadId: friendUser.id, // Use friend's ID as thread ID
-            messenger: input.userSendingMessage, // Friend's name as messenger
+            threadId,
+            messenger,
           },
         },
         include: {
           chat: true,
         },
-      })
+      });
 
-      if (!threadFound) {
-        throw Error('Thread not found!')
+      if (existingThread) {
+        return existingThread;
       }
 
-      const createChat = await ctx.prisma.threads.update({
-        include: {
-          chat: true
+      return ctx.prisma.threads.create({
+        data: {
+          threadId,
+          messenger,
         },
+        include: {
+          chat: true,
+        },
+      });
+    }),
+
+  // Post a message between the logged-in user and a friend. If the thread doesn't exist yet, create it.
+  postMessage: protectedProcedure
+    .input(z.object({ chat: z.string(), friendName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const currentUserId = ctx.session.user.id;
+
+      const friendUser = await ctx.prisma.user.findUnique({
+        where: {
+          name: input.friendName,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!friendUser) {
+        throw new Error("Friend user not found");
+      }
+
+      const { threadId, messenger } = getThreadKey(currentUserId, friendUser.id);
+
+      // Upsert the thread and append the message
+      const updatedThread = await ctx.prisma.threads.upsert({
         where: {
           threadId_messenger: {
-            threadId: friendUser.id, // Use friend's ID as thread ID
-            messenger: input.userSendingMessage, // Friend's name as messenger
+            threadId,
+            messenger,
           },
-        }, 
-        data: {
+        },
+        update: {
           chat: {
             create: {
               message: input.chat,
-              user: input.userSendingMessage
-            }
-          }
-        }
-      })
+              // Store the sender's user id so we can distinguish who sent what
+              user: currentUserId,
+            },
+          },
+        },
+        create: {
+          threadId,
+          messenger,
+          chat: {
+            create: {
+              message: input.chat,
+              user: currentUserId,
+            },
+          },
+        },
+        include: {
+          chat: true,
+        },
+      });
 
-      return createChat;
+      return updatedThread;
     }),
-  deleteThread: publicProcedure
-    .input(z.object({ userId: z.string(), userSendingMessage: z.string() }))
-    .mutation(({ ctx, input }) => {
+
+  // Delete the thread between the logged-in user and a friend.
+  deleteThread: protectedProcedure
+    .input(z.object({ friendName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const currentUserId = ctx.session.user.id;
+
+      const friendUser = await ctx.prisma.user.findUnique({
+        where: {
+          name: input.friendName,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!friendUser) {
+        throw new Error("Friend user not found");
+      }
+
+      const { threadId, messenger } = getThreadKey(currentUserId, friendUser.id);
+
       return ctx.prisma.threads.delete({
         where: {
-           threadId_messenger: {
-             threadId: input.userId,
-             messenger: input.userSendingMessage,
-           },
-          }
-      })
-    })
+          threadId_messenger: {
+            threadId,
+            messenger,
+          },
+        },
+      });
+    }),
 });

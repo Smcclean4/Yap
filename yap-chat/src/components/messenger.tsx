@@ -6,7 +6,6 @@ import { MessageModal } from '~/modals/message';
 import { useSession } from 'next-auth/react'
 import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
-import { socket } from '~/pages/api/socket-client';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
 import { useChatContext } from '~/contexts/ChatContext';
@@ -41,7 +40,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   const currentMessengerName = currentMessengerUser?.name || messengeruser?.name;
 
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
-    { threadId: currentUserId || '', sender: currentMessengerName || '' },
+    { friendName: currentMessengerName || '' },
     { 
       enabled: Boolean(currentUserId && currentMessengerName && currentMessengerName.trim() !== ''),
       retry: 3,
@@ -93,7 +92,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     
     if (trigger && messengeruser && currentUserId && messengeruser.name) {
       setCurrentMessengerUser(messengeruser)
-      createMessageThread({ userToSendMessage: messengeruser.name })
+      createMessageThread({ friendName: messengeruser.name })
     }
   }, [trigger, messengeruser, updateMessenger, currentUserId, createMessageThread])
 
@@ -111,7 +110,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       toast.error(`Chat with ${chatName} cleared.`)
     }
     if (currentUserId && currentMessengerName) {
-      deleteThread({ userId: currentUserId, userSendingMessage: currentMessengerName })
+      deleteThread({ friendName: currentMessengerName })
     }
     clearConversation()
     setCurrentMessengerUser(null)
@@ -148,19 +147,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       console.log("missing user or messenger info")
       return
     }
-    
-    // If no thread exists, create one first
-    if (!displayAllMessages?.threadId) {
-      console.log("creating thread before sending message")
-      createMessageThread({ userToSendMessage: currentMessengerName })
-      // Add message to context for immediate feedback
-      addMessage(userMessage)
-      setUserMessage("")
-      return
-    }
-    
-    // Emit to the messenger's room, not the current user's room
-    socket.emit('private message', currentMessengerName, userMessage)
+
+    // Always send via API; the server will upsert the thread as needed
+    sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
     addMessage(userMessage)
     setUserMessage("")
   }
@@ -170,31 +159,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   // Move session check after all hooks are called to prevent hook order issues
-
-  useEffect(() => {
-    socket.connect()
-
-    const handlePrivateMessage = (msg: string) => {
-      console.log("Socket received message:", { msg, currentUserId, currentMessengerName })
-      if (currentUserId && currentMessengerName) {
-        console.log("Sending private message to API:", { chat: msg, userSendingMessageId: currentUserId, userSendingMessage: currentMessengerName })
-        sendPrivateMessage({ chat: msg, userSendingMessageId: currentUserId, userSendingMessage: currentMessengerName });
-      } else {
-        console.log("Missing required parameters for sending message")
-      }
-    }
-
-    socket.on('private message', handlePrivateMessage)
-
-    return () => {
-      socket.disconnect()
-      socket.off("private message", handlePrivateMessage)
-    }
-  }, [currentUserId, currentMessengerName, sendPrivateMessage])
-
-
-
-
 
   const DisplayAllMessages = () => {
     // Only show loading when a fetch is actually in progress with valid params

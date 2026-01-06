@@ -136,10 +136,10 @@ const FriendsPage = () => {
 
   const approveRequest = () => {
     if (userInfo.id && userInfo.id !== "undefined" && session?.user?.id) {
-      approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: session.user.id })
-      removeRequest({ id: userInfo.id })
+      approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
       addOption()
-      toast.success(`${userInfo.name} request approved! `)
+      // Note: We don't call removeRequest here because approving changes the status to ACCEPTED,
+      // which automatically removes it from the requests list (getAllRequests only shows PENDING)
     } else {
       toast.error(`Was not able to add ${userInfo.name} as a friend.`)
     }
