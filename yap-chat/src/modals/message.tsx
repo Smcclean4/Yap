@@ -28,8 +28,9 @@ export const MessageModal = ({ isShowing, hide, storewords, loadingmessages, sen
     <div className="bg-gray-100 h-4/5 w-4/5 flex flex-col justify-center items-center">
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
-      <div className="h-full w-full overflow-scroll px-48">
-        {!loading ? messages?.chat?.map((message: any, id: Key) => <ul key={id}><li className="m-2">{message.message}</li></ul>) : <LoadingPage />}
+      <div className="h-full w-full overflow-scroll border-2 border-black flex flex-col text-leftpx-48">
+        {/* TODO: Add a timestamp to the messages and also show name of which user is sending the messages, after this work on online status */}
+        {!loading ? messages?.chat?.map((message: any, id: Key) => <ul key={id}><li className="m-2"><p>{user}</p><p>{message.message}</p></li></ul>) : <LoadingPage />}
       </div>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">
