@@ -12,12 +12,13 @@ interface MessageInterface {
   message: string;
   loadingmessages: boolean;
   messages: any;
+  sessionUser: any;
   user: string;
   onclosechat?: () => void;
   loading: boolean;
 }
 
-export const MessageModal = ({ isShowing, hide, storewords, loadingmessages, sendmessage, message, messages, user, onclosechat, loading }: MessageInterface) => isShowing ? createPortal(
+export const MessageModal = ({ isShowing, hide, storewords, loadingmessages, sendmessage, message, messages, sessionUser, user, onclosechat, loading }: MessageInterface) => isShowing ? createPortal(
   <div className="absolute top-0 right-0 left-0 bottom-0 bg-white w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl">
     <div className="w-full flex justify-between p-6 top-0 absolute">
       <FontAwesomeIcon className="text-4xl text-red-500 cursor-pointer" onClick={hide} icon={faXmark} />
@@ -28,9 +29,11 @@ export const MessageModal = ({ isShowing, hide, storewords, loadingmessages, sen
     <div className="bg-gray-100 h-4/5 w-4/5 flex flex-col justify-center items-center">
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
-      <div className="h-full w-full overflow-scroll border-2 border-black flex flex-col text-leftpx-48">
+      <div className="h-full w-full overflow-scroll flex flex-col">
         {/* TODO: Add a timestamp to the messages and also show name of which user is sending the messages, after this work on online status */}
-        {!loading ? messages?.chat?.map((message: any, id: Key) => <ul key={id}><li className="m-2"><p>{user}</p><p>{message.message}</p></li></ul>) : <LoadingPage />}
+        {!loading ? messages?.chat?.map((message: any, id: Key) => <div className={`w-full flex ${message.user === sessionUser ? 'justify-end' : 'justify-start'}`} key={id}>
+          <ul className={`m-8 text-xl text-white w-1/4 ${message.user === sessionUser ? 'text-right bg-blue-500 rounded-tl-md rounded-bl-md rounded-br-md' : 'bg-gray-500 rounded-tr-md rounded-bl-md rounded-br-md'}`}><li className="m-2"><p>{message.user === sessionUser ? <b className="underline">You</b> : <b className="underline">{user}</b>}</p><p>{message.message}</p></li></ul>
+        </div>) : <LoadingPage />}
       </div>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">

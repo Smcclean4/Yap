@@ -18,19 +18,19 @@ interface MessengerInterface {
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [userMessage, setUserMessage] = useState('')
   const [currentMessengerUser, setCurrentMessengerUser] = useState<UserInfoInterface | null>(null)
-  
+
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
-  
+
   // Use global chat context instead of local state
-  const { 
-    sideBarChats, 
-    conversationChat, 
-    addChat, 
-    removeChat, 
-    addMessage, 
-    clearConversation, 
-    setConversationChat 
+  const {
+    sideBarChats,
+    conversationChat,
+    addChat,
+    removeChat,
+    addMessage,
+    clearConversation,
+    setConversationChat
   } = useChatContext();
 
   const { data: session } = useSession();
@@ -41,7 +41,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
     { friendName: currentMessengerName || '' },
-    { 
+    {
       enabled: Boolean(currentUserId && currentMessengerName && currentMessengerName.trim() !== ''),
       retry: 3,
       retryDelay: 1000
@@ -85,11 +85,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       initialRender.current = false;
       return;
     }
-    
+
     if (messengeruser) {
       updateMessenger()
     }
-    
+
     if (trigger && messengeruser && currentUserId && messengeruser.name) {
       setCurrentMessengerUser(messengeruser)
       createMessageThread({ friendName: messengeruser.name })
@@ -130,19 +130,19 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   // triggerMessage is now defined above with useCallback
 
   const onMessageSend = () => {
-    console.log("onMessageSend called", { 
-      displayAllMessages, 
-      threadId: displayAllMessages?.threadId, 
+    console.log("onMessageSend called", {
+      displayAllMessages,
+      threadId: displayAllMessages?.threadId,
       userMessage,
       currentUserId,
-      currentMessengerName 
+      currentMessengerName
     })
-    
+
     if (!userMessage.trim()) {
       console.log("empty message")
       return
     }
-    
+
     if (!currentUserId || !currentMessengerName) {
       console.log("missing user or messenger info")
       return
@@ -175,16 +175,16 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     return (
       <>
-      {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
-        return (
-          <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
-            <div className="flex flex-row justify-around items-center">
-              <p className="text-xl">{chats?.name}</p>
-              <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={chats?.online ? 'limegreen' : 'gray'} size="sm" />
+        {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
+          return (
+            <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
+              <div className="flex flex-row justify-around items-center">
+                <p className="text-xl">{chats?.name}</p>
+                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={chats?.online ? 'limegreen' : 'gray'} size="sm" />
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
       </>
     )
   }
@@ -195,7 +195,9 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   return (
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
-      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} loadingmessages={loadingMessageSend} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages} user={String(currentMessengerUser?.name || messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
+      <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} loadingmessages={loadingMessageSend} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages}
+        sessionUser={String(session?.user.id)}
+        user={String(currentMessengerUser?.name || messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
       <DisplayAllMessages />
     </div>
   )
