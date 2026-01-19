@@ -1,6 +1,5 @@
 import express from "express";
 import { createServer } from "node:http";
-import { isBooleanObject } from "node:util/types";
 import { Server } from "socket.io";
 
 const app = express();
@@ -35,12 +34,14 @@ io.on("connection", (socket) => {
     io.emit("chat message", msg);
     console.log("chat message: " + msg);
   });
-  // socket.io connection for private message
-  socket.on("private message", (userId, msg) => {
-    socket.join(userId)
-    console.log("joined room: " + userId)
-    io.in(userId).emit("private message", msg);
-    console.log("Private Message to " + userId + ": " + msg);
+
+  io.on("connection", (socket) => {
+    // online status
+    socket.on("online status", (status) => {
+      // @ts-ignore
+      connectedUsers[socket.id] = status;
+      console.log("User " + socket.id + " is " + status);
+    });
   });
 });
 

@@ -9,6 +9,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
 import { useChatContext } from '~/contexts/ChatContext';
+import { socket } from "../pages/api/socket-client"
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -147,7 +148,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       console.log("missing user or messenger info")
       return
     }
-
+    socket.emit("online status", "ONLINE")
     // Always send via API; the server will upsert the thread as needed
     sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
     addMessage(userMessage)
@@ -159,6 +160,18 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   // Move session check after all hooks are called to prevent hook order issues
+  useEffect(() => {
+    socket.connect();
+
+    socket.on("online status", (status) => {
+      console.log("Current user status: " + status);
+    });
+
+    return () => {
+      socket.disconnect();
+      socket.off("online status")
+    };
+  }, []);
 
   const DisplayAllMessages = () => {
     // Only show loading when a fetch is actually in progress with valid params
@@ -196,7 +209,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
       <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} loadingmessages={loadingMessageSend} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages}
-        sessionUser={String(session?.user.id)}
+        sessionUser={currentUserId}
         user={String(currentMessengerUser?.name || messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
       <DisplayAllMessages />
     </div>
