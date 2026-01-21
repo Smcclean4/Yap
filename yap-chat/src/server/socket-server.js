@@ -13,7 +13,17 @@ const io = new Server(server, {
   connectionStateRecovery: {},
 });
 
-const connectedUsers = {};
+// Presence tracking (in-memory)
+// userId -> set of socketIds (supports multiple tabs/devices)
+const userSockets = new Map();
+// socketId -> userId
+const socketToUser = new Map();
+
+const broadcastPresence = () => {
+  io.emit("presence:state", {
+    onlineUserIds: Array.from(userSockets.keys()),
+  });
+};
 
 app.get("/", (req, res) => {
   res.send("<h1>This Is Your Socket.io Server</h1>");
@@ -21,27 +31,45 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
   console.log("a user connected: " + socket.id);
-  socket.on("disconnect", () => {
-    console.log("a user disconnected: " + socket.id);
-    // @ts-ignore
-    delete connectedUsers[socket.id];
-  });
-});
 
-io.on("connection", (socket) => {
   // all chat message
   socket.on("chat message", (msg) => {
     io.emit("chat message", msg);
     console.log("chat message: " + msg);
   });
 
-  io.on("connection", (socket) => {
-    // online status
-    socket.on("online status", (status) => {
-      // @ts-ignore
-      connectedUsers[socket.id] = status;
-      console.log("User " + socket.id + " is " + status);
-    });
+  // presence identify
+  socket.on("presence:join", (payload) => {
+    const userId = payload?.userId;
+    if (!userId) return;
+
+    socketToUser.set(socket.id, userId);
+
+    const existing = userSockets.get(userId);
+    if (existing) {
+      existing.add(socket.id);
+    } else {
+      userSockets.set(userId, new Set([socket.id]));
+    }
+
+    broadcastPresence();
+  });
+
+  socket.on("disconnect", () => {
+    console.log("a user disconnected: " + socket.id);
+
+    const userId = socketToUser.get(socket.id);
+    if (userId) {
+      socketToUser.delete(socket.id);
+      const sockets = userSockets.get(userId);
+      if (sockets) {
+        sockets.delete(socket.id);
+        if (sockets.size === 0) {
+          userSockets.delete(userId);
+        }
+      }
+      broadcastPresence();
+    }
   });
 });
 

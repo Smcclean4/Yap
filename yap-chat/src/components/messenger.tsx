@@ -9,7 +9,6 @@ import { Toaster, toast } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
 import { useChatContext } from '~/contexts/ChatContext';
-import { socket } from "../pages/api/socket-client"
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -26,12 +25,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   // Use global chat context instead of local state
   const {
     sideBarChats,
-    conversationChat,
     addChat,
     removeChat,
     addMessage,
     clearConversation,
-    setConversationChat
+    isUserOnline,
   } = useChatContext();
 
   const { data: session } = useSession();
@@ -148,7 +146,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       console.log("missing user or messenger info")
       return
     }
-    socket.emit("online status", "ONLINE")
     // Always send via API; the server will upsert the thread as needed
     sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
     addMessage(userMessage)
@@ -160,18 +157,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   }
 
   // Move session check after all hooks are called to prevent hook order issues
-  useEffect(() => {
-    socket.connect();
-
-    socket.on("online status", (status) => {
-      console.log("Current user status: " + status);
-    });
-
-    return () => {
-      socket.disconnect();
-      socket.off("online status")
-    };
-  }, []);
+  // Socket connection + presence is handled globally in ChatProvider.
 
   const DisplayAllMessages = () => {
     // Only show loading when a fetch is actually in progress with valid params
@@ -188,12 +174,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     return (
       <>
-        {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; online: any; }, idx: React.Key) => {
+        {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; friendId?: string; id?: string; }, idx: React.Key) => {
+          const liveOnline = isUserOnline(chats.friendId ?? (chats.id as string | undefined));
           return (
             <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
               <div className="flex flex-row justify-around items-center">
                 <p className="text-xl">{chats?.name}</p>
-                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={chats?.online ? 'limegreen' : 'gray'} size="sm" />
+                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
               </div>
             </div>
           )

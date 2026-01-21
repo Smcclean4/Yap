@@ -11,13 +11,15 @@ import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
 import FindUserPage from '~/components/finduser';
+import { useChatContext } from '~/contexts/ChatContext';
 
 export interface UserInfoInterface {
   name: string;
   image: string;
   online: boolean;
   heading: string;
-  id: any;
+  id: any;        // friendship id (used for deletes/requests)
+  friendId?: any; // actual userId of the friend (for presence)
 }
 
 const FriendsPage = () => {
@@ -26,15 +28,16 @@ const FriendsPage = () => {
     // Try to restore from localStorage on initial load, but only in browser
     if (typeof window !== 'undefined') {
       const savedUserInfo = localStorage.getItem('selectedMessenger');
-      return savedUserInfo ? JSON.parse(savedUserInfo) : { name: '', image: '', heading: '', id: '', online: false };
+      return savedUserInfo ? JSON.parse(savedUserInfo) : { name: '', image: '', heading: '', id: '', online: false, friendId: '' };
     }
-    return { name: '', image: '', heading: '', id: '', online: false };
+    return { name: '', image: '', heading: '', id: '', online: false, friendId: '' };
   })
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
   const [messageTrigger, setMessageTrigger] = useState(false)
   const [options, setOptions] = useState<boolean[]>([])
   const { data: session } = useSession();
+  const { isUserOnline } = useChatContext();
 
   const ctx = api.useContext()
 
@@ -65,8 +68,8 @@ const FriendsPage = () => {
     setSelectedTab(!selectedTab)
   }
 
-  const currentUserData = (name: any, image: any, online: boolean, heading: string, id: any) => {
-    const newUserInfo = { name: name, image: image, online: online, heading: heading, id: id };
+  const currentUserData = (name: any, image: any, online: boolean, heading: string, id: any, friendId?: any) => {
+    const newUserInfo = { name: name, image: image, online: online, heading: heading, id: id, friendId };
     setUserInfo(newUserInfo);
     // Save to localStorage for persistence, but only in browser
     if (typeof window !== 'undefined') {
@@ -176,10 +179,11 @@ const FriendsPage = () => {
     return (
       <>
         {friendsFromDatabase?.map((friend: any, idx: any) => {
+          const liveOnline = isUserOnline(friend.friendId);
           return (
             <div key={idx} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
               <div className="flex justify-end">
-                <FontAwesomeIcon className="cursor-pointer" onMouseDown={() => currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)} onMouseUp={(element) => {
+                <FontAwesomeIcon className="cursor-pointer" onMouseDown={() => currentUserData(friend.name, friend.image, liveOnline, friend.heading, friend.id, friend.friendId)} onMouseUp={(element) => {
                   optionToggle(element, idx)
                 }} icon={faEllipsis} size="xl" tabIndex={0} />
                 {options[idx] && (
@@ -190,13 +194,13 @@ const FriendsPage = () => {
               </div>
               <div className="flex flex-row items-center justify-around">
                 <Image className="rounded-full object-cover aspect-square border-4 border-blue-500 shadow-lg" src={`${friend.image}`} alt={'friend image'} width="125" height="125" />
-                <p className="text-md">{friend.online ? 'Online' : 'Offline'}</p>
-                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={friend.online ? 'limegreen' : 'gray'} size="sm" />
+                <p className="text-md">{liveOnline ? 'Online' : 'Offline'}</p>
+                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
               </div>
               <p className="text-xl my-2 font-bold">{friend.name}</p>
               <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
               <button onClick={() => {
-                currentUserData(friend.name, friend.image, friend.online, friend.heading, friend.id)
+                currentUserData(friend.name, friend.image, liveOnline, friend.heading, friend.id, friend.friendId)
                 onMessage()
               }
               } className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>

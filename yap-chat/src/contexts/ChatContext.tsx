@@ -1,14 +1,18 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { UserInfoInterface } from '~/pages/friends';
+import { useSession } from 'next-auth/react';
+import { socket } from '~/pages/api/socket-client';
 
 interface ChatContextType {
   sideBarChats: UserInfoInterface[];
   conversationChat: any[];
+  onlineUserIds: string[];
   addChat: (chat: UserInfoInterface) => void;
   removeChat: (chatName: string) => void;
   addMessage: (message: string) => void;
   clearConversation: () => void;
   setConversationChat: (messages: any[]) => void;
+  isUserOnline: (userId?: string | null) => boolean;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -26,6 +30,7 @@ interface ChatProviderProps {
 }
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
+  const { data: session } = useSession();
   
   // Initialize state from localStorage immediately
   const getInitialSideBarChats = (): UserInfoInterface[] => {
@@ -60,6 +65,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   const [sideBarChats, setSideBarChats] = useState<UserInfoInterface[]>(getInitialSideBarChats);
   const [conversationChat, setConversationChat] = useState<any[]>(getInitialConversationChat);
+  const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
 
 
 
@@ -70,6 +76,33 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       localStorage.setItem('conversationChatData', JSON.stringify(conversationChat));
     }
   }, [sideBarChats, conversationChat]);
+
+  // Global socket presence (single connection for the app)
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    socket.connect();
+    socket.emit("presence:join", { userId });
+
+    const onPresenceState = (payload: { onlineUserIds?: string[] }) => {
+      setOnlineUserIds(Array.isArray(payload?.onlineUserIds) ? payload.onlineUserIds : []);
+    };
+
+    socket.on("presence:state", onPresenceState);
+
+    return () => {
+      socket.off("presence:state", onPresenceState);
+      // Intentionally keep the connection alive across route changes.
+      // The disconnect will happen on full page unload.
+    };
+  }, [session?.user?.id]);
+
+  const onlineSet = useMemo(() => new Set(onlineUserIds), [onlineUserIds]);
+  const isUserOnline = (userId?: string | null) => {
+    if (!userId) return false;
+    return onlineSet.has(userId);
+  };
 
   const addChat = (chat: UserInfoInterface) => {
     setSideBarChats(prev => {
@@ -96,11 +129,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const value: ChatContextType = {
     sideBarChats,
     conversationChat,
+    onlineUserIds,
     addChat,
     removeChat,
     addMessage,
     clearConversation,
     setConversationChat,
+    isUserOnline,
   };
 
   return (

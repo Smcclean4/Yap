@@ -32,7 +32,7 @@ export const MessageModal = ({ isShowing, hide, storewords, loadingmessages, sen
       <div className="h-full w-full overflow-scroll flex flex-col">
         {/* TODO: Add a timestamp to the messages and also show name of which user is sending the messages, after this work on online status */}
         {!loading ? messages?.chat?.map((message: any, id: Key) => <div className={`w-full flex ${message.user === sessionUser ? 'justify-end' : 'justify-start'}`} key={id}>
-          <ul className={`m-8 text-xl text-white w-1/4 ${message.user === sessionUser ? 'text-right bg-blue-500 rounded-tl-md rounded-bl-md rounded-br-md' : 'bg-gray-500 rounded-tr-md rounded-bl-md rounded-br-md'}`}><li className="m-2"><p>{message.user === sessionUser ? <b className="underline">You</b> : <b className="underline">{user}</b>}</p><p>{message.message}</p></li></ul>
+          <ul className={`m-8 text-xl text-white w-1/4 min-w-[300px] overflow-x-scroll ${message.user === sessionUser ? 'text-right bg-blue-500 rounded-tl-md rounded-bl-md rounded-br-md' : 'bg-gray-500 rounded-tr-md rounded-bl-md rounded-br-md'}`}><li className="m-2"><p>{message.user === sessionUser ? <b className="underline">You</b> : <b className="underline">{user}</b>}</p><p>{message.message}</p></li></ul>
         </div>) : <LoadingPage />}
       </div>
     </div>
