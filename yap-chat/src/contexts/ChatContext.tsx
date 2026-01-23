@@ -104,6 +104,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     return onlineSet.has(userId);
   };
 
+  // there should be something added here that sets sidebar chat not only for the current user
+  // but for friend when the message is sent.. not "onmessage" function that pops up with the modal
   const addChat = (chat: UserInfoInterface) => {
     setSideBarChats(prev => {
       const exists = prev.some(existingChat => existingChat.name === chat.name);

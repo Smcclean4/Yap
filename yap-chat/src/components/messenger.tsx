@@ -175,7 +175,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     return (
       <>
         {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; friendId?: string; id?: string; }, idx: React.Key) => {
-          const liveOnline = isUserOnline(chats.friendId ?? (chats.id as string | undefined));
+          const liveOnline = isUserOnline(chats.friendId);
           return (
             <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
               <div className="flex flex-row justify-around items-center">
