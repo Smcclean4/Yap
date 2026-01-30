@@ -78,6 +78,15 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   }, [messengeruser, trigger, itemExists, sideBarChats, addChat])
 
+  // trying to trigger just friends modal
+  const updateFriendsChat = useCallback(() => {
+    // Only add to chats if we have a messengeruser AND the trigger is true (meaning message was clicked)
+    if (messengeruser && !itemExists(messengeruser.name, sideBarChats)) {
+      addChat(messengeruser)
+      console.log('checking friend')
+    }
+  }, [messengeruser, trigger, itemExists, sideBarChats, addChat])
+
   // Only update messenger if we have a messengeruser
   useEffect(() => {
     if (initialRender.current) {
@@ -146,6 +155,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       console.log("missing user or messenger info")
       return
     }
+    updateFriendsChat()
     // Always send via API; the server will upsert the thread as needed
     sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
     addMessage(userMessage)
