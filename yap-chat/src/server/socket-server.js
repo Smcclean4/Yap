@@ -24,6 +24,19 @@ const broadcastPresence = () => {
     onlineUserIds: Array.from(userSockets.keys()),
   });
 };
+// helper function for emiting chats to a specific user
+const emitToUser = (
+  /** @type {any} */ userId,
+  /** @type {any} */ event,
+  /** @type {any} */ payload
+) => {
+  const sockets = userSockets.get(userId);
+  if (!sockets) return;
+
+  for (const socketId of sockets) {
+    io.to(socketId).emit(event, payload);
+  }
+};
 
 app.get("/", (req, res) => {
   res.send("<h1>This Is Your Socket.io Server</h1>");
@@ -36,6 +49,13 @@ io.on("connection", (socket) => {
   socket.on("chat message", (msg) => {
     io.emit("chat message", msg);
     console.log("chat message: " + msg);
+  });
+
+  // notify specific user of a new private message
+  socket.on("dm:new", (payload, event) => {
+    const toUserId = payload?.toUserId;
+    if (!toUserId) return;
+    emitToUser(toUserId, event, payload);
   });
 
   // presence identify

@@ -31,7 +31,7 @@ interface ChatProviderProps {
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const { data: session } = useSession();
-  
+
   // Initialize state from localStorage immediately
   const getInitialSideBarChats = (): UserInfoInterface[] => {
     if (typeof window !== 'undefined') {
@@ -84,6 +84,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     socket.connect();
     socket.emit("presence:join", { userId });
+    socket.emit("dm:new", { userId, sideBarChats });
 
     const onPresenceState = (payload: { onlineUserIds?: string[] }) => {
       setOnlineUserIds(Array.isArray(payload?.onlineUserIds) ? payload.onlineUserIds : []);
@@ -103,7 +104,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     if (!userId) return false;
     return onlineSet.has(userId);
   };
-  
+
   const addChat = (chat: UserInfoInterface) => {
     setSideBarChats(prev => {
       const exists = prev.some(existingChat => existingChat.friendId === chat.friendId);
