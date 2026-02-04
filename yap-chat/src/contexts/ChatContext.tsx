@@ -84,7 +84,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     socket.connect();
     socket.emit("presence:join", { userId });
-    socket.emit("dm:new", { userId, sideBarChats });
 
     const onPresenceState = (payload: { onlineUserIds?: string[] }) => {
       setOnlineUserIds(Array.isArray(payload?.onlineUserIds) ? payload.onlineUserIds : []);
@@ -92,8 +91,47 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     socket.on("presence:state", onPresenceState);
 
+    // Listen for sidebar updates when receiving a new message
+    const onSidebarUpdate = (payload: { 
+      toUserId: string; 
+      senderId: string; 
+      senderName: string; 
+      senderImage: string; 
+      senderHeading: string; 
+      message: string; 
+    }) => {
+      console.log("sidebar:update received", payload);
+      
+      // Only update if this message is for the current user (they are the recipient)
+      if (payload.toUserId === userId && payload.senderId !== userId) {
+        // Create the chat user object for the sender (who sent the message)
+        const chatUser: UserInfoInterface = {
+          id: payload.senderId, // This will be used for matching, but friendId is what we need
+          friendId: payload.senderId, // The actual user ID of the sender
+          name: payload.senderName,
+          image: payload.senderImage || '',
+          heading: payload.senderHeading || '',
+          online: false, // Will be updated by presence system
+        };
+
+        // Add to sidebar if it doesn't already exist
+        setSideBarChats(prev => {
+          const exists = prev.some(existingChat => 
+            existingChat.friendId === chatUser.friendId || existingChat.id === chatUser.friendId
+          );
+          if (!exists) {
+            return [...prev, chatUser];
+          }
+          return prev;
+        });
+      }
+    };
+
+    socket.on("sidebar:update", onSidebarUpdate);
+
     return () => {
       socket.off("presence:state", onPresenceState);
+      socket.off("sidebar:update", onSidebarUpdate);
       // Intentionally keep the connection alive across route changes.
       // The disconnect will happen on full page unload.
     };

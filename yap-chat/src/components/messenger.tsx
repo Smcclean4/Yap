@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react'
 import { useModal } from '~/hooks/useModal';
 import { Toaster, toast } from 'react-hot-toast';
 import { api } from '~/utils/api';
+import { socket } from '~/pages/api/socket-client';
 import { LoadingPage } from '~/shared/loading';
 import { useChatContext } from '~/contexts/ChatContext';
 
@@ -54,8 +55,25 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
-    onSettled: () => {
+    onSettled: (data) => {
       void ctx.messenger.getChatMessages.invalidate();
+      if (currentMessengerUser && currentMessengerUser.friendId && currentUserId) {
+        // Emit socket event to notify the recipient to update their sidebar
+        // The server expects: socket.emit("dm:new", payload, eventName)
+        socket.emit("dm:new", {
+          toUserId: currentMessengerUser.friendId, // Use friendId (actual user ID) not id (friendship ID)
+          senderId: currentUserId,
+          senderName: session?.user.name || '',
+          senderImage: session?.user.image || '',
+          senderHeading: '', // Can be enhanced later to fetch from profile
+          message: userMessage,
+        }, "sidebar:update");
+        
+        // Also update sender's sidebar if it's a new chat (keep current functionality)
+        if (!itemExists(currentMessengerUser.name, sideBarChats)) {
+          addChat(currentMessengerUser);
+        }
+      }
     }
   })
 
