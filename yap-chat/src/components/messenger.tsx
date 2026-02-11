@@ -10,6 +10,7 @@ import { api } from '~/utils/api';
 import { socket } from '~/pages/api/socket-client';
 import { LoadingPage } from '~/shared/loading';
 import { useChatContext } from '~/contexts/ChatContext';
+import { setEngine } from 'node:crypto';
 
 interface MessengerInterface {
   messengeruser?: UserInfoInterface;
@@ -19,6 +20,10 @@ interface MessengerInterface {
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [userMessage, setUserMessage] = useState('')
   const [currentMessengerUser, setCurrentMessengerUser] = useState<UserInfoInterface | null>(null)
+  // if the messages that are seen arent in the seenMessages we will increase the unreadMessages state
+  // use trigger to decide if we should increase the unreadMessages state
+  const [unreadMessages, setUnreadMessages] = useState(0)
+  const [seenMessages, setSeenMessages] = useState<string[]>([])
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
@@ -144,8 +149,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     toggle()
   }
 
-  // triggerMessage is now defined above with useCallback
+  const addSeenMessage = (message: string) => {
+    setSeenMessages(prev => [...prev, message])
+  }
 
+  // triggerMessage is now defined above with useCallback
   const onMessageSend = () => {
     console.log("onMessageSend called", {
       displayAllMessages,
@@ -167,6 +175,12 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     // Always send via API; the server will upsert the thread as needed
     sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
     addMessage(userMessage)
+    if (trigger && currentMessengerUser) {
+      addSeenMessage(userMessage)
+      setUnreadMessages(0)
+    } else if (!trigger && currentMessengerUser) {
+      setUnreadMessages(prev => prev + 1)
+    }
     setUserMessage("")
   }
 
@@ -199,6 +213,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
               <div className="flex flex-row justify-around items-center">
                 <p className="text-xl">{chats?.name}</p>
                 <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
+                {unreadMessages > 0 && <p className="text-sm text-gray-400">{unreadMessages}</p>}
               </div>
             </div>
           )

@@ -67,8 +67,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [conversationChat, setConversationChat] = useState<any[]>(getInitialConversationChat);
   const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
 
-
-
   // Save to localStorage whenever state changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
