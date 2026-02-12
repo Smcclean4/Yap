@@ -115,6 +115,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     if (trigger && messengeruser && currentUserId && messengeruser.name) {
       setCurrentMessengerUser(messengeruser)
       createMessageThread({ friendName: messengeruser.name })
+      setSeenMessages([])
+      setUnreadMessages(0)
     }
   }, [trigger, messengeruser, updateMessenger, currentUserId, createMessageThread])
 
@@ -175,9 +177,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     // Always send via API; the server will upsert the thread as needed
     sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
     addMessage(userMessage)
-    if (trigger && currentMessengerUser) {
+    if (trigger && currentMessengerUser && !seenMessages.includes(userMessage)) {
       addSeenMessage(userMessage)
-      setUnreadMessages(0)
     } else if (!trigger && currentMessengerUser) {
       setUnreadMessages(prev => prev + 1)
     }
