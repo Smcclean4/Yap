@@ -40,7 +40,7 @@ export const messengerRouter = createTRPCRouter({
 
       const { threadId, messenger } = getThreadKey(currentUserId, friendUser.id);
 
-      return ctx.prisma.threads.findUnique({
+      const thread = await ctx.prisma.threads.findUnique({
         where: {
           threadId_messenger: {
             threadId,
@@ -51,6 +51,28 @@ export const messengerRouter = createTRPCRouter({
           chat: true,
         },
       });
+
+      if (!thread) {
+        return null;
+      }
+
+      // Filter messages based on when the user cleared their chat
+      // If the user has cleared, only show messages created after the cleared timestamp
+      const clearedAt = thread.clearedAt as Record<string, string> | null;
+      const userClearedTimestamp = clearedAt?.[currentUserId];
+      
+      let filteredChat = thread.chat;
+      if (userClearedTimestamp) {
+        const clearedDate = new Date(userClearedTimestamp);
+        filteredChat = thread.chat.filter(
+          (message) => message.createdAt > clearedDate
+        );
+      }
+
+      return {
+        ...thread,
+        chat: filteredChat,
+      };
     }),
 
   // Ensure a thread exists between the logged-in user and a friend.
@@ -157,7 +179,7 @@ export const messengerRouter = createTRPCRouter({
       return updatedThread;
     }),
 
-  // Delete the thread between the logged-in user and a friend.
+  // Clear the chat for the current user only (doesn't delete the thread or affect the other user)
   deleteThread: protectedProcedure
     .input(z.object({ friendName: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -178,12 +200,33 @@ export const messengerRouter = createTRPCRouter({
 
       const { threadId, messenger } = getThreadKey(currentUserId, friendUser.id);
 
-      return ctx.prisma.threads.delete({
+      // Get the current thread to preserve existing clearedAt data
+      const thread = await ctx.prisma.threads.findUnique({
         where: {
           threadId_messenger: {
             threadId,
             messenger,
           },
+        },
+      });
+
+      if (!thread) {
+        throw new Error("Thread not found");
+      }
+
+      // Update clearedAt to mark this chat as cleared for the current user
+      const clearedAt = (thread.clearedAt as Record<string, string> | null) || {};
+      clearedAt[currentUserId] = new Date().toISOString();
+
+      return ctx.prisma.threads.update({
+        where: {
+          threadId_messenger: {
+            threadId,
+            messenger,
+          },
+        },
+        data: {
+          clearedAt: clearedAt,
         },
       });
     }),

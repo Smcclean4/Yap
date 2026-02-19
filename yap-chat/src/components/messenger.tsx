@@ -20,10 +20,6 @@ interface MessengerInterface {
 export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) => {
   const [userMessage, setUserMessage] = useState('')
   const [currentMessengerUser, setCurrentMessengerUser] = useState<UserInfoInterface | null>(null)
-  // if the messages that are seen arent in the seenMessages we will increase the unreadMessages state
-  // use trigger to decide if we should increase the unreadMessages state
-  const [unreadMessages, setUnreadMessages] = useState(0)
-  const [seenMessages, setSeenMessages] = useState<string[]>([])
 
   const { isShowing, toggle } = useModal();
   const initialRender = useRef(true);
@@ -36,6 +32,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     addMessage,
     clearConversation,
     isUserOnline,
+    incrementUnread,
+    resetUnread,
+    getUnreadCount,
+    setActiveChat,
+    clearActiveChat,
   } = useChatContext();
 
   const { data: session } = useSession();
@@ -63,7 +64,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     onSettled: (data) => {
       void ctx.messenger.getChatMessages.invalidate();
       if (currentMessengerUser && currentMessengerUser.friendId && currentUserId) {
-        // Emit socket event to notify the recipient to update their sidebar
+        // Emit socket event to notify the recipient to update their sidebar and increment unread count
         // The server expects: socket.emit("dm:new", payload, eventName)
         socket.emit("dm:new", {
           toUserId: currentMessengerUser.friendId, // Use friendId (actual user ID) not id (friendship ID)
@@ -115,8 +116,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     if (trigger && messengeruser && currentUserId && messengeruser.name) {
       setCurrentMessengerUser(messengeruser)
       createMessageThread({ friendName: messengeruser.name })
-      setSeenMessages([])
-      setUnreadMessages(0)
+      // Reset unread count and set as active chat when opening a chat
+      if (messengeruser.friendId || messengeruser.name) {
+        resetUnread(messengeruser.friendId || '', messengeruser.name)
+        setActiveChat(messengeruser.friendId || '', messengeruser.name)
+      }
     }
   }, [trigger, messengeruser, updateMessenger, currentUserId, createMessageThread])
 
@@ -127,17 +131,25 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   }, [trigger])
 
+  // Clear active chat when modal is closed
+  useEffect(() => {
+    if (!isShowing) {
+      clearActiveChat()
+    }
+  }, [isShowing, clearActiveChat])
+
   const closeChat = () => {
     const chatName = currentMessengerUser?.name || messengeruser?.name;
     if (chatName) {
       removeChat(chatName)
-      toast.error(`Chat with ${chatName} cleared.`)
+      toast.success(`Chat with ${chatName} cleared. (Your view only)`)
     }
     if (currentUserId && currentMessengerName) {
       deleteThread({ friendName: currentMessengerName })
     }
     clearConversation()
     setCurrentMessengerUser(null)
+    clearActiveChat() // Clear active chat when closing
     toggle()
   }
 
@@ -147,12 +159,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     if (selectedChat) {
       // Set the current messenger user for this conversation
       setCurrentMessengerUser(selectedChat);
+      // Reset unread count and set as active chat when opening a chat
+      if (selectedChat.friendId || selectedChat.name) {
+        resetUnread(selectedChat.friendId || '', selectedChat.name)
+        setActiveChat(selectedChat.friendId || '', selectedChat.name)
+      }
     }
     toggle()
-  }
-
-  const addSeenMessage = (message: string) => {
-    setSeenMessages(prev => [...prev, message])
   }
 
   // triggerMessage is now defined above with useCallback
@@ -177,11 +190,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     // Always send via API; the server will upsert the thread as needed
     sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
     addMessage(userMessage)
-    if (trigger && currentMessengerUser && !seenMessages.includes(userMessage)) {
-      addSeenMessage(userMessage)
-    } else if (!trigger && currentMessengerUser) {
-      setUnreadMessages(prev => prev + 1)
-    }
+    // Note: Unread count is incremented on the recipient's side via socket event in ChatContext
     setUserMessage("")
   }
 
@@ -209,12 +218,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       <>
         {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; friendId?: string; id?: string; }, idx: React.Key) => {
           const liveOnline = isUserOnline(chats.friendId);
+          const unreadCount = getUnreadCount(chats.friendId || '', chats.name as string);
           return (
             <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
               <div className="flex flex-row justify-around items-center">
                 <p className="text-xl">{chats?.name}</p>
                 <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
-                {unreadMessages > 0 && <p className="text-sm text-gray-400">{unreadMessages}</p>}
+                {unreadCount > 0 && <p className="text-md text-red-500">{unreadCount}</p>}
               </div>
             </div>
           )

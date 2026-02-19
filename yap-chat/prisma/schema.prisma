@@ -5,13 +5,11 @@ generator client {
     provider = "prisma-client-js"
 }
 
+// Note: url field is required for Prisma 6.4.1 (ignore Prisma 7 linter warning)
 datasource db {
     provider     = "postgresql"
-    // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    // Connection URL is now managed in prisma.config.ts; see https://pris.ly/d/config-datasource
+    // @prisma-ignore-next-line
+    url          = env("DATABASE_URL") // Required for Prisma 6.4.1
     relationMode = "prisma"
 }
 
@@ -129,13 +127,14 @@ model Yap {
 }
 
 model Threads {
-    id        String   @id @default(cuid())
-    threadId  String
-    chat      Chat[]
-    messenger String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    user      User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
+    id              String   @id @default(cuid())
+    threadId        String
+    chat            Chat[]
+    messenger       String
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    clearedAt       Json?    // Stores { [userId]: timestamp } to track when each user cleared their chat
+    user            User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
     @@unique([threadId, messenger])
 }
