@@ -142,17 +142,23 @@ const YapsPage = () => {
   }
 
   useEffect(() => {
+    if (!session?.user?.email) return
     socket.connect();
 
     socket.on("chat message", (msg) => {
-      userYap({ message: msg, user: String(session?.user.email) })
+      const imageUrl = session?.user?.image
+        ? String(session.user.image).startsWith("http")
+          ? String(session.user.image)
+          : `/${String(session.user.image)}`
+        : ""
+      userYap({ message: msg, user: String(session.user.email), image: imageUrl })
     })
 
     return () => {
       socket.disconnect();
       socket.off("chat message")
     };
-  }, []);
+  }, [session?.user?.email, session?.user?.image]);
 
   useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
@@ -183,7 +189,13 @@ const YapsPage = () => {
           return (
             <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
               <div className="flex items-center justify-between">
-                <Image className="m-4 rounded-full" src={'/ezgif.com-webp-to-jpg.jpg'} alt={''} height="50" width="50" />
+                {allYaps.image ? (
+                  <Image className="m-4 rounded-full aspect-square object-cover" src={allYaps.image} alt="" height={50} width={50} />
+                ) : (
+                  <div className="m-4 h-[50px] w-[50px] rounded-full bg-gray-600 flex items-center justify-center text-gray-400 text-xl font-semibold" title={allYaps.user ?? "User"}>
+                    {(allYaps.user ?? "?")[0].toUpperCase()}
+                  </div>
+                )}
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
                 <div className="flex items-center justify-end pr-2 relative" onClick={(element) => optionToggle(element, idx)}>
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
@@ -197,7 +209,6 @@ const YapsPage = () => {
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-end flex-grow m-4">
-                {/* find some way to make mirror of likes on backend? based off of ID. similar to options tab. then in color go based off of that */}
                 <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id })} color={uniqueYaps?.map((val: { id: any }) => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
               </div>
             </div>

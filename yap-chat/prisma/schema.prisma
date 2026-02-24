@@ -9,7 +9,7 @@ generator client {
 datasource db {
     provider     = "postgresql"
     // @prisma-ignore-next-line
-    url          = env("DATABASE_URL") // Required for Prisma 6.4.1
+    url          = env("DATABASE_URL")
     relationMode = "prisma"
 }
 
@@ -122,19 +122,20 @@ model Yap {
     message   String
     likes     Like[]
     user      String?
+    image     String?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
 model Threads {
-    id              String   @id @default(cuid())
-    threadId        String
-    chat            Chat[]
-    messenger       String
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
-    clearedAt       Json?    // Stores { [userId]: timestamp } to track when each user cleared their chat
-    user            User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
+    id        String   @id @default(cuid())
+    threadId  String
+    chat      Chat[]
+    messenger String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    clearedAt Json? // Stores { [userId]: timestamp } to track when each user cleared their chat
+    user      User     @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
     @@unique([threadId, messenger])
 }

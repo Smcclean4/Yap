@@ -34,7 +34,7 @@ export const yapRouter = createTRPCRouter({
       })
     }),
   postYap: publicProcedure
-    .input(z.object({ message: z.string(), user: z.string() }))
+    .input(z.object({ message: z.string(), user: z.string(), image: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.yap.create({
         include: {
@@ -43,6 +43,7 @@ export const yapRouter = createTRPCRouter({
         data: {
           message: input.message,
           user: input.user,
+          image: input.image
         }
       })
     }),
