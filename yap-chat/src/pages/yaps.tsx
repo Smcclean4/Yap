@@ -132,6 +132,7 @@ const YapsPage = () => {
       toast.error('Please type a message!')
       return
     }
+    // if user thats sending message is the current session user .. then send a message from that session
     socket.emit("chat message", userMessage)
     setUserMessage('')
     addOption()
@@ -173,7 +174,6 @@ const YapsPage = () => {
 
   useEffect(() => {
     localStorage.setItem("options", JSON.stringify(options));
-    console.log(yapsFromDatabase)
   }, [options]);
 
   if (!session) return null
@@ -208,7 +208,8 @@ const YapsPage = () => {
                 </div>
               </div>
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
-              <div className="flex justify-end items-end flex-grow m-4">
+              <div className="flex justify-end items-center flex-grow m-4 align-bottom">
+                {session?.user.email === allYaps.user && <p>{allYaps.likes.length === 0 ? null : allYaps.likes.length}</p>}
                 <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id })} color={uniqueYaps?.map((val: { id: any }) => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
               </div>
             </div>
