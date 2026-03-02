@@ -45,10 +45,11 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("a user connected: " + socket.id);
 
-  // all chat message
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
-    console.log("chat message: " + msg);
+  // broadcast when a new yap has been created in the app
+  socket.on("yap:created", (payload) => {
+    // notify all other connected clients so they can refresh their data
+    socket.broadcast.emit("yap:created", payload);
+    console.log("yap created event:", payload);
   });
 
   // notify specific user of a new private message

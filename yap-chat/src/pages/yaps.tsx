@@ -40,6 +40,10 @@ const YapsPage = () => {
   const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
   const { mutate: likeYap } = api.yap.likeYap.useMutation()
   const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
+    onSuccess: (createdYap) => {
+      // notify other connected clients that a new yap was created
+      socket.emit("yap:created", { id: createdYap.id })
+    },
     onSettled: () => {
       setUserMessage("");
       void ctx.yap.getAllYaps.invalidate();
@@ -128,12 +132,25 @@ const YapsPage = () => {
   }
 
   const handleAllYapSend = () => {
+    if (!session?.user?.email) return
+
     if (userMessage === '') {
       toast.error('Please type a message!')
       return
     }
-    // if user thats sending message is the current session user .. then send a message from that session
-    socket.emit("chat message", userMessage)
+
+    const imageUrl = session.user.image
+      ? String(session.user.image).startsWith("http")
+        ? String(session.user.image)
+        : `/${String(session.user.image)}`
+      : ""
+
+    userYap({
+      message: userMessage,
+      user: String(session.user.email),
+      image: imageUrl,
+    })
+
     setUserMessage('')
     addOption()
   }
@@ -144,22 +161,20 @@ const YapsPage = () => {
 
   useEffect(() => {
     if (!session?.user?.email) return
+
     socket.connect();
 
-    socket.on("chat message", (msg) => {
-      const imageUrl = session?.user?.image
-        ? String(session.user.image).startsWith("http")
-          ? String(session.user.image)
-          : `/${String(session.user.image)}`
-        : ""
-      userYap({ message: msg, user: String(session.user.email), image: imageUrl })
-    })
+    const handleYapCreated = () => {
+      void ctx.yap.getAllYaps.invalidate();
+    };
+
+    socket.on("yap:created", handleYapCreated);
 
     return () => {
+      socket.off("yap:created", handleYapCreated);
       socket.disconnect();
-      socket.off("chat message")
     };
-  }, [session?.user?.email, session?.user?.image]);
+  }, [session?.user?.email, ctx]);
 
   useEffect(() => {
     const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
