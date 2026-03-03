@@ -6,9 +6,12 @@ import { useModal } from '~/hooks/useModal'
 import { RequestModal } from '~/modals/request'
 import { RequestFriend } from './sendrequest'
 import toast from 'react-hot-toast'
+import { useSession } from 'next-auth/react'
+
 
 const FindUserPage = () => {
 
+  const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = useState('')
 
   const { isShowing, toggle } = useModal()
@@ -86,9 +89,9 @@ const FindUserPage = () => {
 
               return (
                 <div key={user.id} className='flex flex-row justify-between items-center text-xl p-2'>
-                  <p>{userName}</p>
+                  <p>{String(session?.user.name) === userName ? null : userName}</p>
                   <div>
-                    {fetchedUsers ? (
+                    {fetchedUsers && String(session?.user.name) !== userName ? (
                       isFriend ? (
                         <p className="text-gray-500">Already added</p>
                       ) : hasPendingRequest || isRequestSent ? (
