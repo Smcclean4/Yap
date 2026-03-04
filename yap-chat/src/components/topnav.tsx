@@ -13,13 +13,14 @@ export const TopNav = () => {
   const openNav = () => {
     setOpen(!open)
   }
+
   return (
     <>
       <div className="p-8 flex flex-row items-center justify-between w-full bg-blue-500 absolute">
         <Link href="/"><p className="text-white text-6xl">Yap.</p></Link>
-        <div className="flex flex-row cursor-pointer sm:hidden z-10">
+        <div className="flex flex-row cursor-pointer sm:hidden">
           <div className="w-auto h-auto absolute flex flex-col items-center right-5 top-10 text-center pr-2">
-            <ul onClick={openNav}>
+            <ul className="z-20" onClick={openNav}>
               <li className={open ? 'animate-rotateUp text-white text-2xl border-2 my-2 w-10' : 'animate-rotateUpRev text-white text-2xl border-2 my-2 w-10'}></li>
               <li className={open ? 'animate-fading text-white text-2xl border-2 my-2 w-10' : "animate-fadingRev text-white text-2xl border-2 my-2 w-10"}></li>
               <li className={open ? 'animate-rotateDwn text-white text-2xl border-2 my-2 w-10' : 'animate-rotateDwnRev text-white text-2xl border-2 my-2 w-10'}></li>
