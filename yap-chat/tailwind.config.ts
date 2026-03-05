@@ -9,7 +9,7 @@ export default withUt({
         // top line: rotate down into X
         rotateUp: {
           "0%": { transform: "translateY(0) rotate(0deg)" },
-          "100%": { transform: "translateY(0.35rem) rotate(45deg)" },
+          "100%": { transform: "translateY(0.75rem) rotate(45deg)" },
         },
         // reverse: X back to straight
         rotateUpRev: {
@@ -19,7 +19,7 @@ export default withUt({
         // bottom line: rotate up into X
         rotateDwn: {
           "0%": { transform: "translateY(0) rotate(0deg)" },
-          "100%": { transform: "translateY(-0.35rem) rotate(-45deg)" },
+          "100%": { transform: "translateY(-0.75rem) rotate(-45deg)" },
         },
         // reverse: X back to straight
         rotateDwnRev: {

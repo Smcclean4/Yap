@@ -18,13 +18,13 @@ const Home: NextPage = () => {
     <div>
       <Header />
       <Videoplayer url="https://mccleansid.wistia.com/medias/ttzeatf88i" />
-      <div className="min-h-screen flex flex-row justify-around items-center flex-wrap">
-        <div className="flex flex-col justify-center items-center font-extralight text-white">
+      <div className="min-h-screen flex flex-row justify-evenly md:justify-around items-center flex-wrap">
+        <div className="flex flex-col justify-center items-center font-extralight text-7xl md:text-xl text-white">
           <p className="text-9xl font-extrabold">Yap.</p>
           <p className="text-3xl p-6">Express your opinion's freely.</p>
           <p className="text-3xl">Diversify your <span className="font-extrabold text-yellow-600">Network</span>.</p>
         </div>
-        <div className="flex flex-col justify-center text-center items-center font-extralight text-white text-2xl md:text-3xl">
+        <div className="flex flex-col justify-center text-center items-center font-extralight text-white text-2xl md:text-xl">
           {session ? (
             <>
               <button className="m-3 rounded-full bg-blue-500 mx-auto px-6 py-2" onClick={handleLogin}>Go to Home</button>
