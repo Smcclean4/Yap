@@ -31,6 +31,7 @@ const YapsPage = () => {
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteMessage: '', deleteId: '' })
   const [options, setOptions] = useState<boolean[]>([])
   const { isShowing, toggle } = useModal();
+  const [dayJsStatus, setDayJsStatus] = useState('')
 
   const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
@@ -119,15 +120,15 @@ const YapsPage = () => {
     toggle()
   }
 
-  const onEdit = (idDatabase: string, messageFromDatabase: string) => {
+  const onEdit = (yap: any) => {
     setTrueEditFalseDelete(true)
-    currentDeleteData(idDatabase, messageFromDatabase)
+    currentDeleteData(yap.id, yap.message)
     toggle()
   }
 
-  const onDelete = (idDatabase: string) => {
+  const onDelete = (yap: any) => {
     setTrueEditFalseDelete(false)
-    currentDeleteData(idDatabase)
+    currentDeleteData(yap.id)
     toggle()
   }
 
@@ -150,7 +151,6 @@ const YapsPage = () => {
       user: String(session.user.email),
       image: imageUrl,
     })
-
     setUserMessage('')
     addOption()
   }
@@ -211,13 +211,13 @@ const YapsPage = () => {
                     {(allYaps.user ?? "?")[0].toUpperCase()}
                   </div>
                 )}
-                <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.createdAt).fromNow()}`}</span></p>
+                <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.updatedAt).fromNow()}`}</span></p>
                 <div className="flex items-center justify-end pr-2 relative" onClick={(element) => optionToggle(element, idx)}>
                   {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
                   {options[idx] && session?.user.email && (
                     <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white" ref={optionsRef}>
-                      <button onMouseDown={() => onEdit(allYaps.id, allYaps.message)}>Edit</button>
-                      <button onMouseDown={() => onDelete(allYaps.id)}>Delete</button>
+                      <button onMouseDown={() => onEdit(allYaps)}>Edit</button>
+                      <button onMouseDown={() => onDelete(allYaps)}>Delete</button>
                     </div>
                   )}
                 </div>
