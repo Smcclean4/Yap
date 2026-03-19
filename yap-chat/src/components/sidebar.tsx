@@ -17,16 +17,16 @@ export const SidebarNav = ({ user, userinfo, triggermessage }: SidebarNavInterfa
 
   return (
     <>
-      <div className={`flex flex-col justify-end w-min h-full sm:h-auto absolute sm:static xl:w-1/6 text-center bg-gray-400 ${hiddenTabIndicator ? '-translate-x-full' : 'translate-x-1/6'} sm:translate-x-0 transition-transform duration-300 ease-in-out`}>
+      <div className={`flex flex-col justify-end w-min h-full sm:h-auto absolute sm:static xl:w-1/6 text-center bg-gray-400 ${hiddenTabIndicator ? '-translate-x-full' : 'translate-x-1/6'} sm:translate-x-0 transition-transform duration-300 ease-in-out z-40`}>
         <ChatMessenger messengeruser={userinfo} trigger={triggermessage} />
         <div className="p-6">
           <LogoutForm />
           <p>Logged in as {user}</p>
         </div>
-      </div>
-      <div className="sm:hidden flex flex-col justify-center items-center h-full z-50">
-        <div className="h-auto bg-blue-500 rounded-tr-md rounded-br-md hover:cursor-pointer" onClick={() => setHiddenTabIndicator(!hiddenTabIndicator)}>
-          <FontAwesomeIcon icon={hiddenTabIndicator ? faArrowRight : faArrowLeft} size="2xl" className="m-2 text-white" />
+        <div className="sm:hidden flex absolute flex-col justify-center items-center h-full -right-11 z-40">
+          <div className="h-auto bg-blue-500 rounded-tr-md rounded-br-md hover:cursor-pointer" onClick={() => setHiddenTabIndicator(!hiddenTabIndicator)}>
+            <FontAwesomeIcon icon={hiddenTabIndicator ? faArrowRight : faArrowLeft} size="2xl" className="m-2 text-white" />
+          </div>
         </div>
       </div>
     </>

@@ -79,7 +79,7 @@ const ProfilePage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto py-6">
+      <div className="w-full flex flex-col justify-center items-center bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto">
         {/* <ProfileData /> */}
         <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
           <div className=" flex flex-col items-center">

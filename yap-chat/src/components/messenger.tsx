@@ -73,7 +73,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
           senderHeading: '', // Can be enhanced later to fetch from profile
           message: userMessage,
         }, "sidebar:update");
-        
+
         // Also update sender's sidebar if it's a new chat (keep current functionality)
         if (!itemExists(currentMessengerUser.name, sideBarChats)) {
           addChat(currentMessengerUser);
@@ -236,7 +236,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   if (!session) return null
 
   return (
-    <div className="flex flex-col flex-grow mt-32 overflow-scroll no-scrollbar overflow-y-auto">
+    <div className="flex flex-col flex-grow overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
       <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} loadingmessages={loadingMessageSend} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages}
         sessionUser={currentUserId}

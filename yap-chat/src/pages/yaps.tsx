@@ -238,7 +238,7 @@ const YapsPage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center mt-28 bg-gray-200" onClick={(element) => outerDivToggle(element)}>
+      <div className="w-full flex flex-col justify-center items-center  bg-gray-200" onClick={(element) => outerDivToggle(element)}>
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={editItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
