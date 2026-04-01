@@ -118,10 +118,10 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Heading</p>
-                <input type="text" placeholder="Heading" className="p-2 w-2/4" maxLength={40} onChange={onEditChanges} name="heading" value={profileData?.heading ?? ""} />
+                <input type="text" placeholder="Heading" className="p-2 w-3/4" maxLength={40} onChange={onEditChanges} name="heading" value={profileData?.heading ?? ""} />
               </div>
             ) : (
-              <div className="w-1/2">
+              <div className="w-3/4">
                 <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Heading</p>
                 <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileInfoFromDatabase?.heading || profileData.heading || <p className="text-red-500">Set Your Heading</p>}</div>
               </div>
@@ -131,10 +131,10 @@ const ProfilePage = () => {
             {editMode ? (
               <div className="w-full">
                 <p className="text-xl underline mb-2">Bio</p>
-                <textarea className="w-2/3 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData?.bio ?? ""} />
+                <textarea className="w-4/5 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData?.bio ?? ""} />
               </div>
             ) : (
-              <div className="w-2/3 my-6 max-h-48">
+              <div className="w-4/5 my-6 max-h-48">
                 <p className="bg-blue-400 w-36 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
                 <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileInfoFromDatabase?.bio || profileData.bio || <p className="text-red-500">Set Your Bio</p>}</div>
               </div>

@@ -244,10 +244,10 @@ const YapsPage = () => {
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}
-        <div className="flex justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start" ref={outerDivRef}>
+        <div className="flex justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start mb-20" ref={outerDivRef}>
           <DisplayAllYaps />
         </div>
-        <div className="h-auto w-full flex flex-row justify-center items-end">
+        <div className="w-full fixed bottom-0 flex flex-row justify-center items-end">
           <div className="bg-gray-300 text-black p-6 w-full flex flex-col justify-center text-center">
             <div className="flex flex-row justify-center">
               <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={userMessage} disabled={isPosting} maxLength={125} onChange={(e) => setMessage(e)} onKeyDown={(e) => e.key === "Enter" &&
