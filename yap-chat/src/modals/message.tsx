@@ -1,18 +1,23 @@
 import { faToiletPaper, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { createPortal } from 'react-dom'
-import { Key } from 'react';
+import type { Key } from 'react';
+import type { ChangeEventHandler } from 'react';
 import { LoadingPage } from '~/shared/loading';
+import type { RouterOutputs } from '~/utils/api';
+
+type ChatMessagesResult = RouterOutputs['messenger']['getChatMessages'];
+type ChatRow = NonNullable<NonNullable<ChatMessagesResult>['chat']>[number];
 
 interface MessageInterface {
   isShowing: boolean;
   hide: () => void;
-  storewords: (e: any) => void;
+  storewords: ChangeEventHandler<HTMLInputElement>;
   sendmessage: () => void;
   message: string;
   loadingmessages: boolean;
-  messages: any;
-  sessionUser: any;
+  messages: ChatMessagesResult | undefined;
+  sessionUser: string;
   user: string;
   onclosechat?: () => void;
   loading: boolean;
@@ -30,14 +35,15 @@ export const MessageModal = ({ isShowing, hide, storewords, loadingmessages, sen
       <p>Messaging: {user}!</p>
       <p>This is the chat box.</p>
       <div className="h-full w-full overflow-scroll flex flex-col">
-        {/* TODO: Add a timestamp to the messages and also show name of which user is sending the messages, after this work on online status */}
-        {!loading ? messages?.chat?.map((message: any, id: Key) => <div className={`w-full flex ${message.user === sessionUser ? 'justify-end' : 'justify-start'}`} key={id}>
-          <ul className={`m-8 text-xl text-white w-1/4 min-w-[300px] overflow-x-scroll ${message.user === sessionUser ? 'text-right bg-blue-500 rounded-tl-md rounded-bl-md rounded-br-md' : 'bg-gray-500 rounded-tr-md rounded-bl-md rounded-br-md'}`}><li className="m-2"><p>{message.user === sessionUser ? <b className="underline">You</b> : <b className="underline">{user}</b>}</p><p>{message.message}</p></li></ul>
-        </div>) : <LoadingPage />}
+        {!loading ? messages?.chat?.map((msg: ChatRow, id: Key) => (
+          <div className={`w-full flex ${msg.user === sessionUser ? 'justify-end' : 'justify-start'}`} key={id}>
+            <ul className={`m-8 text-xl text-white w-1/4 min-w-[300px] overflow-x-scroll ${msg.user === sessionUser ? 'text-right bg-blue-500 rounded-tl-md rounded-bl-md rounded-br-md' : 'bg-gray-500 rounded-tr-md rounded-bl-md rounded-br-md'}`}><li className="m-2"><p>{msg.user === sessionUser ? <b className="underline">You</b> : <b className="underline">{user}</b>}</p><p>{msg.message}</p></li></ul>
+          </div>
+        )) : <LoadingPage />}
       </div>
     </div>
     <div className="flex flex-row justify-center w-4/5 bg-gray-200 p-4">
-      <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" value={message} type="text" name="message" placeholder="Enter your message here..." maxLength={125} onChange={(e) => storewords(e)} onKeyDown={(e) => e.key === "Enter" &&
+      <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" value={message} type="text" name="message" placeholder="Enter your message here..." maxLength={125} onChange={storewords} onKeyDown={(e) => e.key === "Enter" &&
         sendmessage()} disabled={loadingmessages} />
       <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={sendmessage}>Send</button>
     </div>

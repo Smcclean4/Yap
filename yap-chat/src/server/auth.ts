@@ -6,7 +6,6 @@ import {
 } from "next-auth";
 import EmailProvider from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
 /**
@@ -37,14 +36,28 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user, trigger, newSession }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        image: trigger === "update" && newSession?.image ? user.image = newSession.image : user.image
-      },
-    }),
+    session: ({ session, user, trigger, newSession }) => {
+      let image: string | null | undefined = user.image ?? undefined;
+      if (
+        trigger === "update" &&
+        newSession != null &&
+        typeof newSession === "object" &&
+        "image" in newSession
+      ) {
+        const nextImage = (newSession as { image?: unknown }).image;
+        if (typeof nextImage === "string") {
+          image = nextImage;
+        }
+      }
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          image,
+        },
+      };
+    },
   },
   adapter: PrismaAdapter(prisma),
   providers: [

@@ -1,11 +1,38 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
-import { UserInfoInterface } from '~/pages/friends';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import type { UserInfoInterface } from '~/pages/friends';
 import { useSession } from 'next-auth/react';
 import { socket } from '~/pages/api/socket-client';
 
+function parseSideBarChats(raw: string): UserInfoInterface[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is UserInfoInterface =>
+        typeof item === 'object' &&
+        item !== null &&
+        'name' in item &&
+        typeof (item as UserInfoInterface).name === 'string'
+    );
+  } catch {
+    return [];
+  }
+}
+
+function parseConversationMessages(raw: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is string => typeof item === 'string');
+  } catch {
+    return [];
+  }
+}
+
 interface ChatContextType {
   sideBarChats: UserInfoInterface[];
-  conversationChat: any[];
+  conversationChat: string[];
   onlineUserIds: string[];
   unreadCounts: Map<string, number>; // Map of friendId/name -> unread count
   activeChatKey: string | null; // Key (friendId or name) of the currently open chat
@@ -13,7 +40,7 @@ interface ChatContextType {
   removeChat: (chatName: string) => void;
   addMessage: (message: string) => void;
   clearConversation: () => void;
-  setConversationChat: (messages: any[]) => void;
+  setConversationChat: (messages: string[]) => void;
   isUserOnline: (userId?: string | null) => boolean;
   incrementUnread: (friendId: string, friendName: string) => void;
   resetUnread: (friendId: string, friendName: string) => void;
@@ -44,34 +71,24 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('sideBarChatData');
       if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error('Error parsing sideBarChatData:', e);
-          return [];
-        }
+        return parseSideBarChats(saved);
       }
     }
     return [];
   };
 
-  const getInitialConversationChat = (): any[] => {
+  const getInitialConversationChat = (): string[] => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('conversationChatData');
       if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error('Error parsing conversationChatData:', e);
-          return [];
-        }
+        return parseConversationMessages(saved);
       }
     }
     return [];
   };
 
   const [sideBarChats, setSideBarChats] = useState<UserInfoInterface[]>(getInitialSideBarChats);
-  const [conversationChat, setConversationChat] = useState<any[]>(getInitialConversationChat);
+  const [conversationChat, setConversationChat] = useState<string[]>(getInitialConversationChat);
   const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
   const [unreadCounts, setUnreadCounts] = useState<Map<string, number>>(new Map());
   const [activeChatKey, setActiveChatKey] = useState<string | null>(null);
@@ -82,8 +99,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       const saved = localStorage.getItem('unreadCounts');
       if (saved) {
         try {
-          const parsed = JSON.parse(saved);
-          setUnreadCounts(new Map(Object.entries(parsed)));
+          const parsed: unknown = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            const entries = Object.entries(parsed as Record<string, unknown>).map(
+              ([k, v]) => [k, typeof v === 'number' ? v : Number(v)] as const
+            );
+            setUnreadCounts(new Map(entries.filter(([, v]) => !Number.isNaN(v))));
+          }
         } catch (e) {
           console.error('Error parsing unreadCounts:', e);
         }

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { faComment, faHouse, faPerson, faUserFriends } from '@fortawesome/free-solid-svg-icons'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { config } from '@fortawesome/fontawesome-svg-core'
-import Image from 'next/image'
 config.autoAddCss = false;
 
 export const TopNav = () => {

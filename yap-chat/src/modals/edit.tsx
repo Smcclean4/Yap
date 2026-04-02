@@ -1,4 +1,5 @@
-import React, { ChangeEventHandler, MouseEventHandler } from 'react'
+import React from 'react'
+import type { ChangeEventHandler, MouseEventHandler } from 'react'
 import { createPortal } from 'react-dom'
 
 interface EditModalInterface {

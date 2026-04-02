@@ -5,7 +5,6 @@ import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '~/utils/api';
-import { LoadingPage } from '~/shared/loading';
 import { UploadButton } from '~/utils/uploadthing';
 
 const ProfilePage = () => {
@@ -29,10 +28,10 @@ const ProfilePage = () => {
 
   const [editMode, setEditMode] = useState(false)
 
-  const { data: profileInfoFromDatabase, isLoading: profileLoading } = api.profile.getUserProfile.useQuery(
-    { id: session?.user.id! },
+  const { data: profileInfoFromDatabase } = api.profile.getUserProfile.useQuery(
+    { id: session?.user?.id ?? '' },
     {
-      enabled: !!session?.user.id,
+      enabled: Boolean(session?.user?.id),
       retry: 3,
       retryDelay: 1000
     }
@@ -56,9 +55,15 @@ const ProfilePage = () => {
     }
   }, [profileInfoFromDatabase])
 
-  const onEditChanges = useCallback(({ target: input }: any) => {
-    setProfileData(prev => ({ ...prev, [input.name]: input.value }))
-  }, [])
+  const onEditChanges = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      if (name === 'username' || name === 'heading' || name === 'bio') {
+        setProfileData((prev) => ({ ...prev, [name]: value }));
+      }
+    },
+    []
+  )
 
   const handleEdit = useCallback(() => {
     setEditMode(prev => !prev)
@@ -70,7 +75,12 @@ const ProfilePage = () => {
       return
     }
     console.log('Saving profile with image:', profileData.image)
-    setProfileInfoDatabase({ id: session!.user.id, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
+    const uid = session?.user?.id;
+    if (!uid) {
+      toast.error('Not signed in.');
+      return;
+    }
+    setProfileInfoDatabase({ id: uid, name: profileData.username, heading: profileData.heading, bio: profileData.bio, image: profileData.image })
     setEditMode(prev => !prev)
     toast.success('Profile saved!')
   }, [profileData, session, setProfileInfoDatabase])
@@ -94,10 +104,10 @@ const ProfilePage = () => {
             </div>
             {editMode && <UploadButton
               endpoint="imageUploader"
-              onClientUploadComplete={(res: any) => {
-                // Do something with the response
+              onClientUploadComplete={(res: { url: string }[]) => {
                 console.log("Files: ", res);
-                setProfileData(prev => ({ ...prev, image: res[0].url }))
+                const url = res[0]?.url;
+                if (url) setProfileData((prev) => ({ ...prev, image: url }));
                 toast.success('Image upload complete!')
               }}
               onUploadError={(error: Error) => {

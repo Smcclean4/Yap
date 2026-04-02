@@ -7,7 +7,11 @@ import { RequestModal } from '~/modals/request'
 import { RequestFriend } from './sendrequest'
 import toast from 'react-hot-toast'
 import { useSession } from 'next-auth/react'
+import { type RouterOutputs } from '~/utils/api'
 
+type FriendRow = RouterOutputs['friends']['getAllFriends'][number]
+type RequestRow = RouterOutputs['friends']['getAllRequests'][number]
+type SearchUser = RouterOutputs['user']['searchUsers'][number]
 
 const FindUserPage = () => {
 
@@ -24,7 +28,7 @@ const FindUserPage = () => {
   const { data: getAllRequests } = api.friends.getAllRequests.useQuery()
   const ctx = api.useContext()
 
-  const { mutate: createFriendRequest, isLoading: isSendingRequest } = api.friends.createFriendRequest.useMutation({
+  const { mutate: createFriendRequest } = api.friends.createFriendRequest.useMutation({
     onSuccess: () => {
       toast.success('Friend request sent!')
       setRequestSent(selectedUserName)
@@ -41,13 +45,14 @@ const FindUserPage = () => {
   }
 
   const searchIfUserExistsInFriendsDB = (userName: string) => {
-    const friendNames = getAllFriends?.map((friend: any) => friend.name).filter(Boolean) || []
+    const friendNames =
+      getAllFriends?.map((friend: FriendRow) => friend.name).filter((n): n is string => Boolean(n)) ?? []
     return friendNames.includes(userName)
   }
 
   const searchIfUserHasPendingRequest = (userName: string) => {
-    // Check if there's a pending request where this user sent a request to the current user
-    const requestNames = getAllRequests?.map((request: any) => request.name).filter(Boolean) || []
+    const requestNames =
+      getAllRequests?.map((request: RequestRow) => request.name).filter((n): n is string => Boolean(n)) ?? []
     return requestNames.includes(userName)
   }
 
@@ -65,7 +70,7 @@ const FindUserPage = () => {
   useEffect(() => {
     console.log(searchQuery)
     console.log(userResults)
-  }, [searchQuery])
+  }, [searchQuery, userResults])
 
   return (
     <div className="flex flex-row items-center justify-center w-full my-4">
@@ -81,8 +86,8 @@ const FindUserPage = () => {
           {loadingSearch ? (
             <div className="p-2"><LoadingPage /></div>
           ) : searchQuery.length === 0 ? null : (
-            userResults?.map((user: any) => {
-              const userName = user.name
+            userResults?.map((user: SearchUser) => {
+              const userName = user.name ?? ''
               const isFriend = searchIfUserExistsInFriendsDB(userName)
               const hasPendingRequest = searchIfUserHasPendingRequest(userName)
               const isRequestSent = requestSent === userName

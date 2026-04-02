@@ -1,7 +1,7 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { UserInfoInterface } from '~/pages/friends';
+import type { UserInfoInterface } from '~/pages/friends';
 import { MessageModal } from '~/modals/message';
 import { useSession } from 'next-auth/react'
 import { useModal } from '~/hooks/useModal';
@@ -31,7 +31,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     addMessage,
     clearConversation,
     isUserOnline,
-    incrementUnread,
     resetUnread,
     getUnreadCount,
     setActiveChat,
@@ -53,14 +52,14 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   )
 
-  const { mutate: createMessageThread, isLoading: loadingThreadCreation } = api.messenger.createThread.useMutation({
+  const { mutate: createMessageThread } = api.messenger.createThread.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
-    onSettled: (data) => {
+    onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
       if (currentMessengerUser && currentMessengerUser.friendId && currentUserId) {
         // Emit socket event to notify the recipient to update their sidebar and increment unread count
@@ -82,16 +81,14 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     }
   })
 
-  const { mutate: deleteThread, isLoading: loadingThreadDeletion } = api.messenger.deleteThread.useMutation({
+  const { mutate: deleteThread } = api.messenger.deleteThread.useMutation({
     onSettled: () => {
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
 
-  const itemExists = useCallback((name: string | undefined, item: { name: any; }[]) => {
-    return item.some((chat: { name: any; }) => {
-      return chat?.name === name
-    })
+  const itemExists = useCallback((name: string | undefined, item: UserInfoInterface[]) => {
+    return item.some((chat) => chat.name === name);
   }, [])
 
   const updateMessenger = useCallback(() => {
@@ -117,18 +114,18 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       createMessageThread({ friendName: messengeruser.name })
       // Reset unread count and set as active chat when opening a chat
       if (messengeruser.friendId || messengeruser.name) {
-        resetUnread(messengeruser.friendId || '', messengeruser.name)
-        setActiveChat(messengeruser.friendId || '', messengeruser.name)
+        resetUnread(String(messengeruser.friendId ?? ''), messengeruser.name)
+        setActiveChat(String(messengeruser.friendId ?? ''), messengeruser.name)
       }
     }
-  }, [trigger, messengeruser, updateMessenger, currentUserId, createMessageThread])
+  }, [trigger, messengeruser, updateMessenger, currentUserId, createMessageThread, resetUnread, setActiveChat])
 
   // Handle toggle separately to avoid infinite loops
   useEffect(() => {
     if (trigger && messengeruser) {
       toggle()
     }
-  }, [trigger])
+  }, [trigger, messengeruser, toggle])
 
   // Clear active chat when modal is closed
   useEffect(() => {
@@ -160,8 +157,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       setCurrentMessengerUser(selectedChat);
       // Reset unread count and set as active chat when opening a chat
       if (selectedChat.friendId || selectedChat.name) {
-        resetUnread(selectedChat.friendId || '', selectedChat.name)
-        setActiveChat(selectedChat.friendId || '', selectedChat.name)
+        resetUnread(String(selectedChat.friendId ?? ''), selectedChat.name)
+        setActiveChat(String(selectedChat.friendId ?? ''), selectedChat.name)
       }
     }
     toggle()
@@ -215,11 +212,11 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     return (
       <>
-        {sideBarChats?.map((chats: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; friendId?: string; id?: string; }, idx: React.Key) => {
+        {sideBarChats?.map((chats: UserInfoInterface, idx: number) => {
           const liveOnline = isUserOnline(chats.friendId);
-          const unreadCount = getUnreadCount(chats.friendId || '', chats.name as string);
+          const unreadCount = getUnreadCount(String(chats.friendId ?? ''), chats.name);
           return (
-            <div key={idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
+            <div key={chats.id ?? idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
               <div className="flex flex-row justify-around items-center">
                 <p className="text-xl">{chats?.name}</p>
                 <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
@@ -239,7 +236,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
     <div className="flex flex-col flex-grow overflow-scroll no-scrollbar overflow-y-auto">
       <Toaster />
       <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} loadingmessages={loadingMessageSend} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages}
-        sessionUser={currentUserId}
+        sessionUser={String(currentUserId ?? '')}
         user={String(currentMessengerUser?.name || messengeruser?.name)} onclosechat={closeChat} loading={Boolean(loadingMessages && currentUserId && currentMessengerName && currentMessengerName.trim() !== '')} />
       <DisplayAllMessages />
     </div>

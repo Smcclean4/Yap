@@ -2,12 +2,14 @@ import { useSession } from 'next-auth/react';
 import React from 'react'
 import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
-import { api } from '~/utils/api';
+import { api, type RouterOutputs } from '~/utils/api';
 import dayjs from 'dayjs';
 import relativeTime from "dayjs/plugin/relativeTime"
 import { LoadingPage } from '~/shared/loading';
 
 dayjs.extend(relativeTime)
+
+type HomeUpdate = RouterOutputs['home']['getHomeUpdates'][number];
 
 const HomePage = () => {
   const { data: session } = useSession();
@@ -21,9 +23,9 @@ const HomePage = () => {
 
     return (
       <>
-        {data?.map((content: { heading: string | number | boolean | React.ReactFragment | React.ReactPortal | React.ReactElement<any, string | React.JSXElementConstructor<any>> | null | undefined; createdAt: string | number | Date | dayjs.Dayjs | null | undefined; description: string | number | boolean | React.ReactFragment | React.ReactPortal | React.ReactElement<any, string | React.JSXElementConstructor<any>> | null | undefined; }, idx: React.Key | null | undefined) => {
+        {data?.map((content: HomeUpdate, idx: number) => {
           return (
-            <div key={idx}>
+            <div key={content.id ?? idx}>
               <p className="text-md md:text-2xl"><i className="underline">{content.heading}</i><span className="font-extralight">{` • ${dayjs(content.createdAt).fromNow()}`}</span></p>
               <p className="py-6 text-sm md:text-xl">{content.description}</p>
             </div>

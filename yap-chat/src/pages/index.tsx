@@ -11,7 +11,7 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.push("/home")
+    void router.push("/home");
   }
 
   return (
@@ -21,7 +21,7 @@ const Home: NextPage = () => {
       <div className="min-h-screen flex flex-row justify-evenly md:justify-around items-center flex-wrap">
         <div className="flex flex-col justify-center items-center font-extralight text-7xl md:text-xl text-white">
           <p className="text-9xl font-extrabold">Yap.</p>
-          <p className="text-3xl p-6">Express your opinion's freely.</p>
+          <p className="text-3xl p-6">Express your opinions freely.</p>
           <p className="text-3xl">Diversify your <span className="font-extrabold text-yellow-600">Network</span>.</p>
         </div>
         <div className="flex flex-col justify-center text-center items-center font-extralight text-white text-2xl md:text-xl">

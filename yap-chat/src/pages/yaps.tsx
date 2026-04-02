@@ -1,4 +1,4 @@
-import { faEllipsis, faHeart, faUserPlus } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import { DeleteModal } from '~/modals/delete'
 import { EditModal } from '~/modals/edit'
 import { SidebarNav } from '~/components/sidebar'
-import { api } from '~/utils/api'
+import { api, type RouterOutputs } from '~/utils/api'
 import { LoadingPage } from '~/shared/loading'
 import dayjs from 'dayjs';
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -17,10 +17,12 @@ import { socket } from "./api/socket-client"
 
 dayjs.extend(relativeTime)
 
+type YapWithLikes = RouterOutputs['yap']['getAllYaps'][number];
+
 const YapsPage = () => {
 
   interface DeleteInterface {
-    deleteMessage: any;
+    deleteMessage: string | undefined;
     deleteId: string;
   }
 
@@ -31,8 +33,6 @@ const YapsPage = () => {
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteMessage: '', deleteId: '' })
   const [options, setOptions] = useState<boolean[]>([])
   const { isShowing, toggle } = useModal();
-  const [dayJsStatus, setDayJsStatus] = useState('')
-
   const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
 
@@ -63,9 +63,7 @@ const YapsPage = () => {
 
   const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return options ? false : false
-      }))
+      setOptions((boolArray) => boolArray.map(() => false))
     }
   }
 
@@ -89,8 +87,8 @@ const YapsPage = () => {
     setDeleteInfo({ deleteId: id, deleteMessage: message })
   }
 
-  const handleNewMessage = ({ target: input }: any) => {
-    setUpdateMessage(input.value)
+  const handleNewMessage = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setUpdateMessage(e.target.value)
   }
 
   const clearUpdateMessage = () => {
@@ -120,13 +118,13 @@ const YapsPage = () => {
     toggle()
   }
 
-  const onEdit = (yap: any) => {
+  const onEdit = (yap: YapWithLikes) => {
     setTrueEditFalseDelete(true)
     currentDeleteData(yap.id, yap.message)
     toggle()
   }
 
-  const onDelete = (yap: any) => {
+  const onDelete = (yap: YapWithLikes) => {
     setTrueEditFalseDelete(false)
     currentDeleteData(yap.id)
     toggle()
@@ -177,14 +175,24 @@ const YapsPage = () => {
   }, [session?.user?.email, ctx]);
 
   useEffect(() => {
-    const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
+    const raw = localStorage.getItem("options") || "[]";
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = [];
+    }
+    const optionsFromLocalStorage = Array.isArray(parsed)
+      ? parsed.filter((x): x is boolean => typeof x === "boolean")
+      : [];
     if (options.length === 0) {
-      setOptions(optionsFromLocalStorage)
+      setOptions(optionsFromLocalStorage);
     } else if (optionsFromLocalStorage.length === 0) {
       yapsFromDatabase?.forEach(() => {
-        setOptions([...options, false])
-      })
+        setOptions((prev) => [...prev, false]);
+      });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only hydration from localStorage
   }, [])
 
   useEffect(() => {
@@ -200,15 +208,15 @@ const YapsPage = () => {
 
     return (
       <>
-        {yapsFromDatabase?.map((allYaps: any, idx: any) => {
+        {yapsFromDatabase?.map((allYaps: YapWithLikes, idx: number) => {
           return (
-            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={idx}>
+            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={allYaps.id}>
               <div className="flex items-center justify-between">
                 {allYaps.image ? (
                   <Image className="m-4 rounded-full aspect-square object-cover" src={allYaps.image} alt="" height={50} width={50} />
                 ) : (
                   <div className="m-4 h-[50px] w-[50px] rounded-full bg-gray-600 flex items-center justify-center text-gray-400 text-xl font-semibold" title={allYaps.user ?? "User"}>
-                    {(allYaps.user ?? "?")[0].toUpperCase()}
+                    {String(allYaps.user ?? '?').charAt(0).toUpperCase()}
                   </div>
                 )}
                 <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.updatedAt).fromNow()}`}</span></p>
@@ -225,7 +233,7 @@ const YapsPage = () => {
               <p className="text-xl text-left pl-4">{allYaps.message}</p>
               <div className="flex justify-end items-center flex-grow m-4 align-bottom">
                 {session?.user.email === allYaps.user && <p>{allYaps.likes.length === 0 ? null : allYaps.likes.length}</p>}
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id })} color={uniqueYaps?.map((val: { id: any }) => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
+                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id })} color={uniqueYaps?.map((val) => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
               </div>
             </div>
           )
@@ -240,7 +248,7 @@ const YapsPage = () => {
       <SidebarNav user={session?.user.email} />
       <div className="w-full flex flex-col justify-center items-center  bg-gray-200" onClick={(element) => outerDivToggle(element)}>
         {trueEditFalseDelete ? (
-          <EditModal isShowing={isShowing} hide={toggle} saveitem={editItem} message={deleteInfo.deleteMessage} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
+          <EditModal isShowing={isShowing} hide={toggle} saveitem={editItem} message={deleteInfo.deleteMessage ?? ''} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}

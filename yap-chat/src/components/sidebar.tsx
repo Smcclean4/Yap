@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { LogoutForm } from './logout'
 import { ChatMessenger } from './messenger'
-import { UserInfoInterface } from '~/pages/friends';
+import type { UserInfoInterface } from '~/pages/friends';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 

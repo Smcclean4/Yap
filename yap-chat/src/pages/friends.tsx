@@ -8,7 +8,7 @@ import { SidebarNav } from '~/components/sidebar';
 import { useModal } from '~/hooks/useModal';
 import { DeleteModal } from '~/modals/delete';
 import toast, { Toaster } from 'react-hot-toast';
-import { api } from '~/utils/api';
+import { api, type RouterOutputs } from '~/utils/api';
 import { LoadingPage } from '~/shared/loading';
 import FindUserPage from '~/components/finduser';
 import { useChatContext } from '~/contexts/ChatContext';
@@ -18,17 +18,38 @@ export interface UserInfoInterface {
   image: string;
   online: boolean;
   heading: string;
-  id: any;        // friendship id (used for deletes/requests)
-  friendId?: any; // actual userId of the friend (for presence)
+  id: string;
+  friendId?: string | null;
+}
+
+type FriendRow = RouterOutputs['friends']['getAllFriends'][number];
+type RequestRow = RouterOutputs['friends']['getAllRequests'][number];
+
+function parseStoredUserInfo(raw: string | null): UserInfoInterface {
+  const empty: UserInfoInterface = {
+    name: '',
+    image: '',
+    heading: '',
+    id: '',
+    online: false,
+    friendId: '',
+  };
+  if (!raw) return empty;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return empty;
+    const p = parsed as Partial<UserInfoInterface>;
+    return { ...empty, ...p, id: String(p.id ?? ''), friendId: p.friendId != null ? String(p.friendId) : '' };
+  } catch {
+    return empty;
+  }
 }
 
 const FriendsPage = () => {
 
   const [userInfo, setUserInfo] = useState<UserInfoInterface>(() => {
-    // Try to restore from localStorage on initial load, but only in browser
     if (typeof window !== 'undefined') {
-      const savedUserInfo = localStorage.getItem('selectedMessenger');
-      return savedUserInfo ? JSON.parse(savedUserInfo) : { name: '', image: '', heading: '', id: '', online: false, friendId: '' };
+      return parseStoredUserInfo(localStorage.getItem('selectedMessenger'));
     }
     return { name: '', image: '', heading: '', id: '', online: false, friendId: '' };
   })
@@ -68,8 +89,22 @@ const FriendsPage = () => {
     setSelectedTab(!selectedTab)
   }
 
-  const currentUserData = (name: any, image: any, online: boolean, heading: string, id: any, friendId?: any) => {
-    const newUserInfo = { name: name, image: image, online: online, heading: heading, id: id, friendId };
+  const currentUserData = (
+    name: string,
+    image: string,
+    online: boolean,
+    heading: string,
+    id: string,
+    friendId?: string | null
+  ) => {
+    const newUserInfo: UserInfoInterface = {
+      name,
+      image,
+      online,
+      heading,
+      id,
+      friendId: friendId ?? '',
+    };
     setUserInfo(newUserInfo);
     // Save to localStorage for persistence, but only in browser
     if (typeof window !== 'undefined') {
@@ -79,9 +114,7 @@ const FriendsPage = () => {
 
   const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return options ? false : false
-      }))
+      setOptions((boolArray) => boolArray.map(() => false))
     }
   }
 
@@ -148,21 +181,30 @@ const FriendsPage = () => {
     }
   }
 
-  const requestTotal = (ctx: string | any[] | undefined) => {
-    return ctx?.length
-  }
+  const requestTotal = (rows: readonly unknown[] | undefined) => rows?.length ?? 0
 
+  // Sync options from localStorage once; avoid deps that would re-run on every friends load
   useEffect(() => {
-    const optionsFromLocalStorage = JSON.parse(localStorage.getItem("options") || "[]");
+    const raw = localStorage.getItem("options") || "[]";
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = [];
+    }
+    const optionsFromLocalStorage = Array.isArray(parsed)
+      ? parsed.filter((x): x is boolean => typeof x === "boolean")
+      : [];
     if (options.length === 0) {
-      setOptions(optionsFromLocalStorage)
+      setOptions(optionsFromLocalStorage);
     } else if (optionsFromLocalStorage.length === 0) {
       friendsFromDatabase?.forEach(() => {
-        setOptions([...options, false])
-      })
+        setOptions((prev) => [...prev, false]);
+      });
     }
-    console.log(friendsFromDatabase)
-    console.log(userInfo)
+    console.log(friendsFromDatabase);
+    console.log(userInfo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only hydration from localStorage
   }, [])
 
   // local storage for userinfo isnt the current problem find the real issue
@@ -178,12 +220,19 @@ const FriendsPage = () => {
 
     return (
       <>
-        {friendsFromDatabase?.map((friend: any, idx: any) => {
-          const liveOnline = isUserOnline(friend.friendId);
+        {friendsFromDatabase?.map((friend: FriendRow, idx: number) => {
+          const liveOnline = isUserOnline(friend.friendId ?? undefined);
           return (
-            <div key={idx} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
+            <div key={friend.id} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
               <div className="flex justify-end">
-                <FontAwesomeIcon className="cursor-pointer" onMouseDown={() => currentUserData(friend.name, friend.image, liveOnline, friend.heading, friend.id, friend.friendId)} onMouseUp={(element) => {
+                <FontAwesomeIcon className="cursor-pointer" onMouseDown={() => currentUserData(
+                  friend.name ?? '',
+                  friend.image ?? '',
+                  liveOnline,
+                  friend.heading ?? '',
+                  friend.id,
+                  friend.friendId
+                )} onMouseUp={(element) => {
                   optionToggle(element, idx)
                 }} icon={faEllipsis} size="xl" tabIndex={0} />
                 {options[idx] && (
@@ -193,14 +242,21 @@ const FriendsPage = () => {
                 )}
               </div>
               <div className="flex flex-row items-center justify-around">
-                <Image className="rounded-full object-cover aspect-square border-4 border-blue-500 shadow-lg" src={`${friend.image}`} alt={'friend image'} width="125" height="125" />
+                <Image className="rounded-full object-cover aspect-square border-4 border-blue-500 shadow-lg" src={friend.image ?? ''} alt={'friend image'} width={125} height={125} />
                 <p className="text-md">{liveOnline ? 'Online' : 'Offline'}</p>
                 <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
               </div>
-              <p className="text-xl my-2 font-bold">{friend.name}</p>
-              <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
+                <p className="text-xl my-2 font-bold">{friend.name}</p>
+                <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
               <button onClick={() => {
-                currentUserData(friend.name, friend.image, liveOnline, friend.heading, friend.id, friend.friendId)
+                currentUserData(
+                  friend.name ?? '',
+                  friend.image ?? '',
+                  liveOnline,
+                  friend.heading ?? '',
+                  friend.id,
+                  friend.friendId
+                )
                 onMessage()
               }
               } className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
@@ -217,15 +273,29 @@ const FriendsPage = () => {
 
     return (
       <>
-        {requestFromDatabase?.map((request: any, idx: React.Key) => {
+        {requestFromDatabase?.map((request: RequestRow) => {
           return (
-            <div key={idx} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
-              <Image className="rounded-full h-min mx-4" src={request.image} alt={''} width="75" height="75" />
+            <div key={request.id} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
+              <Image className="rounded-full h-min mx-4" src={request.image ?? ''} alt={''} width={75} height={75} />
               <div className="flex flex-col ml-4">
                 <p className=" mb-2 text-lg font-semibold">{request.name}</p>
                 <div className="flex flex-row justify-around">
-                  <button onMouseDown={() => currentUserData(request.name, request.image, request.online, request.heading, request.id)} onMouseUp={onRequestDeny} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                  <button onMouseDown={() => currentUserData(request.name, request.image, request.online, request.heading, request.id)} onMouseUp={() => approveRequest()} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+                  <button onMouseDown={() => currentUserData(
+                    request.name ?? '',
+                    request.image ?? '',
+                    request.online,
+                    request.heading ?? '',
+                    request.id,
+                    request.friendId
+                  )} onMouseUp={onRequestDeny} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                  <button onMouseDown={() => currentUserData(
+                    request.name ?? '',
+                    request.image ?? '',
+                    request.online,
+                    request.heading ?? '',
+                    request.id,
+                    request.friendId
+                  )} onMouseUp={() => approveRequest()} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
                 </div>
               </div>
             </div>

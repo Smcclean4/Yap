@@ -1,12 +1,10 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface RequestInterface {
   isShowing: boolean;
   hide: () => void;
-  user: any;
+  user: string | null;
   sendrequest: () => void;
 }
 

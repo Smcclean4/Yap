@@ -3,7 +3,7 @@ import { signIn } from 'next-auth/react';
 
 export const LoginForm = () => {
   const handleLogin = () => {
-    signIn()
+    void signIn();
   }
 
   return (
