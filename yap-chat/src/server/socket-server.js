@@ -3,12 +3,23 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 
 const app = express();
-const port = 3001;
+// Render will inject the port via $PORT; keep 3001 as a local/dev fallback.
+const port = process.env.PORT ?? 3001;
 const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    // Allow your deployed frontend to connect.
+    // You can set this to a single origin (e.g. https://yap.onrender.com)
+    // or a comma-separated list.
+    origin: (() => {
+      const raw = process.env.CORS_ORIGIN ?? "http://localhost:3000";
+      if (raw === "*") return "*";
+      return raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    })(),
   },
   connectionStateRecovery: {},
 });

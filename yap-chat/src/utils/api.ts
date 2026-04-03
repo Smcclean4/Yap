@@ -13,8 +13,24 @@ import { type AppRouter } from "~/server/api/root";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
-  return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
+  // SSR should use the deployment URL (Render/Vercel), so we don't hardcode localhost.
+  const candidates = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.NEXTAUTH_URL,
+    process.env.RENDER_EXTERNAL_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate || typeof candidate !== "string") continue;
+    if (candidate.startsWith("http://") || candidate.startsWith("https://")) {
+      return candidate;
+    }
+    // Fall back to assuming https if the env var omitted the scheme.
+    return `https://${candidate}`;
+  }
+
+  return `http://localhost:${process.env.PORT ?? 3000}`; // local fallback
 };
 
 /** A set of type-safe react-query hooks for your tRPC API. */
