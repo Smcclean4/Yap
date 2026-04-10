@@ -31,7 +31,7 @@ A social chat app where you can share short posts (“yaps”), react with likes
 
 # Technology Used
 
-<img src="https://img.icons8.com/color/48/000000/typescript.png"/> <img src="https://img.icons8.com/color/48/000000/react-native.png"/> <img src="https://img.icons8.com/color/48/000000/nodejs.png"/> <img alt="image" src="https://github.com/user-attachments/assets/1b623298-0b5c-426a-9030-88965de4bd19" />
+<img src="https://img.icons8.com/color/48/000000/typescript.png"/> <img src="https://img.icons8.com/color/48/000000/react-native.png"/> <img src="https://img.icons8.com/color/48/000000/nodejs.png"/> <img alt="image" height="48" src="https://github.com/user-attachments/assets/1b623298-0b5c-426a-9030-88965de4bd19" />
  <img src="https://img.icons8.com/color/48/000000/discord.png"/>
 
 <img src="https://axios-http.com/assets/logo.svg" alt="Axios" height="48"/>
