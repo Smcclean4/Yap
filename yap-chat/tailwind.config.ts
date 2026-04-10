@@ -49,6 +49,10 @@ export default withUt({
           "0%": { opacity: "0", transform: "translateY(2.5rem)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        extension4: {
+          "0%": { opacity: "0", transform: "translateY(3rem)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         rotateUp: "rotateUp 0.25s ease-in-out forwards",
@@ -60,6 +64,7 @@ export default withUt({
         extension1: "extension1 0.35s ease-out forwards",
         extension2: "extension2 0.45s ease-out forwards",
         extension3: "extension3 0.55s ease-out forwards",
+        extension4: "extension4 0.65s ease-out forwards",
       },
     },
   },

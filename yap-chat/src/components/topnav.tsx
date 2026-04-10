@@ -16,25 +16,25 @@ export const TopNav = () => {
   return (
     <>
       <div className="p-8 flex flex-row items-center justify-between w-full bg-blue-500 z-50">
-        <Link href="/"><p className="text-white text-6xl">Yap.</p></Link>
+        <Link href="/"><img src="https://img.icons8.com/64/FFAE42/globe" alt="Yap chat" /></Link>
         <div className="flex flex-row cursor-pointer sm:hidden">
           <div className="w-auto h-auto absolute flex flex-col items-center right-5 top-10 text-center pr-2">
             <ul className="z-20" onClick={openNav}>
-              <li className={open ? 'animate-rotateUp text-white text-2xl border-2 my-2 w-10' : 'animate-rotateUpRev text-white text-2xl border-2 my-2 w-10'}></li>
-              <li className={open ? 'animate-fading text-white text-2xl border-2 my-2 w-10' : "animate-fadingRev text-white text-2xl border-2 my-2 w-10"}></li>
-              <li className={open ? 'animate-rotateDwn text-white text-2xl border-2 my-2 w-10' : 'animate-rotateDwnRev text-white text-2xl border-2 my-2 w-10'}></li>
+              <li className={open ? 'animate-rotateUp text-2xl border-2 my-2 w-10' : 'animate-rotateUpRev text-2xl border-2 my-2 w-10'}></li>
+              <li className={open ? 'animate-fading text-2xl border-2 my-2 w-10' : "animate-fadingRev text-2xl border-2 my-2 w-10"}></li>
+              <li className={open ? 'animate-rotateDwn text-2xl border-2 my-2 w-10' : 'animate-rotateDwnRev text-2xl border-2 my-2 w-10'}></li>
             </ul>
-            <ul className={open ? "animate-fadingRev backdrop-blur-sm text-white" : "animate-fading backdrop-blur-sm text-white"}>
+            <ul className={open ? "animate-fadingRev backdrop-blur-3xl text-black" : "animate-fading backdrop-blur-3xl text-black"}>
               <li className={open ? "animate-extension1 my-3 p-2 mx-2 text-xl" : "my-3 p-2 mx-2 text-xl"}>
                 <Link href="/home">Home</Link>
               </li>
               <li className={open ? "animate-extension2 my-3 p-2 mx-2 text-xl" : "my-3 p-2 mx-2 text-xl"}>
                 <Link href="/yaps">Yaps</Link>
               </li>
-              <li className={open ? "animate-extension3 mb-10 p-2 mx-2 text-xl" : "mb-10 p-2 mx-2 text-xl"}>
+              <li className={open ? "animate-extension3 mb-3 p-2 mx-2 text-xl" : "mb-3 p-2 mx-2 text-xl"}>
                 <Link href="/friends">Friends</Link>
               </li>
-              <li className={open ? "animate-extension3 mb-10 p-2 mx-2 text-xl" : "mb-10 p-2 mx-2 text-xl"}>
+              <li className={open ? "animate-extension4 mb-3 p-2 mx-2 text-xl" : "mb-3 p-2 mx-2 text-xl"}>
                 <Link href="/profile">Profile</Link>
               </li>
             </ul>
