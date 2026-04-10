@@ -7,7 +7,7 @@
 # Yap
 Welcome to Yap! 😊
 
-<img src="https://img.icons8.com/64/FFAE42/globe" alt="Yap chat" style="height: 150px" />
+<img src="https://img.icons8.com/64/FFAE42/globe" alt="Yap chat" style="height: 125px" />
 
 A social chat app where you can share short posts (“yaps”), react with likes, and stay in touch with friends through direct messages. Sign in with Discord, browse a home feed of updates, manage friend requests, and see who’s online in real time.
 
