@@ -35,7 +35,7 @@ A social chat app where you can share short posts (“yaps”), react with likes
 
 <img src="https://axios-http.com/assets/logo.svg" alt="Axios" height="48"/>
 
-<img src="https://nodemailer.com/nm_logo_200x136.png" alt="Nodemailer" height="48"/>
+<img width="422" height="360" alt="image" src="https://github.com/user-attachments/assets/e5f944bf-ac32-4eb2-996d-ed6ccd63892e" />
 
 ## Frontend
 
