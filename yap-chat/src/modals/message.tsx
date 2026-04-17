@@ -24,7 +24,7 @@ interface MessageInterface {
 }
 
 export const MessageModal = ({ isShowing, hide, storewords, loadingmessages, sendmessage, message, messages, sessionUser, user, onclosechat, loading }: MessageInterface) => isShowing ? createPortal(
-  <div className="absolute top-0 right-0 left-0 bottom-0 bg-white w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl z-50">
+  <div className="fixed top-0 right-0 left-0 bottom-0 bg-white w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl z-[9999]">
     <div className="w-full flex justify-between p-6 top-0 absolute">
       <FontAwesomeIcon className="text-4xl text-red-500 cursor-pointer" onClick={hide} icon={faXmark} />
       <div className="flex justify-end">

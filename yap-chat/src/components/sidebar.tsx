@@ -17,7 +17,7 @@ export const SidebarNav = ({ user, userinfo, triggermessage }: SidebarNavInterfa
 
   return (
     <>
-      <div className={`flex flex-col justify-end w-min h-full sm:h-auto absolute sm:static xl:w-1/6 text-center bg-gray-400 ${hiddenTabIndicator ? '-translate-x-full' : 'translate-x-1/6'} sm:translate-x-0 transition-transform duration-300 ease-in-out z-40`}>
+      <div className={`flex flex-col justify-end w-min h-full sm:h-auto absolute sm:static xl:w-1/6 text-center bg-gray-400 ${hiddenTabIndicator ? '-translate-x-full' : 'translate-x-1/6'} sm:translate-x-0 transition-transform duration-300 ease-in-out`}>
         <ChatMessenger messengeruser={userinfo} trigger={triggermessage} />
         <div className="p-6">
           <LogoutForm />

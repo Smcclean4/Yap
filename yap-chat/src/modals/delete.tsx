@@ -11,7 +11,7 @@ interface DeleteModalInterface {
 }
 
 export const DeleteModal = ({ isShowing, hide, deleteitem, item, theme, text }: DeleteModalInterface) => isShowing ? createPortal(
-  <div className={`absolute top-0 right-0 left-0 bottom-0 ${theme} ${text} w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl z-50`}>
+  <div className={`fixed top-0 right-0 left-0 bottom-0 ${theme} ${text} w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl z-[100]`}>
     <p className="text-xl sm:text-3xl my-10">Preparing to delete {item}.</p>
     <p className="text-lg sm:text-2xl my-10">Are you sure you want to delete {item}?</p>
     <div className="flex sm:block my-2 sm:my-10">
