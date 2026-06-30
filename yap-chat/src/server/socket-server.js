@@ -105,6 +105,8 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(port, () => {
-  console.log(`server running at ${port}`);
+const portNumber = Number(port);
+
+server.listen(portNumber, "0.0.0.0", () => {
+  console.log(`server running at http://0.0.0:${portNumber}`);
 });
