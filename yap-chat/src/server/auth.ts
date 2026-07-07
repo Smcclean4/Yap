@@ -6,6 +6,8 @@ import {
 } from "next-auth";
 import EmailProvider from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { env } from "~/env.mjs";
+import { sendVerificationRequest } from "~/server/email/send-verification-request";
 import { prisma } from "~/server/db";
 
 /**
@@ -35,6 +37,7 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  secret: env.NEXTAUTH_SECRET,
   callbacks: {
     session: ({ session, user, trigger, newSession }) => {
       let image: string | null | undefined = user.image ?? undefined;
@@ -62,15 +65,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: process.env.EMAIL_SERVER_PORT,
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD
-        }
-      },
-      from: process.env.EMAIL_FROM
+      from: env.EMAIL_FROM,
+      sendVerificationRequest,
     })
     /**
      * ...add more providers here.
