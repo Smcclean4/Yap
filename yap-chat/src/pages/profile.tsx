@@ -89,11 +89,10 @@ const ProfilePage = () => {
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center bg-gray-200 flex-wrap overflow-scroll no-scrollbar overflow-y-auto">
-        {/* <ProfileData /> */}
-        <div className="w-3/4 text-center flex flex-col flex-wrap justify-center items-center">
-          <div className=" flex flex-col items-center">
-            <div className="h-48 w-48 border-2 border-white bg-white flex justify-center items-center rounded-full overflow-hidden">
+      <div className="no-scrollbar flex w-full flex-col flex-wrap items-center justify-center overflow-y-auto overflow-scroll py-10">
+        <div className="surface-card animate-rise flex w-11/12 max-w-3xl flex-col flex-wrap items-center p-8 text-center">
+          <div className="flex flex-col items-center">
+            <div className="flex h-48 w-48 items-center justify-center overflow-hidden rounded-full border-4 border-blue-500 bg-white shadow-xl shadow-blue-500/20 ring-4 ring-yap-gold/70">
               <Image
                 src={profileData.image || profileInfoFromDatabase?.image || "/ezgif.com-webp-to-jpg.jpg"}
                 alt='Profile'
@@ -102,7 +101,8 @@ const ProfilePage = () => {
                 priority
               />
             </div>
-            {editMode && <UploadButton
+            {editMode && <div className="mt-4">
+              <UploadButton
               endpoint="imageUploader"
               onClientUploadComplete={(res: { url: string }[]) => {
                 console.log("Files: ", res);
@@ -114,49 +114,50 @@ const ProfilePage = () => {
                 // Do something with the error.
                 alert(`ERROR! ${error.message}`);
               }}
-            />}
+            />
+            </div>}
           </div>
-          <div className="my-2 w-full">
+          <div className="my-4 w-full">
             {editMode ? (
               <div className="w-full">
-                <p className="text-xl underline mb-2">Username</p>
-                <input type="text" placeholder="Username" className="p-2 w-2/4" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData?.username ?? ""} />
+                <p className="mb-2 text-xl font-semibold">Username</p>
+                <input type="text" placeholder="Username" className="field-input mx-auto max-w-md" minLength={4} maxLength={25} onChange={onEditChanges} name="username" value={profileData?.username ?? ""} />
               </div>
-            ) : <p className="text-xl"><b>@{profileInfoFromDatabase?.name || profileData.username || <span className="text-red-500">Set Your Username</span>}</b></p>}
+            ) : <p className="text-2xl font-extrabold">@{profileInfoFromDatabase?.name || profileData.username || <span className="text-red-500">Set Your Username</span>}</p>}
           </div>
-          <div className="w-full flex flex-col justify-center items-center">
+          <div className="flex w-full flex-col items-center justify-center">
             {editMode ? (
               <div className="w-full">
-                <p className="text-xl underline mb-2">Heading</p>
-                <input type="text" placeholder="Heading" className="p-2 w-3/4" maxLength={40} onChange={onEditChanges} name="heading" value={profileData?.heading ?? ""} />
+                <p className="mb-2 text-xl font-semibold">Heading</p>
+                <input type="text" placeholder="Heading" className="field-input mx-auto max-w-xl" maxLength={40} onChange={onEditChanges} name="heading" value={profileData?.heading ?? ""} />
               </div>
             ) : (
-              <div className="w-3/4">
-                <p className="bg-blue-400 w-36 py-2 px-6 text-xl rounded-t-xl text-white text-center border-white">Heading</p>
-                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white">{profileInfoFromDatabase?.heading || profileData.heading || <p className="text-red-500">Set Your Heading</p>}</div>
+              <div className="w-full max-w-xl">
+                <p className="w-36 rounded-t-xl bg-blue-500 px-6 py-2 text-center text-xl text-white">Heading</p>
+                <div className="border border-blue-100 bg-slate-100 p-4 text-xl">{profileInfoFromDatabase?.heading || profileData.heading || <p className="text-red-500">Set Your Heading</p>}</div>
               </div>
             )}
           </div>
-          <div className="w-full flex flex-col justify-center items-center">
+          <div className="mt-6 flex w-full flex-col items-center justify-center">
             {editMode ? (
               <div className="w-full">
-                <p className="text-xl underline mb-2">Bio</p>
-                <textarea className="w-4/5 h-32 mb-2 p-2 resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData?.bio ?? ""} />
+                <p className="mb-2 text-xl font-semibold">Bio</p>
+                <textarea className="field-input mx-auto mb-2 h-32 max-w-2xl resize-none" placeholder="Tell us about yourself!" maxLength={350} onChange={onEditChanges} name="bio" value={profileData?.bio ?? ""} />
               </div>
             ) : (
-              <div className="w-4/5 my-6 max-h-48">
-                <p className="bg-blue-400 w-36 text-xl rounded-t-xl text-white text-center border-white">Bio</p>
-                <div className="text-xl bg-slate-300/[0.7] p-4 border-2 border-white text-left">{profileInfoFromDatabase?.bio || profileData.bio || <p className="text-red-500">Set Your Bio</p>}</div>
+              <div className="my-2 w-full max-w-2xl">
+                <p className="w-36 rounded-t-xl bg-blue-500 text-center text-xl text-white">Bio</p>
+                <div className="border border-blue-100 bg-slate-100 p-4 text-left text-xl">{profileInfoFromDatabase?.bio || profileData.bio || <p className="text-red-500">Set Your Bio</p>}</div>
               </div>
             )}
           </div>
-          <div className="flex flex-row justify-evenly w-full my-2">
+          <div className="my-6 flex w-full flex-row justify-evenly">
             {editMode &&
-              <button className="text-xl text-white bg-blue-500 py-2 px-6 rounded-full" onClick={handleEdit}>Cancel</button>}
+              <button className="btn-ghost text-xl" onClick={handleEdit}>Cancel</button>}
             {editMode ? (
-              <button className="text-xl text-white bg-blue-500 py-2 px-6 rounded-full" onClick={handleSave}>Save</button>
+              <button className="btn-primary text-xl" onClick={handleSave}>Save</button>
             ) : (
-              <button className="text-xl text-white bg-blue-500 py-2 px-6 rounded-full" onClick={handleEdit}>Edit</button>
+              <button className="btn-primary text-xl" onClick={handleEdit}>Edit</button>
             )}
           </div>
         </div>

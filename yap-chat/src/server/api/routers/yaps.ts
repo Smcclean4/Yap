@@ -49,59 +49,36 @@ export const yapRouter = createTRPCRouter({
   likeYap: publicProcedure
     .input(z.object({ user: z.string(), id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const existingYap = await ctx.prisma.yap.findUnique({
+      const existingLike = await ctx.prisma.like.findFirst({
         where: {
-          id: input.id,
-        },
-        select: {
-          message: true,
-          likes: {
-            select: {
-              user: true,
-            },
-          },
+          yapId: input.id,
+          user: input.user,
         },
       });
 
-      if (
-        existingYap?.likes.map((val) => val.user).includes(input.user)
-      ) {
-        const alreadyExists = await ctx.prisma.yap.update({
-          include: {
-            likes: true,
-          },
+      if (existingLike) {
+        await ctx.prisma.like.delete({
           where: {
-            id: input.id,
-          },
-          data: {
-            likes: {
-              delete: {
-                yapId: input.id,
-              },
-            },
+            id: existingLike.id,
           },
         });
-
-        return alreadyExists;
       } else {
-        const doesntExist = await ctx.prisma.yap.update({
-          include: {
-            likes: true,
-          },
-          where: {
-            id: input.id,
-          },
+        await ctx.prisma.like.create({
           data: {
-            likes: {
-              create: {
-                user: input.user,
-              },
-            },
+            yapId: input.id,
+            user: input.user,
           },
         });
-
-        return doesntExist;
       }
+
+      return ctx.prisma.yap.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          likes: true,
+        },
+      });
     }),
   editYap: publicProcedure
     .input(z.object({ id: z.string(), message: z.string() }))

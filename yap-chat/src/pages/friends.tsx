@@ -2,7 +2,7 @@ import { faCheck, faCircle, faEllipsis, faPaperPlane, faX } from '@fortawesome/f
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Layout } from '~/components/layout'
 import { SidebarNav } from '~/components/sidebar';
 import { useModal } from '~/hooks/useModal';
@@ -24,6 +24,95 @@ export interface UserInfoInterface {
 
 type FriendRow = RouterOutputs['friends']['getAllFriends'][number];
 type RequestRow = RouterOutputs['friends']['getAllRequests'][number];
+
+type FriendCardsProps = {
+  friends: FriendRow[] | undefined;
+  loading: boolean;
+  openMenuId: string | null;
+  isUserOnline: (friendId?: string | null) => boolean;
+  onSelectFriend: (friend: FriendRow, online: boolean) => void;
+  onToggleMenu: (event: React.MouseEvent, id: string) => void;
+  onRemoveFriend: () => void;
+  onMessage: () => void;
+};
+
+const FriendCards = ({ friends, loading, openMenuId, isUserOnline, onSelectFriend, onToggleMenu, onRemoveFriend, onMessage }: FriendCardsProps) => {
+  if (loading) return <LoadingPage />
+
+  return (
+    <>
+      {friends?.map((friend: FriendRow) => {
+        const liveOnline = isUserOnline(friend.friendId ?? undefined);
+        return (
+          <div key={friend.id} className="surface-card relative z-10 m-4 flex h-min w-72 flex-col overflow-visible p-4 text-center transition hover:-translate-y-1 hover:shadow-xl">
+            <div className="relative z-20 flex justify-end">
+              <button
+                type="button"
+                className="cursor-pointer text-gray-500 hover:text-gray-800"
+                aria-label={`Options for ${friend.name ?? 'friend'}`}
+                onClick={(event) => {
+                  onSelectFriend(friend, liveOnline)
+                  onToggleMenu(event, friend.id)
+                }}
+              >
+                <FontAwesomeIcon icon={faEllipsis} size="xl" />
+              </button>
+              {openMenuId === friend.id && (
+                <div className="absolute right-0 top-8 z-50 rounded-xl bg-gray-800 text-white shadow-xl">
+                  <button type="button" className="p-3 text-sm" onClick={onRemoveFriend}>Remove Friend</button>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-row items-center justify-around">
+              <Image className="aspect-square rounded-full border-4 border-blue-500 object-cover shadow-lg shadow-blue-500/30" src={friend.image ?? ''} alt={'friend image'} width={125} height={125} />
+              <div className="text-left">
+                <p className={`text-sm font-semibold ${liveOnline ? 'text-green-600' : 'text-gray-500'}`}>{liveOnline ? 'Online' : 'Offline'}</p>
+                <FontAwesomeIcon className="mt-1 rounded-full border-2 border-gray-100" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
+              </div>
+            </div>
+            <p className="my-2 text-xl font-bold">{friend.name}</p>
+            <p className="my-4 w-64 text-lg font-light text-gray-600">{friend.heading}</p>
+            <button onClick={() => {
+              onSelectFriend(friend, liveOnline)
+              onMessage()
+            }} className="btn-primary my-4 text-lg">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
+type RequestCardsProps = {
+  requests: RequestRow[] | undefined;
+  loading: boolean;
+  onSelectRequest: (request: RequestRow) => void;
+  onDeny: () => void;
+  onApprove: () => void;
+};
+
+const RequestCards = ({ requests, loading, onSelectRequest, onDeny, onApprove }: RequestCardsProps) => {
+  if (loading) return <LoadingPage />
+
+  return (
+    <>
+      {requests?.map((request: RequestRow) => {
+        return (
+          <div key={request.id} className="surface-dark m-4 flex h-min items-center p-6 text-center">
+            <Image className="mx-4 h-min rounded-full border-2 border-yap-gold" src={request.image ?? ''} alt={''} width={75} height={75} />
+            <div className="ml-4 flex flex-col">
+              <p className="mb-2 text-lg font-semibold">{request.name}</p>
+              <div className="flex flex-row justify-around">
+                <button onMouseDown={() => onSelectRequest(request)} onMouseUp={onDeny} className="m-2 cursor-pointer rounded-full bg-gray-950 px-4 py-3"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
+                <button onMouseDown={() => onSelectRequest(request)} onMouseUp={onApprove} className="m-2 cursor-pointer rounded-full bg-gray-950 px-3.5 py-3"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </>
+  )
+}
 
 function parseStoredUserInfo(raw: string | null): UserInfoInterface {
   const empty: UserInfoInterface = {
@@ -56,13 +145,12 @@ const FriendsPage = () => {
   const { isShowing, toggle } = useModal();
   const [selectedTab, setSelectedTab] = useState(true)
   const [messageTrigger, setMessageTrigger] = useState(false)
-  const [options, setOptions] = useState<boolean[]>([])
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const { data: session } = useSession();
   const { isUserOnline } = useChatContext();
 
   const ctx = api.useContext()
 
-  const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
 
   // maybe sending friends from database down to message and then pulling that data might be more reliable?
@@ -112,26 +200,18 @@ const FriendsPage = () => {
     }
   }
 
-  const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      setOptions((boolArray) => boolArray.map(() => false))
-    }
+  const closeMenus = () => {
+    setOpenMenuId(null)
   }
 
-  const optionToggle = (element: React.MouseEvent<SVGSVGElement, MouseEvent>, idx?: React.Key) => {
-    if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return i === idx ? false : options
-      }))
-    } else {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return i === idx ? true : options
-      }))
-    }
+  const optionToggle = (event: React.MouseEvent, id: string) => {
+    event.stopPropagation()
+    setOpenMenuId((current) => (current === id ? null : id))
   }
 
   const onRemoveFriend = () => {
     if (selectedTab) {
+      setOpenMenuId(null)
       toggle()
     }
   }
@@ -165,15 +245,9 @@ const FriendsPage = () => {
     toggle()
   }
 
-  const addOption = () => {
-    setOptions([...options, false])
-  }
-
-
   const approveRequest = () => {
     if (userInfo.id && userInfo.id !== "undefined" && session?.user?.id) {
       approveFriend({ name: userInfo.name, image: userInfo.image, online: userInfo.online, heading: userInfo.heading, id: userInfo.id })
-      addOption()
       // Note: We don't call removeRequest here because approving changes the status to ACCEPTED,
       // which automatically removes it from the requests list (getAllRequests only shows PENDING)
     } else {
@@ -183,143 +257,55 @@ const FriendsPage = () => {
 
   const requestTotal = (rows: readonly unknown[] | undefined) => rows?.length ?? 0
 
-  // Sync options from localStorage once; avoid deps that would re-run on every friends load
-  useEffect(() => {
-    const raw = localStorage.getItem("options") || "[]";
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      parsed = [];
-    }
-    const optionsFromLocalStorage = Array.isArray(parsed)
-      ? parsed.filter((x): x is boolean => typeof x === "boolean")
-      : [];
-    if (options.length === 0) {
-      setOptions(optionsFromLocalStorage);
-    } else if (optionsFromLocalStorage.length === 0) {
-      friendsFromDatabase?.forEach(() => {
-        setOptions((prev) => [...prev, false]);
-      });
-    }
-    console.log(friendsFromDatabase);
-    console.log(userInfo);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only hydration from localStorage
-  }, [])
-
-  // local storage for userinfo isnt the current problem find the real issue
-  useEffect(() => {
-    localStorage.setItem("options", JSON.stringify(options));
-  }, [options]);
-
   if (!session) return null;
-
-  const DisplayCurrentFriends = () => {
-
-    if (loadingFriends) return <LoadingPage />
-
-    return (
-      <>
-        {friendsFromDatabase?.map((friend: FriendRow, idx: number) => {
-          const liveOnline = isUserOnline(friend.friendId ?? undefined);
-          return (
-            <div key={friend.id} className="h-min flex flex-col text-center p-2 bg-gray-300 m-4 rounded-lg drop-shadow-2xl border-2 border-gray-200">
-              <div className="flex justify-end">
-                <FontAwesomeIcon className="cursor-pointer" onMouseDown={() => currentUserData(
-                  friend.name ?? '',
-                  friend.image ?? '',
-                  liveOnline,
-                  friend.heading ?? '',
-                  friend.id,
-                  friend.friendId
-                )} onMouseUp={(element) => {
-                  optionToggle(element, idx)
-                }} icon={faEllipsis} size="xl" tabIndex={0} />
-                {options[idx] && (
-                  <div className="absolute bg-gray-700 text-white" ref={optionsRef}>
-                    <button className="p-2" onClick={onRemoveFriend}>Remove Friend</button>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-row items-center justify-around">
-                <Image className="rounded-full object-cover aspect-square border-4 border-blue-500 shadow-lg" src={friend.image ?? ''} alt={'friend image'} width={125} height={125} />
-                <p className="text-md">{liveOnline ? 'Online' : 'Offline'}</p>
-                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
-              </div>
-                <p className="text-xl my-2 font-bold">{friend.name}</p>
-                <p className="text-lg font-light my-4 w-64">{friend.heading}</p>
-              <button onClick={() => {
-                currentUserData(
-                  friend.name ?? '',
-                  friend.image ?? '',
-                  liveOnline,
-                  friend.heading ?? '',
-                  friend.id,
-                  friend.friendId
-                )
-                onMessage()
-              }
-              } className="text-white text-lg bg-blue-500 py-2 rounded-lg my-4">Message <FontAwesomeIcon icon={faPaperPlane} color="white" size="sm" /></button>
-            </div>
-          )
-        })}
-      </>
-    )
-  }
-
-  const DisplayCurrentRequests = () => {
-
-    if (loadingRequests) return <LoadingPage />
-
-    return (
-      <>
-        {requestFromDatabase?.map((request: RequestRow) => {
-          return (
-            <div key={request.id} className="h-min flex text-center p-6 text-white m-4 bg-gray-700 rounded-lg items-center drop-shadow-2xl border-2 border-gray-600">
-              <Image className="rounded-full h-min mx-4" src={request.image ?? ''} alt={''} width={75} height={75} />
-              <div className="flex flex-col ml-4">
-                <p className=" mb-2 text-lg font-semibold">{request.name}</p>
-                <div className="flex flex-row justify-around">
-                  <button onMouseDown={() => currentUserData(
-                    request.name ?? '',
-                    request.image ?? '',
-                    request.online,
-                    request.heading ?? '',
-                    request.id,
-                    request.friendId
-                  )} onMouseUp={onRequestDeny} className="bg-gray-900 m-2 px-4 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faX} color="red" size="lg" /></button>
-                  <button onMouseDown={() => currentUserData(
-                    request.name ?? '',
-                    request.image ?? '',
-                    request.online,
-                    request.heading ?? '',
-                    request.id,
-                    request.friendId
-                  )} onMouseUp={() => approveRequest()} className="bg-gray-900 m-2 px-3.5 py-3 rounded-full cursor-pointer"><FontAwesomeIcon icon={faCheck} color="green" size="xl" /></button>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </>
-    )
-
-  }
 
   return (
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} userinfo={userInfo} triggermessage={messageTrigger} />
-      <div className="w-full flex flex-col justify-center items-center" onClick={(element) => outerDivToggle(element)}>
+      <div className="flex w-full flex-col items-center justify-center" onClick={closeMenus}>
         <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={selectedTab ? deleteFriend : deleteRequest} item={userInfo.name} theme={selectedTab ? 'bg-white' : 'bg-gray-900'} text={selectedTab ? 'text-black' : 'text-white'} />
-        <div className={`flex flex-col w-full justify-between h-full ${selectedTab ? 'bg-gray-200' : 'bg-gray-800'} overflow-scroll no-scrollbar overflow-y-auto`} ref={outerDivRef}>
+        <div className={`no-scrollbar flex h-full w-full flex-col justify-between overflow-y-auto overflow-scroll ${selectedTab ? '' : 'page-canvas-dark'}`} ref={outerDivRef}>
           <div className="flex flex-row">
-            <p className="bg-gray-200 w-1/2 h-16 text-black text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-700 font-extrabold" onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="mx-2 font-light text-md">(Friends: {requestTotal(friendsFromDatabase)})</span></p>
-            <p className="bg-gray-800 w-1/2 h-16 text-white text-center flex items-center justify-center text-2xl cursor-pointer hover:text-gray-300 font-extrabold" onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md font-semibold rounded-full bg-red-500 px-3 py-1 mx-2">{requestTotal(requestFromDatabase)}</span></p>
+            <p className={`flex h-16 w-1/2 cursor-pointer items-center justify-center text-center text-2xl font-extrabold ${selectedTab ? 'bg-white/70 text-black' : 'bg-white/10 text-white hover:text-gray-200'}`} onClick={selectedTab ? undefined : handleSelectedTabClick}>Friends<span className="text-md mx-2 font-light">({requestTotal(friendsFromDatabase)})</span></p>
+            <p className={`flex h-16 w-1/2 cursor-pointer items-center justify-center text-center text-2xl font-extrabold ${selectedTab ? 'bg-gray-800 text-white hover:text-gray-300' : 'bg-gray-900 text-white'}`} onClick={selectedTab ? handleSelectedTabClick : undefined}>Requests<span className="text-md mx-2 rounded-full bg-red-500 px-3 py-1 font-semibold">{requestTotal(requestFromDatabase)}</span></p>
           </div>
           <div className="flex flex-row flex-grow justify-evenly flex-wrap content-start">
             {selectedTab ? null : <FindUserPage />}
-            {selectedTab ? <DisplayCurrentFriends /> : <DisplayCurrentRequests />}
+            {selectedTab ? (
+              <FriendCards
+                friends={friendsFromDatabase}
+                loading={loadingFriends}
+                openMenuId={openMenuId}
+                isUserOnline={isUserOnline}
+                onSelectFriend={(friend, online) => currentUserData(
+                  friend.name ?? '',
+                  friend.image ?? '',
+                  online,
+                  friend.heading ?? '',
+                  friend.id,
+                  friend.friendId
+                )}
+                onToggleMenu={optionToggle}
+                onRemoveFriend={onRemoveFriend}
+                onMessage={onMessage}
+              />
+            ) : (
+              <RequestCards
+                requests={requestFromDatabase}
+                loading={loadingRequests}
+                onSelectRequest={(request) => currentUserData(
+                  request.name ?? '',
+                  request.image ?? '',
+                  request.online,
+                  request.heading ?? '',
+                  request.id,
+                  request.friendId
+                )}
+                onDeny={onRequestDeny}
+                onApprove={approveRequest}
+              />
+            )}
           </div>
         </div>
       </div>

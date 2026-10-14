@@ -8,9 +8,9 @@ export const LoginForm = () => {
 
   return (
     <div>
-      <div className="flex flex-col">
-        <button className="m-3 rounded-full bg-blue-500 mx-auto px-6 py-2" onClick={handleLogin}>Login</button>
-        <p className="animate-pulse">New User? Login in to proceed.</p>
+      <div className="flex flex-col items-center">
+        <button className="btn-primary mx-auto m-3 animate-glow" onClick={handleLogin}>Login</button>
+        <p className="animate-pulse text-white/90">New User? Login in to proceed.</p>
       </div>
     </div>
   )

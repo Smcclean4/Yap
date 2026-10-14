@@ -1,109 +1,69 @@
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { faComment, faHouse, faPerson, faUserFriends } from '@fortawesome/free-solid-svg-icons'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { config } from '@fortawesome/fontawesome-svg-core'
 config.autoAddCss = false;
 
+const navItems = [
+  { href: '/home', label: 'Home', icon: faHouse, enter: 'animate-extension1' },
+  { href: '/yaps', label: 'Yaps', icon: faComment, enter: 'animate-extension2' },
+  { href: '/friends', label: 'Friends', icon: faUserFriends, enter: 'animate-extension3' },
+  { href: '/profile', label: 'Profile', icon: faPerson, enter: 'animate-extension4' },
+] as const
+
 export const TopNav = () => {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const openNav = () => {
     setOpen(!open)
   }
 
+  const isActive = (href: string) => router.pathname === href
+
   return (
     <>
-      <div className="p-8 flex flex-row items-center justify-between w-full bg-blue-500 z-50">
-        <Link href="/"><img src="https://img.icons8.com/64/FFAE42/globe" alt="Yap chat" /></Link>
-        <div className="flex flex-row cursor-pointer sm:hidden">
-          <div className="w-auto h-auto absolute flex flex-col items-center right-5 top-10 text-center pr-2">
+      <div className="z-50 flex w-full flex-row items-center justify-between bg-blue-500 px-6 py-4 shadow-lg shadow-blue-500/30">
+        <Link href="/" className="flex items-center gap-3">
+          <img src="https://img.icons8.com/64/FFAE42/globe" alt="Yap chat" className="h-10 w-10 drop-shadow" />
+          <span className="hidden text-3xl font-extrabold tracking-tight text-white sm:inline">Yap.</span>
+        </Link>
+        <div className="flex cursor-pointer flex-row sm:hidden">
+          <div className="absolute right-5 top-8 z-20 flex h-auto w-auto flex-col items-center pr-2 text-center">
             <ul className="z-20" onClick={openNav}>
-              <li className={open ? 'animate-rotateUp text-2xl border-2 my-2 w-10' : 'animate-rotateUpRev text-2xl border-2 my-2 w-10'}></li>
-              <li className={open ? 'animate-fading text-2xl border-2 my-2 w-10' : "animate-fadingRev text-2xl border-2 my-2 w-10"}></li>
-              <li className={open ? 'animate-rotateDwn text-2xl border-2 my-2 w-10' : 'animate-rotateDwnRev text-2xl border-2 my-2 w-10'}></li>
+              <li className={open ? 'animate-rotateUp my-2 w-10 border-2 text-2xl' : 'animate-rotateUpRev my-2 w-10 border-2 text-2xl'}></li>
+              <li className={open ? 'animate-fading my-2 w-10 border-2 text-2xl' : "animate-fadingRev my-2 w-10 border-2 text-2xl"}></li>
+              <li className={open ? 'animate-rotateDwn my-2 w-10 border-2 text-2xl' : 'animate-rotateDwnRev my-2 w-10 border-2 text-2xl'}></li>
             </ul>
-            <ul className={open ? "animate-fadingRev backdrop-blur-3xl text-black" : "animate-fading backdrop-blur-3xl text-black"}>
-              <li className={open ? "animate-extension1 my-3 p-2 mx-2 text-xl" : "my-3 p-2 mx-2 text-xl"}>
-                <Link href="/home">Home</Link>
-              </li>
-              <li className={open ? "animate-extension2 my-3 p-2 mx-2 text-xl" : "my-3 p-2 mx-2 text-xl"}>
-                <Link href="/yaps">Yaps</Link>
-              </li>
-              <li className={open ? "animate-extension3 mb-3 p-2 mx-2 text-xl" : "mb-3 p-2 mx-2 text-xl"}>
-                <Link href="/friends">Friends</Link>
-              </li>
-              <li className={open ? "animate-extension4 mb-3 p-2 mx-2 text-xl" : "mb-3 p-2 mx-2 text-xl"}>
-                <Link href="/profile">Profile</Link>
-              </li>
+            <ul className={open ? "animate-fadingRev rounded-2xl bg-white/90 px-4 py-2 text-black shadow-xl backdrop-blur-3xl" : "animate-fading text-black backdrop-blur-3xl"}>
+              {navItems.map((item) => (
+                <li
+                  key={item.href}
+                  className={`${open ? item.enter : ''} my-3 mx-2 p-2 text-xl ${isActive(item.href) ? 'font-extrabold text-blue-500' : ''}`}
+                >
+                  <Link href={item.href}>{item.label}</Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
         <div className="hidden sm:block">
-          <ul className="flex text-white text-center">
-            <li className="mx-10 underline underline-offset-8">
-              <Link href="/home"><FontAwesomeIcon icon={faHouse} size="xl" />
-                <p>Home</p></Link>
-
-            </li>
-            <li className="mx-10 underline underline-offset-8">
-              <Link href="/yaps"><FontAwesomeIcon icon={faComment} size="xl" /><p>Yaps</p></Link>
-
-            </li>
-            <li className="mx-10 underline underline-offset-8">
-              <Link href="/friends"><FontAwesomeIcon icon={faUserFriends} size="xl" /><p>Friends</p></Link>
-
-            </li>
-            <li className="mx-10 underline underline-offset-8">
-              <Link href="/profile"><FontAwesomeIcon icon={faPerson} size="xl" /><p>Profile</p></Link>
-
-            </li>
+          <ul className="flex text-center text-white">
+            {navItems.map((item) => (
+              <li key={item.href} className={isActive(item.href) ? 'nav-link nav-link-active' : 'nav-link'}>
+                <Link href={item.href} className="flex flex-col items-center">
+                  <FontAwesomeIcon icon={item.icon} size="xl" />
+                  <p className="mt-1 text-sm font-semibold">{item.label}</p>
+                  <span className={`mt-1 h-1 w-8 rounded-full ${isActive(item.href) ? 'bg-yap-gold' : 'bg-transparent'}`} />
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
     </>
   )
 }
-
-// import React from 'react'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import Link from 'next/link'
-// import { faComment, faHouse, faPerson, faUserFriends } from '@fortawesome/free-solid-svg-icons'
-// import '@fortawesome/fontawesome-svg-core/styles.css'
-// import { config } from '@fortawesome/fontawesome-svg-core'
-// config.autoAddCss = false;
-
-// export const TopNav = () => {
-//   return (
-//     <div className="flex justify-between flex-row flex-grow bg-blue-500 w-full text-white absolute">
-//       <p className="text-7xl m-2 p-4">Yap.</p>
-//       <ul className="flex flex-row items-center">
-//         <div className="flex flex-col cursor-pointer text-center">
-//           <Link href="/home">
-//             <FontAwesomeIcon icon={faHouse} size="xl" />
-//             <li className="mx-8 text-xl underline underline-offset-4">Home</li>
-//           </Link>
-//         </div>
-//         <div className="flex flex-col cursor-pointer text-center">
-//           <Link href="/yaps">
-//             <FontAwesomeIcon icon={faComment} size="xl" />
-//             <li className="mx-8 text-xl underline underline-offset-4">Yaps</li>
-//           </Link>
-//         </div>
-//         <div className="flex flex-col cursor-pointer text-center">
-//           <Link href="/friends">
-//             <FontAwesomeIcon icon={faUserFriends} size="xl" />
-//             <li className="mx-8 text-xl underline underline-offset-4">Friends</li>
-//           </Link>
-//         </div>
-//         <div className="flex flex-col cursor-pointer text-center">
-//           <Link href="/profile">
-//             <FontAwesomeIcon icon={faPerson} size="xl" />
-//             <li className="mx-8 text-xl underline underline-offset-4">Profile</li>
-//           </Link>
-//         </div>
-//       </ul>
-//     </div>
-//   )
-// }

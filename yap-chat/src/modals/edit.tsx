@@ -13,13 +13,16 @@ interface EditModalInterface {
 }
 
 export const EditModal = ({ isShowing, hide, saveitem, message, setnewmessage, newmessage, clearmessage }: EditModalInterface) => isShowing ? createPortal(
-  <div className="fixed top-0 right-0 left-0 bottom-0 bg-white w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl z-[100]">
-    <p className="text-2xl my-4">This is your current Yap:</p>
-    <p className="text-xl text-gray-600 my-4 bg-gray-200 px-8 py-2 w-2/4"><i>{message}</i></p>
-    <textarea className="text-xl border-2 pl-4 w-2/4 max-h-40 min-h-12 my-6" placeholder="Change your Yap here..." minLength={2} maxLength={125} onChange={setnewmessage} value={newmessage} required />
-    <div className="flex sm:block my-2 sm:my-10">
-      <button className="text-2xl text-white bg-gray-700 px-6 py-2 rounded-lg mx-16" onMouseUp={clearmessage} onClick={hide}>Cancel</button>
-      <button className="text-2xl text-white bg-blue-600 px-6 py-2 rounded-lg mx-16" onClick={saveitem}>Save</button>
+  <>
+    <div className="modal-backdrop" onClick={hide} />
+    <div className="modal-panel">
+      <p className="my-2 text-2xl font-bold">This is your current Yap:</p>
+      <p className="my-4 w-full rounded-2xl bg-gray-100 px-6 py-3 text-xl text-gray-600"><i>{message}</i></p>
+      <textarea className="field-input my-4 min-h-12 max-h-40" placeholder="Change your Yap here..." minLength={2} maxLength={125} onChange={setnewmessage} value={newmessage} required />
+      <div className="my-4 flex gap-4">
+        <button className="btn-ghost text-2xl" onMouseUp={clearmessage} onClick={hide}>Cancel</button>
+        <button className="btn-primary text-2xl" onClick={saveitem}>Save</button>
+      </div>
     </div>
-  </div>, document.body
+  </>, document.body
 ) : null

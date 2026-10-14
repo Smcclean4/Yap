@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "darwin-arm64"]
 }
 
 // Note: url field is required for Prisma 6.4.1 (ignore Prisma 7 linter warning)
@@ -115,7 +116,8 @@ model Like {
     user  String
     yap   Yap    @relation(fields: [yapId], references: [id], onDelete: Cascade)
 
-    @@unique([yapId])
+    @@unique([yapId, user])
+    @@index([yapId])
 }
 
 model Yap {

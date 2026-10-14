@@ -9,11 +9,14 @@ interface RequestInterface {
 }
 
 export const RequestModal = ({ isShowing, hide, user, sendrequest }: RequestInterface) => isShowing ? createPortal(
-  <div className='fixed top-0 right-0 left-0 bottom-0 w-3/4 h-3/4 m-auto flex flex-col text-center justify-center items-center rounded-2xl bg-gray-600 z-[100]'>
-    <p className="text-3xl text-white my-10">Are you sure you want to send {user} a friend request?</p>
-    <div className="my-10">
-      <button className="text-2xl text-white bg-gray-700 px-6 py-2 rounded-lg mx-16" onClick={hide}>Cancel</button>
-      <button className="text-2xl text-white bg-red-600 px-6 py-2 rounded-lg mx-16" onClick={sendrequest}>Send</button>
+  <>
+    <div className="modal-backdrop" onClick={hide} />
+    <div className='modal-panel-dark text-center'>
+      <p className="my-6 text-3xl font-bold text-white">Send {user} a friend request?</p>
+      <div className="my-6 flex justify-center gap-4">
+        <button className="btn-ghost text-2xl" onClick={hide}>Cancel</button>
+        <button className="btn-primary text-2xl" onClick={sendrequest}>Send</button>
+      </div>
     </div>
-  </div>, document.body
+  </>, document.body
 ) : null

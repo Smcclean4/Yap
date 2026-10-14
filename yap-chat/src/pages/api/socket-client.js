@@ -7,4 +7,9 @@ const URL = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL
     ? undefined
     : "http://localhost:3001";
 
-export const socket = io(URL);
+export const socket = io(URL, {
+  autoConnect: true,
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 500,
+});

@@ -4,6 +4,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
+import type { PrismaClient } from "@prisma/client";
 
 // Helper to compute a stable, symmetric thread key for a pair of users.
 // We always use the "smaller" userId as threadId and the "larger" as messenger.
@@ -17,22 +18,40 @@ const getThreadKey = (userAId: string, userBId: string) => {
   };
 };
 
+const friendKeyInput = z.object({
+  friendName: z.string().optional(),
+  friendId: z.string().optional(),
+});
+
+const resolveFriendUser = async (
+  prisma: PrismaClient,
+  input: { friendName?: string; friendId?: string }
+) => {
+  if (input.friendId) {
+    const byId = await prisma.user.findUnique({
+      where: { id: input.friendId },
+      select: { id: true, name: true },
+    });
+    if (byId) return byId;
+  }
+
+  if (input.friendName?.trim()) {
+    return prisma.user.findUnique({
+      where: { name: input.friendName },
+      select: { id: true, name: true },
+    });
+  }
+
+  return null;
+};
+
 export const messengerRouter = createTRPCRouter({
   // Fetch all messages between the logged-in user and a friend.
   getChatMessages: protectedProcedure
-    .input(z.object({ friendName: z.string() }))
+    .input(friendKeyInput)
     .query(async ({ ctx, input }) => {
       const currentUserId = ctx.session.user.id;
-
-      // Find the friend's user record by name
-      const friendUser = await ctx.prisma.user.findUnique({
-        where: {
-          name: input.friendName,
-        },
-        select: {
-          id: true,
-        },
-      });
+      const friendUser = await resolveFriendUser(ctx.prisma, input);
 
       if (!friendUser) {
         return null;
@@ -77,18 +96,10 @@ export const messengerRouter = createTRPCRouter({
 
   // Ensure a thread exists between the logged-in user and a friend.
   createThread: protectedProcedure
-    .input(z.object({ friendName: z.string() }))
+    .input(friendKeyInput)
     .mutation(async ({ ctx, input }) => {
       const currentUserId = ctx.session.user.id;
-
-      const friendUser = await ctx.prisma.user.findUnique({
-        where: {
-          name: input.friendName,
-        },
-        select: {
-          id: true,
-        },
-      });
+      const friendUser = await resolveFriendUser(ctx.prisma, input);
 
       if (!friendUser) {
         throw new Error("Friend user not found");
@@ -125,18 +136,10 @@ export const messengerRouter = createTRPCRouter({
 
   // Post a message between the logged-in user and a friend. If the thread doesn't exist yet, create it.
   postMessage: protectedProcedure
-    .input(z.object({ chat: z.string(), friendName: z.string() }))
+    .input(friendKeyInput.extend({ chat: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const currentUserId = ctx.session.user.id;
-
-      const friendUser = await ctx.prisma.user.findUnique({
-        where: {
-          name: input.friendName,
-        },
-        select: {
-          id: true,
-        },
-      });
+      const friendUser = await resolveFriendUser(ctx.prisma, input);
 
       if (!friendUser) {
         throw new Error("Friend user not found");
@@ -181,18 +184,10 @@ export const messengerRouter = createTRPCRouter({
 
   // Clear the chat for the current user only (doesn't delete the thread or affect the other user)
   deleteThread: protectedProcedure
-    .input(z.object({ friendName: z.string() }))
+    .input(friendKeyInput)
     .mutation(async ({ ctx, input }) => {
       const currentUserId = ctx.session.user.id;
-
-      const friendUser = await ctx.prisma.user.findUnique({
-        where: {
-          name: input.friendName,
-        },
-        select: {
-          id: true,
-        },
-      });
+      const friendUser = await resolveFriendUser(ctx.prisma, input);
 
       if (!friendUser) {
         throw new Error("Friend user not found");
