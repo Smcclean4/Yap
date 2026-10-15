@@ -19,6 +19,60 @@ dayjs.extend(relativeTime)
 
 type YapWithLikes = RouterOutputs['yap']['getAllYaps'][number];
 
+type YapFeedProps = {
+  yaps: YapWithLikes[] | undefined;
+  loading: boolean;
+  sessionEmail: string;
+  openMenuId: string | null;
+  onToggleMenu: (event: React.MouseEvent, id: string) => void;
+  onEdit: (yap: YapWithLikes) => void;
+  onDelete: (yap: YapWithLikes) => void;
+  onLike: (id: string) => void;
+};
+
+const YapFeed = ({ yaps, loading, sessionEmail, openMenuId, onToggleMenu, onEdit, onDelete, onLike }: YapFeedProps) => {
+  if (loading) return <LoadingPage />
+
+  return (
+    <>
+      {yaps?.map((allYaps: YapWithLikes) => {
+        return (
+          <div className="surface-dark relative z-10 m-6 flex h-fit w-full max-w-xs flex-col overflow-visible rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl border-l-4 border-l-yap-gold transition hover:-translate-y-1" key={allYaps.id}>
+            <div className="flex items-center justify-between">
+              {allYaps.image ? (
+                <Image className="m-4 aspect-square rounded-full object-cover ring-2 ring-blue-500" src={allYaps.image} alt="" height={50} width={50} />
+              ) : (
+                <div className="m-4 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-gray-600 text-xl font-semibold text-gray-400 ring-2 ring-blue-500" title={allYaps.user ?? "User"}>
+                  {String(allYaps.user ?? '?').charAt(0).toUpperCase()}
+                </div>
+              )}
+              <p className="text-md font-extralight italic text-gray-300 md:text-lg"><span className="font-extralight text-yap-gold">{dayjs(allYaps.updatedAt).fromNow()}</span></p>
+              <div className="relative z-20 flex items-center justify-end overflow-visible pr-2">
+                {sessionEmail === allYaps.user && (
+                  <button type="button" className="m-4 cursor-pointer" onClick={(event) => onToggleMenu(event, allYaps.id)} aria-label="Yap options">
+                    <FontAwesomeIcon icon={faEllipsis} size="xl" />
+                  </button>
+                )}
+                {openMenuId === allYaps.id && sessionEmail === allYaps.user && (
+                  <div className="absolute right-2 top-12 z-50 flex w-28 flex-col rounded-xl bg-gray-700 text-center text-lg text-white shadow-xl">
+                    <button type="button" className="p-2 hover:bg-gray-600" onClick={() => onEdit(allYaps)}>Edit</button>
+                    <button type="button" className="p-2 hover:bg-gray-600" onClick={() => onDelete(allYaps)}>Delete</button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <p className="px-5 text-left text-xl leading-relaxed">{allYaps.message}</p>
+            <div className="m-4 flex flex-grow items-center justify-end align-bottom">
+              {allYaps.likes.length > 0 && <p className="text-sm text-gray-300">{allYaps.likes.length}</p>}
+              <FontAwesomeIcon className="m-2 cursor-pointer transition hover:scale-110" icon={faHeart} onClick={() => onLike(allYaps.id)} color={allYaps.likes.some((like) => like.user === sessionEmail) ? "red" : "white"} size="xl" />
+            </div>
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
 const YapsPage = () => {
 
   interface DeleteInterface {
@@ -31,15 +85,18 @@ const YapsPage = () => {
   const [updateMessage, setUpdateMessage] = useState('')
   const [trueEditFalseDelete, setTrueEditFalseDelete] = useState(false)
   const [deleteInfo, setDeleteInfo] = useState<DeleteInterface>({ deleteMessage: '', deleteId: '' })
-  const [options, setOptions] = useState<boolean[]>([])
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const { isShowing, toggle } = useModal();
-  const optionsRef = useRef<HTMLDivElement>(null)
   const outerDivRef = useRef<HTMLDivElement>(null)
 
   const [userMessage, setUserMessage] = useState('')
   const ctx = api.useContext()
   const { data: yapsFromDatabase, isLoading: loadingYaps } = api.yap.getAllYaps.useQuery()
-  const { mutate: likeYap } = api.yap.likeYap.useMutation()
+  const { mutate: likeYap } = api.yap.likeYap.useMutation({
+    onSettled: () => {
+      void ctx.yap.getAllYaps.invalidate();
+    }
+  })
   const { mutate: userYap, isLoading: isPosting } = api.yap.postYap.useMutation({
     onSuccess: (createdYap) => {
       // notify other connected clients that a new yap was created
@@ -61,26 +118,13 @@ const YapsPage = () => {
     }
   });
 
-  const outerDivToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      setOptions((boolArray) => boolArray.map(() => false))
-    }
+  const closeMenus = () => {
+    setOpenMenuId(null)
   }
 
-  const optionToggle = (element: React.MouseEvent<HTMLDivElement, MouseEvent>, idx?: React.Key) => {
-    if (optionsRef.current && !optionsRef.current.contains(element.target as Node)) {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return i === idx ? false : options
-      }))
-    } else {
-      setOptions((boolArray) => boolArray.map((options, i) => {
-        return i === idx ? true : options
-      }))
-    }
-  }
-
-  const addOption = () => {
-    setOptions([...options, false])
+  const optionToggle = (event: React.MouseEvent, id: string) => {
+    event.stopPropagation()
+    setOpenMenuId((current) => (current === id ? null : id))
   }
 
   const currentDeleteData = (id: string, message?: string) => {
@@ -119,12 +163,14 @@ const YapsPage = () => {
   }
 
   const onEdit = (yap: YapWithLikes) => {
+    setOpenMenuId(null)
     setTrueEditFalseDelete(true)
     currentDeleteData(yap.id, yap.message)
     toggle()
   }
 
   const onDelete = (yap: YapWithLikes) => {
+    setOpenMenuId(null)
     setTrueEditFalseDelete(false)
     currentDeleteData(yap.id)
     toggle()
@@ -150,7 +196,6 @@ const YapsPage = () => {
       image: imageUrl,
     })
     setUserMessage('')
-    addOption()
   }
 
   const setMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,8 +205,6 @@ const YapsPage = () => {
   useEffect(() => {
     if (!session?.user?.email) return
 
-    socket.connect();
-
     const handleYapCreated = () => {
       void ctx.yap.getAllYaps.invalidate();
     };
@@ -170,97 +213,39 @@ const YapsPage = () => {
 
     return () => {
       socket.off("yap:created", handleYapCreated);
-      socket.disconnect();
     };
   }, [session?.user?.email, ctx]);
 
-  useEffect(() => {
-    const raw = localStorage.getItem("options") || "[]";
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      parsed = [];
-    }
-    const optionsFromLocalStorage = Array.isArray(parsed)
-      ? parsed.filter((x): x is boolean => typeof x === "boolean")
-      : [];
-    if (options.length === 0) {
-      setOptions(optionsFromLocalStorage);
-    } else if (optionsFromLocalStorage.length === 0) {
-      yapsFromDatabase?.forEach(() => {
-        setOptions((prev) => [...prev, false]);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only hydration from localStorage
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem("options", JSON.stringify(options));
-  }, [options]);
-
   if (!session) return null
-
-  const DisplayAllYaps = () => {
-    const { data: uniqueYaps } = api.yap.findSpecificUserLikes.useQuery({ text: String(session?.user.email) })
-
-    if (loadingYaps) return <LoadingPage />
-
-    return (
-      <>
-        {yapsFromDatabase?.map((allYaps: YapWithLikes, idx: number) => {
-          return (
-            <div className="w-full h-fit max-w-xs bg-gray-800 text-white m-8 flex flex-col rounded-tr-3xl rounded-tl-3xl rounded-bl-3xl" key={allYaps.id}>
-              <div className="flex items-center justify-between">
-                {allYaps.image ? (
-                  <Image className="m-4 rounded-full aspect-square object-cover" src={allYaps.image} alt="" height={50} width={50} />
-                ) : (
-                  <div className="m-4 h-[50px] w-[50px] rounded-full bg-gray-600 flex items-center justify-center text-gray-400 text-xl font-semibold" title={allYaps.user ?? "User"}>
-                    {String(allYaps.user ?? '?').charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <p className="text-md md:text-lg font-extralight italic text-gray-300"><span className="font-extralight">{` • ${dayjs(allYaps.updatedAt).fromNow()}`}</span></p>
-                <div className="flex items-center justify-end pr-2 relative" onClick={(element) => optionToggle(element, idx)}>
-                  {session?.user.email === allYaps.user && <FontAwesomeIcon className="m-4 cursor-pointer" icon={faEllipsis} size="xl" />}
-                  {options[idx] && session?.user.email && (
-                    <div className="absolute text-center flex flex-col border-2 w-28 bg-gray-500 border-none text-lg text-white" ref={optionsRef}>
-                      <button onMouseDown={() => onEdit(allYaps)}>Edit</button>
-                      <button onMouseDown={() => onDelete(allYaps)}>Delete</button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <p className="text-xl text-left pl-4">{allYaps.message}</p>
-              <div className="flex justify-end items-center flex-grow m-4 align-bottom">
-                {session?.user.email === allYaps.user && <p>{allYaps.likes.length === 0 ? null : allYaps.likes.length}</p>}
-                <FontAwesomeIcon className="m-2 cursor-pointer" icon={faHeart} onClick={() => likeYap({ user: String(session?.user.email), id: allYaps.id })} color={uniqueYaps?.map((val) => val.id).includes(allYaps.id) ? "red" : "white"} size="xl" />
-              </div>
-            </div>
-          )
-        })}
-      </>
-    )
-  }
 
   return (
     <Layout>
       <Toaster />
       <SidebarNav user={session?.user.email} />
-      <div className="w-full flex flex-col justify-center items-center  bg-gray-200" onClick={(element) => outerDivToggle(element)}>
+      <div className="relative flex min-h-0 w-full min-w-0 flex-col items-center justify-center" onClick={closeMenus}>
         {trueEditFalseDelete ? (
           <EditModal isShowing={isShowing} hide={toggle} saveitem={editItem} message={deleteInfo.deleteMessage ?? ''} setnewmessage={handleNewMessage} newmessage={updateMessage} clearmessage={clearUpdateMessage} />
         ) : (
           <DeleteModal isShowing={isShowing} hide={toggle} deleteitem={deleteItem} item={'this Yap'} theme={'bg-white'} text={'text-black'} />
         )}
-        <div className="flex justify-center h-full w-full flex-wrap overflow-scroll no-scrollbar overflow-y-auto content-start mb-20" ref={outerDivRef}>
-          <DisplayAllYaps />
+        <div className="no-scrollbar mb-24 flex h-full w-full min-w-0 flex-wrap content-start justify-center overflow-y-auto overflow-scroll" ref={outerDivRef}>
+          <YapFeed
+            yaps={yapsFromDatabase}
+            loading={loadingYaps}
+            sessionEmail={String(session.user.email)}
+            openMenuId={openMenuId}
+            onToggleMenu={optionToggle}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onLike={(id) => likeYap({ user: String(session.user.email), id })}
+          />
         </div>
-        <div className="w-full fixed bottom-0 flex flex-row justify-center items-end">
-          <div className="bg-gray-300 text-black p-6 w-full flex flex-col justify-center text-center">
-            <div className="flex flex-row justify-center">
-              <input className="p-2 rounded-tl-full rounded-bl-full w-full max-w-3xl" type="text" name="message" placeholder="Enter your message here..." value={userMessage} disabled={isPosting} maxLength={125} onChange={(e) => setMessage(e)} onKeyDown={(e) => e.key === "Enter" &&
+        <div className="absolute inset-x-0 bottom-0 z-30 min-w-0">
+          <div className="border-t border-white/40 bg-white/80 p-3 text-black backdrop-blur-md sm:p-5">
+            <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-row">
+              <input className="min-w-0 flex-1 rounded-bl-full rounded-tl-full border border-gray-200 bg-white p-3 outline-none focus:border-blue-500" type="text" name="message" placeholder="Enter your message here..." value={userMessage} disabled={isPosting} maxLength={125} onChange={(e) => setMessage(e)} onKeyDown={(e) => e.key === "Enter" &&
                 handleAllYapSend()} />
-              <button className="px-4 py-2  text-white bg-blue-400 hover:bg-blue-500 rounded-tr-full rounded-br-full" type="submit" onClick={() => handleAllYapSend()}>Send</button>
+              <button className="shrink-0 rounded-br-full rounded-tr-full bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600 sm:px-5" type="submit" onClick={() => handleAllYapSend()}>Send</button>
             </div>
           </div>
         </div>

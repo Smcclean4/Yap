@@ -11,12 +11,16 @@ interface DeleteModalInterface {
 }
 
 export const DeleteModal = ({ isShowing, hide, deleteitem, item, theme, text }: DeleteModalInterface) => isShowing ? createPortal(
-  <div className={`fixed top-0 right-0 left-0 bottom-0 ${theme} ${text} w-3/4 h-3/4 m-auto flex flex-col justify-center items-center rounded-2xl z-[100]`}>
-    <p className="text-xl sm:text-3xl my-10">Preparing to delete {item}.</p>
-    <p className="text-lg sm:text-2xl my-10">Are you sure you want to delete {item}?</p>
-    <div className="flex sm:block my-2 sm:my-10">
-      <button className="text-lg sm:text-2xl text-white bg-gray-700 px-6 py-2 rounded-lg mx-16" onClick={hide}>Cancel</button>
-      <button className="text-lg sm:text-2xl text-white bg-red-600 px-6 py-2 rounded-lg mx-16" onClick={deleteitem}>Delete</button>
+  <>
+    <div className="modal-backdrop" onClick={hide} />
+    <div className={`modal-panel ${theme.includes('gray-900') ? 'modal-panel-dark' : ''} ${text}`}>
+      <div className="accent-bar mb-6" />
+      <p className="my-4 text-xl font-bold sm:text-3xl">Preparing to delete {item}.</p>
+      <p className="my-4 text-lg opacity-70 sm:text-2xl">Are you sure you want to delete {item}?</p>
+      <div className="my-6 flex gap-4">
+        <button className="btn-ghost text-lg sm:text-2xl" onClick={hide}>Cancel</button>
+        <button className="btn-danger text-lg sm:text-2xl" onClick={deleteitem}>Delete</button>
+      </div>
     </div>
-  </div>, document.body
+  </>, document.body
 ) : null

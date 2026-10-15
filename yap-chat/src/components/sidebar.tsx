@@ -17,14 +17,18 @@ export const SidebarNav = ({ user, userinfo, triggermessage }: SidebarNavInterfa
 
   return (
     <>
-      <div className={`flex flex-col justify-end w-min h-full sm:h-auto absolute sm:static xl:w-1/6 text-center bg-gray-400 ${hiddenTabIndicator ? '-translate-x-full' : 'translate-x-1/6'} sm:translate-x-0 transition-transform duration-300 ease-in-out z-40`}>
-        <ChatMessenger messengeruser={userinfo} trigger={triggermessage} />
-        <div className="p-6">
-          <LogoutForm />
-          <p>Logged in as {user}</p>
+      <div className={`absolute z-40 flex h-full w-min flex-col justify-end bg-gray-800 text-center text-white shadow-2xl transition-transform duration-300 ease-in-out sm:static sm:h-auto xl:w-72 ${hiddenTabIndicator ? '-translate-x-full' : 'translate-x-1/6'} sm:translate-x-0`}>
+        <div className="hidden border-b border-white/10 px-5 py-4 text-left sm:block">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yap-gold">Messages</p>
+          <p className="mt-1 text-lg font-bold">Your chats</p>
         </div>
-        <div className="sm:hidden flex absolute flex-col justify-center items-center h-full -right-11 z-40">
-          <div className="h-auto bg-blue-500 rounded-tr-md rounded-br-md hover:cursor-pointer" onClick={() => setHiddenTabIndicator(!hiddenTabIndicator)}>
+        <ChatMessenger messengeruser={userinfo} trigger={triggermessage} />
+        <div className="border-t border-white/10 p-5">
+          <LogoutForm />
+          <p className="mt-3 truncate text-xs text-gray-300">Logged in as {user}</p>
+        </div>
+        <div className="absolute -right-11 z-40 flex h-full flex-col items-center justify-center sm:hidden">
+          <div className="h-auto cursor-pointer rounded-br-md rounded-tr-md bg-blue-500 shadow-lg shadow-blue-500/40" onClick={() => setHiddenTabIndicator(!hiddenTabIndicator)}>
             <FontAwesomeIcon icon={hiddenTabIndicator ? faArrowRight : faArrowLeft} size="2xl" className="m-2 text-white" />
           </div>
         </div>

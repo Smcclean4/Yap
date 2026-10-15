@@ -73,16 +73,16 @@ const FindUserPage = () => {
   }, [searchQuery, userResults])
 
   return (
-    <div className="flex flex-row items-center justify-center w-full my-4">
+    <div className="my-6 flex w-full flex-row items-center justify-center">
       <RequestModal 
         isShowing={isShowing} 
         hide={toggle} 
         user={selectedUserName} 
         sendrequest={onRequestSend} 
       />
-      <div className="flex flex-col items-center w-3/5 justify-center">
-        <input onChange={handleSearch} className="p-2 rounded-full border-2 border-blue-500 w-full mr-2" type="text" placeholder="Search for a user" />
-        <div className="w-full bg-white">
+      <div className="flex w-4/5 max-w-2xl flex-col items-center justify-center">
+        <input onChange={handleSearch} className="field-input mr-2 rounded-full border-2 border-blue-500" type="text" placeholder="Search for a user" />
+        <div className="mt-3 w-full overflow-hidden rounded-2xl bg-white/90 shadow-lg">
           {loadingSearch ? (
             <div className="p-2"><LoadingPage /></div>
           ) : searchQuery.length === 0 ? null : (
@@ -93,7 +93,7 @@ const FindUserPage = () => {
               const isRequestSent = requestSent === userName
 
               return (
-                <div key={user.id} className='flex flex-row justify-between items-center text-xl p-2'>
+                <div key={user.id} className='flex flex-row items-center justify-between border-b border-gray-100 p-3 text-xl last:border-b-0'>
                   <p>{String(session?.user.name) === userName ? null : userName}</p>
                   <div>
                     {fetchedUsers && String(session?.user.name) !== userName ? (

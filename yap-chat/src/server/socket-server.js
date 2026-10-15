@@ -7,6 +7,12 @@ const app = express();
 const port = process.env.PORT ?? 3001;
 const server = createServer(app);
 
+const portNumber = Number(port);
+
+server.listen(portNumber, "0.0.0.0", () => {
+  console.log(`server running at http://0.0.0:${portNumber}`);
+});
+
 const io = new Server(server, {
   cors: {
     // Allow your deployed frontend to connect.
@@ -67,7 +73,9 @@ io.on("connection", (socket) => {
   socket.on("dm:new", (payload, event) => {
     const toUserId = payload?.toUserId;
     if (!toUserId) return;
-    emitToUser(toUserId, event, payload);
+    const sidebarEvent = typeof event === "string" && event ? event : "sidebar:update";
+    emitToUser(toUserId, sidebarEvent, payload);
+    emitToUser(toUserId, "chat:message", payload);
   });
 
   // presence identify
@@ -103,10 +111,4 @@ io.on("connection", (socket) => {
       broadcastPresence();
     }
   });
-});
-
-const portNumber = Number(port);
-
-server.listen(portNumber, "0.0.0.0", () => {
-  console.log(`server running at http://0.0.0:${portNumber}`);
 });

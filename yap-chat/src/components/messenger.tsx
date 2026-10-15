@@ -42,15 +42,25 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
   const currentUserId = session?.user.id;
   const currentMessengerName = currentMessengerUser?.name || messengeruser?.name;
+  const currentMessengerFriendId = currentMessengerUser?.friendId || messengeruser?.friendId || undefined;
+
+  const friendKey = {
+    friendName: currentMessengerName || undefined,
+    friendId: currentMessengerFriendId,
+  }
 
   const { data: displayAllMessages, isLoading: loadingMessages } = api.messenger.getChatMessages.useQuery(
-    { friendName: currentMessengerName || '' },
+    friendKey,
     {
-      enabled: Boolean(currentUserId && currentMessengerName && currentMessengerName.trim() !== ''),
+      enabled: Boolean(currentUserId && (currentMessengerFriendId || (currentMessengerName && currentMessengerName.trim() !== ''))),
       retry: 3,
       retryDelay: 1000
     }
   )
+
+  const itemExists = useCallback((name: string | undefined, item: UserInfoInterface[]) => {
+    return item.some((chat) => chat.name === name);
+  }, [])
 
   const { mutate: createMessageThread } = api.messenger.createThread.useMutation({
     onSettled: () => {
@@ -59,25 +69,24 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   })
 
   const { mutate: sendPrivateMessage, isLoading: loadingMessageSend } = api.messenger.postMessage.useMutation({
-    onSettled: () => {
-      void ctx.messenger.getChatMessages.invalidate();
-      if (currentMessengerUser && currentMessengerUser.friendId && currentUserId) {
-        // Emit socket event to notify the recipient to update their sidebar and increment unread count
-        // The server expects: socket.emit("dm:new", payload, eventName)
+    onSuccess: (_data, variables) => {
+      if (currentMessengerUser?.friendId && currentUserId) {
         socket.emit("dm:new", {
-          toUserId: currentMessengerUser.friendId, // Use friendId (actual user ID) not id (friendship ID)
+          toUserId: currentMessengerUser.friendId,
           senderId: currentUserId,
           senderName: session?.user.name || '',
           senderImage: session?.user.image || '',
-          senderHeading: '', // Can be enhanced later to fetch from profile
-          message: userMessage,
+          senderHeading: '',
+          message: variables.chat,
         }, "sidebar:update");
 
-        // Also update sender's sidebar if it's a new chat (keep current functionality)
         if (!itemExists(currentMessengerUser.name, sideBarChats)) {
           addChat(currentMessengerUser);
         }
       }
+    },
+    onSettled: () => {
+      void ctx.messenger.getChatMessages.invalidate();
     }
   })
 
@@ -86,10 +95,6 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       void ctx.messenger.getChatMessages.invalidate();
     }
   })
-
-  const itemExists = useCallback((name: string | undefined, item: UserInfoInterface[]) => {
-    return item.some((chat) => chat.name === name);
-  }, [])
 
   const updateMessenger = useCallback(() => {
     // Only add to chats if we have a messengeruser AND the trigger is true (meaning message was clicked)
@@ -111,7 +116,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     if (trigger && messengeruser && currentUserId && messengeruser.name) {
       setCurrentMessengerUser(messengeruser)
-      createMessageThread({ friendName: messengeruser.name })
+      createMessageThread({ friendName: messengeruser.name, friendId: messengeruser.friendId ?? undefined })
       // Reset unread count and set as active chat when opening a chat
       if (messengeruser.friendId || messengeruser.name) {
         resetUnread(String(messengeruser.friendId ?? ''), messengeruser.name)
@@ -141,7 +146,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       toast.success(`Chat with ${chatName} cleared. (Your view only)`)
     }
     if (currentUserId && currentMessengerName) {
-      deleteThread({ friendName: currentMessengerName })
+      deleteThread({ friendName: currentMessengerName, friendId: currentMessengerFriendId })
     }
     clearConversation()
     setCurrentMessengerUser(null)
@@ -179,14 +184,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
       return
     }
 
-    if (!currentUserId || !currentMessengerName) {
+    if (!currentUserId || (!currentMessengerName && !currentMessengerFriendId)) {
       console.log("missing user or messenger info")
       return
     }
-    // Always send via API; the server will upsert the thread as needed
-    sendPrivateMessage({ chat: userMessage, friendName: currentMessengerName })
-    addMessage(userMessage)
-    // Note: Unread count is incremented on the recipient's side via socket event in ChatContext
+    const text = userMessage.trim()
+    sendPrivateMessage({ chat: text, friendName: currentMessengerName, friendId: currentMessengerFriendId })
+    addMessage(text)
     setUserMessage("")
   }
 
@@ -203,8 +207,8 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
 
     if (sideBarChats.length === 0) {
       return (
-        <div className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 text-center">
-          <p className="text-lg">No active chats</p>
+        <div className="m-3 h-min rounded-xl border border-white/10 bg-gray-900/80 py-5 text-center text-white">
+          <p className="text-lg font-semibold">No active chats</p>
           <p className="text-sm text-gray-400">Go to Friends to start messaging</p>
         </div>
       )
@@ -216,11 +220,13 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
           const liveOnline = isUserOnline(chats.friendId);
           const unreadCount = getUnreadCount(String(chats.friendId ?? ''), chats.name);
           return (
-            <div key={chats.id ?? idx} className="text-white bg-gray-900 w-full py-3 h-min border-2 border-gray-300 cursor-pointer" onClick={() => onMessage(idx)}>
-              <div className="flex flex-row justify-around items-center">
-                <p className="text-xl">{chats?.name}</p>
-                <FontAwesomeIcon className="border-2 border-gray-100 rounded-full" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
-                {unreadCount > 0 && <p className="text-md text-red-500">{unreadCount}</p>}
+            <div key={chats.id ?? idx} className="m-2 h-min cursor-pointer rounded-xl border border-white/10 bg-gray-900/80 px-3 py-3 text-white transition hover:border-blue-400 hover:bg-gray-800" onClick={() => onMessage(idx)}>
+              <div className="flex flex-row items-center justify-between gap-3">
+                <p className="truncate text-lg font-semibold">{chats?.name}</p>
+                <div className="flex items-center gap-2">
+                  <FontAwesomeIcon className="rounded-full border-2 border-gray-100" icon={faCircle} color={liveOnline ? 'limegreen' : 'gray'} size="sm" />
+                  {unreadCount > 0 && <p className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">{unreadCount}</p>}
+                </div>
               </div>
             </div>
           )
@@ -233,7 +239,7 @@ export const ChatMessenger = ({ messengeruser, trigger }: MessengerInterface) =>
   if (!session) return null
 
   return (
-    <div className="flex flex-col flex-grow overflow-scroll no-scrollbar overflow-y-auto">
+    <div className="no-scrollbar flex flex-grow flex-col overflow-y-auto overflow-scroll">
       <Toaster />
       <MessageModal isShowing={isShowing} hide={toggle} storewords={setMessage} loadingmessages={loadingMessageSend} sendmessage={onMessageSend} message={userMessage} messages={displayAllMessages}
         sessionUser={String(currentUserId ?? '')}

@@ -9,9 +9,9 @@ export const LogoutForm = () => {
 
   return (
     <div>
-      <div className="text-white font-extralight">
-        <button className="m-3 rounded-full bg-blue-500 mx-auto px-6 py-2" onClick={handleLogout}>Logout</button>
-        <p className="animate-pulse">Welcome to Yap.</p>
+      <div className="font-extralight text-white">
+        <button className="btn-primary mx-auto m-3" onClick={handleLogout}>Logout</button>
+        <p className="animate-pulse text-yap-gold">Welcome to Yap.</p>
       </div>
     </div>
   )

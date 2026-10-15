@@ -5,7 +5,24 @@ export default withUt({
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Plus Jakarta Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      colors: {
+        yap: {
+          blue: "#3b82f6",
+          gold: "#ffae42",
+        },
+      },
       keyframes: {
+        rise: {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        glow: {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(255, 174, 66, 0.35)" },
+          "50%": { boxShadow: "0 0 24px 2px rgba(59, 130, 246, 0.28)" },
+        },
         // top line: rotate down into X
         rotateUp: {
           "0%": { transform: "translateY(0) rotate(0deg)" },
@@ -65,6 +82,8 @@ export default withUt({
         extension2: "extension2 0.45s ease-out forwards",
         extension3: "extension3 0.55s ease-out forwards",
         extension4: "extension4 0.65s ease-out forwards",
+        rise: "rise 0.5s ease-out both",
+        glow: "glow 3.2s ease-in-out infinite",
       },
     },
   },

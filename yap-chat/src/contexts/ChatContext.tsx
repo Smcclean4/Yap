@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { UserInfoInterface } from '~/pages/friends';
 import { useSession } from 'next-auth/react';
 import { socket } from '~/pages/api/socket-client';
+import { api } from '~/utils/api';
 
 function parseSideBarChats(raw: string): UserInfoInterface[] {
   try {
@@ -65,6 +66,7 @@ interface ChatProviderProps {
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const { data: session } = useSession();
+  const ctx = api.useContext();
 
   // Initialize state from localStorage immediately
   const getInitialSideBarChats = (): UserInfoInterface[] => {
@@ -92,6 +94,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
   const [unreadCounts, setUnreadCounts] = useState<Map<string, number>>(new Map());
   const [activeChatKey, setActiveChatKey] = useState<string | null>(null);
+  const activeChatKeyRef = useRef<string | null>(null);
+  activeChatKeyRef.current = activeChatKey;
 
   // Initialize unread counts from localStorage
   useEffect(() => {
@@ -128,8 +132,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const userId = session?.user?.id;
     if (!userId) return;
 
+    const joinPresence = () => {
+      socket.emit("presence:join", { userId });
+    };
+
     socket.connect();
-    socket.emit("presence:join", { userId });
+    joinPresence();
+    socket.on("connect", joinPresence);
 
     const onPresenceState = (payload: { onlineUserIds?: string[] }) => {
       setOnlineUserIds(Array.isArray(payload?.onlineUserIds) ? payload.onlineUserIds : []);
@@ -137,8 +146,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     socket.on("presence:state", onPresenceState);
 
-    // Listen for sidebar updates when receiving a new message
-    const onSidebarUpdate = (payload: { 
+    const onIncomingMessage = (payload: { 
       toUserId: string; 
       senderId: string; 
       senderName: string; 
@@ -146,21 +154,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       senderHeading: string; 
       message: string; 
     }) => {
-      console.log("sidebar:update received", payload);
-      
-      // Only update if this message is for the current user (they are the recipient)
       if (payload.toUserId === userId && payload.senderId !== userId) {
-        // Create the chat user object for the sender (who sent the message)
         const chatUser: UserInfoInterface = {
-          id: payload.senderId, // This will be used for matching, but friendId is what we need
-          friendId: payload.senderId, // The actual user ID of the sender
+          id: payload.senderId,
+          friendId: payload.senderId,
           name: payload.senderName,
           image: payload.senderImage || '',
           heading: payload.senderHeading || '',
-          online: false, // Will be updated by presence system
+          online: false,
         };
 
-        // Add to sidebar if it doesn't already exist
         setSideBarChats(prev => {
           const exists = prev.some(existingChat => 
             existingChat.friendId === chatUser.friendId || existingChat.id === chatUser.friendId
@@ -171,27 +174,29 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           return prev;
         });
 
-        // Increment unread count for this sender only if the chat is not currently open
         const senderKey = payload.senderId || payload.senderName;
-        if (activeChatKey !== senderKey) {
+        if (activeChatKeyRef.current !== senderKey) {
           setUnreadCounts(prev => {
             const newMap = new Map(prev);
             newMap.set(senderKey, (newMap.get(senderKey) || 0) + 1);
             return newMap;
           });
         }
+
+        void ctx.messenger.getChatMessages.invalidate();
       }
     };
 
-    socket.on("sidebar:update", onSidebarUpdate);
+    socket.on("sidebar:update", onIncomingMessage);
+    socket.on("chat:message", onIncomingMessage);
 
     return () => {
+      socket.off("connect", joinPresence);
       socket.off("presence:state", onPresenceState);
-      socket.off("sidebar:update", onSidebarUpdate);
-      // Intentionally keep the connection alive across route changes.
-      // The disconnect will happen on full page unload.
+      socket.off("sidebar:update", onIncomingMessage);
+      socket.off("chat:message", onIncomingMessage);
     };
-  }, [session?.user?.id, activeChatKey]);
+  }, [session?.user?.id, ctx]);
 
   const onlineSet = useMemo(() => new Set(onlineUserIds), [onlineUserIds]);
   const isUserOnline = (userId?: string | null) => {
